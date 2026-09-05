@@ -119,7 +119,7 @@ def normality_tests(series, alpha):
     else:
         # Con n grande, Shapiro-Wilk pierde utilidad práctica; usar K-S contra
         # una normal ajustada a media/desv. de la muestra (aprox. Lilliefors).
-        stat, p = stats.kstest(s, "norm", args=(s.mean(), s.std(ddof=1)))
+        stat, p = stats.kstest(s, stats.norm(loc=s.mean(), scale=s.std(ddof=1)).cdf)
         result["ks_lilliefors_p"] = p
 
     if len(s) >= 8:
