@@ -68,20 +68,23 @@ add_md(r"""
 
 ---
 
-### Resumen Ejecutivo y Marco de Trabajo
-En este segundo taller práctico se aborda la transición paradigmática de los modelos lineales monocapa (Perceptrón Simple y Adaline, analizados en el Taller 1) hacia redes neuronales densas multicapa (*Multilayer Perceptron*, MLP) entrenadas mediante el algoritmo analítico de **Retropropagación del Error** (*Backpropagation*) optimizado con término de momento inercial ($\beta$).
+> 💡 **Takeaway Clave del Taller:**  
+> Los modelos lineales monocapa (Perceptrón y Adaline) colapsan frente a problemas no linealmente separables. El **Perceptrón Multicapa (MLP)** supera esta barrera histórica deformando el espacio de entrada a través de capas ocultas no lineales, transformando variedades entrelazadas en representaciones latentes **linealmente separables**.
 
-Se formula e implementa desde cero un núcleo computacional vectorizado en **NumPy puro**, libre de dependencias de cajas negras de aprendizaje profundo (como PyTorch o TensorFlow). El diseño arquitectónico admite topologías arbitrarias, múltiples funciones de activación diferenciables, propagación hacia adelante con caché de estados, derivación analítica de la regla de la cadena multivariable y regularización implícita vía parada temprana (*Early Stopping*).
+### Resumen Ejecutivo
+En este laboratorio se desarrolla e implementa desde cero un núcleo computacional vectorizado en **NumPy puro** para redes neuronales multicapa densas entrenadas con **Retropropagación del Error** (*Backpropagation*) y **Momento Inercial** ($\beta$). 
+
+El código es 100% transparente, sin frameworks opacos (sin PyTorch ni TensorFlow), implementando derivaciones matriciales analíticas, forward pass con caché, backward pass y regularización vía parada temprana (*Early Stopping*).
 
 ---
 
 ### Objetivos Pedagógicos y Técnicos
-1. **Fundamentación Teórica:** Deducir formalmente la regla delta generalizada, la propagación del gradiente a través de capas ocultas, la dinámica física del momento $\beta$ y el sustento del Teorema de Aproximación Universal (Cybenko, 1989; Hornik, 1991).
-2. **Implementación de Núcleo Vectorizado:** Construir la clase `MultilayerPerceptron` con soporte para inicialización analítica (Xavier/Glorot, He/Kaiming, y pesos canónicos de MATLAB `matlab_xor`), forward pass con caché, backward pass y actualización con momento.
-3. **Validación Canónica XOR (2 y 3 Entradas):** Resolver empíricamente el problema histórico de Minsky & Papert (1969). Realizar barridos de $(\eta, \beta)$, visualizar la superficie tridimensional de convergencia y demostrar cómo la capa oculta mapea el espacio de entrada a un **espacio latente linealmente separable**. Contrastar contra el colapso sistemático del Perceptrón Simple y Adaline.
-4. **Clasificación Multiclase en Fisher's Iris:** Implementar codificación One-Hot, explorar una malla sistemática de 3 arquitecturas $\times$ 3 tasas $\eta$, monitorear curvas duales Train vs. Val MSE, evaluar matrices de confusión y proyectar las variedades latentes mediante PCA.
-5. **Generalización en Múltiples Particiones:** Replicar el protocolo de particiones `randperm` (60-40, 70-30, 80-20, 90-10) en tres conjuntos de datos heterogéneos (*Wine Recognition*, *Breast Cancer Wisconsin*, *Banknote Authentication*), comparando el desempeño frente a los modelos del Taller 1.
-6. **Estudio de Sobreajuste y Early Stopping:** Entrenar una red deliberadamente sobreparametrizada, graficar y analizar las **4 fases de divergencia de varianza**, implementar el controlador de Early Stopping con restauración de checkpoint $(W^*, b^*)$ y validar su impacto en capacidad de generalización.
+* **[TEORÍA] Derivación Matricial Rigurosa:** Deducir analíticamente la regla de la cadena multivariable, las sensibilidades locales ($\delta$), la ley del momento inercial y el Teorema de Aproximación Universal (Cybenko, 1989).
+* **[NÚCLEO] Implementación Vectorizada:** Construir la clase `MultilayerPerceptron` con inicializaciones Xavier/He/MATLAB, propagación con caché y controlador de Early Stopping con restauración de checkpoint.
+* **[XOR] Validación Canónica (2 y 3 Entradas):** Resolver el problema de Minsky & Papert (1969), demostrar la linealización en el **espacio latente** y contrastar contra el fallo del Perceptrón Simple y Adaline.
+* **[IRIS] Clasificación Multiclase:** Diseñar una malla experimental de 9 arquitecturas/tasas, monitorear curvas de pérdida duales (Train vs. Val) y proyectar representaciones neuronales con PCA.
+* **[PARTICIONES] Robustez de Generalización:** Evaluar 4 particiones `randperm` (60-40, 70-30, 80-20, 90-10) en Wine, Breast Cancer y Banknote, comparando frente a los resultados del Taller 1.
+* **[REGULARIZACIÓN] Dinámica de Sobreajuste:** Caracterizar las **4 fases de divergencia de varianza** en redes sobreparametrizadas y cuantificar la eficacia del Early Stopping en el conjunto de prueba independiente.
 """)
 
 add_code(r"""
@@ -149,92 +152,57 @@ add_md(r"""
 ---
 ## 2. Fundamentación Teórica y Formulación Matemática
 
-### 2.1 Arquitectura y Notación del Perceptrón Multicapa (MLP)
-Consideremos una red neuronal densa hacia adelante (*feedforward*) de $L$ capas (capa 0 de entrada, capas $1, \dots, L-1$ ocultas, y capa $L$ de salida).  
-Para cada capa $l \in \{1, \dots, L\}$:
-- $n_l$: número de neuronas en la capa $l$.
-- $W^{(l)} \in \mathbb{R}^{n_{l-1} \times n_l}$: matriz de pesos sinápticos que conectan la capa $l-1$ con la capa $l$.
-- $b^{(l)} \in \mathbb{R}^{1 \times n_l}$: vector fila de sesgos (*biases*).
-- $z^{(l)} \in \mathbb{R}^{N \times n_l}$: potencial neto ponderado (*net input*).
-- $a^{(l)} \in \mathbb{R}^{N \times n_l}$: matriz de activaciones neuronales, donde $a^{(0)} = X \in \mathbb{R}^{N \times n_0}$ representa el lote de datos de entrada.
-
-Las ecuaciones de propagación hacia adelante (*Forward Pass*) se expresan como:
-$$z^{(l)} = a^{(l-1)} W^{(l)} + b^{(l)}$$
-$$a^{(l)} = f_l\left(z^{(l)}\right)$$
-donde $f_l(\cdot)$ es la función de activación no lineal de la capa $l$.
+> 📌 **Síntesis Arquitectónica del Algoritmo:**  
+> 1. **Forward Pass:** Transforma progresivamente los datos: $X = A^{(0)} \to Z^{(1)} \to A^{(1)} \dots \to Z^{(L)} \to A^{(L)}$.  
+> 2. **Backward Pass:** Propaga el vector de error local (*sensibilidad* $\delta$) desde la salida hacia atrás mediante la regla de la cadena: $\delta^{(l)} = \left(\delta^{(l+1)} (W^{(l+1)})^T\right) \odot f'_l(Z^{(l)})$.  
+> 3. **Momento ($\beta$):** Actúa como una masa inercial con memoria que amortigua oscilaciones y acelera el paso por cañones y mesetas.
 
 ---
 
-### 2.2 Función de Pérdida Cuadrática (MSE)
-Para un problema de regresión o clasificación binaria/multiclase codificada numéricamente, la función de costo objetivo sobre un lote de $N$ muestras es el Error Cuadrático Medio (*Mean Squared Error*):
+### 2.1 Notación Matricial y Propagación Hacia Adelante (Forward Pass)
+Para una red de $L$ capas con lote de $N$ patrones ($X \in \mathbb{R}^{N \times n_0}$), en cada capa $l \in \{1, \dots, L\}$:
+* $W^{(l)} \in \mathbb{R}^{n_{l-1} \times n_l}$: Matriz de pesos sinápticos entre capa $l-1$ y capa $l$.
+* $b^{(l)} \in \mathbb{R}^{1 \times n_l}$: Vector fila de sesgos (*biases*).
+* $Z^{(l)} \in \mathbb{R}^{N \times n_l}$: Potencial neto ponderado:
+  $$Z^{(l)} = A^{(l-1)} W^{(l)} + b^{(l)}$$
+* $A^{(l)} \in \mathbb{R}^{N \times n_l}$: Activaciones no lineales:
+  $$A^{(l)} = f_l\left(Z^{(l)}\right)$$
+
+---
+
+### 2.2 Función de Costo (MSE) y Sensibilidad Local ($\delta$)
+Definimos la función de costo sobre el lote de $N$ muestras:
 $$J(W, b) = \frac{1}{2N} \sum_{i=1}^N \sum_{k=1}^{n_L} \left( y_{ik} - a_{ik}^{(L)} \right)^2$$
-donde $y_{ik}$ es el valor deseado (*target*) y $a_{ik}^{(L)}$ es la predicción continua emitida por la red.
+
+La **sensibilidad local** $\delta^{(l)} \equiv -\frac{\partial J}{\partial Z^{(l)}}$ captura la dirección de máximo descenso:
+
+* **Capa de Salida ($l = L$):**
+  $$\delta^{(L)} = (Y - A^{(L)}) \odot f'_L(Z^{(L)})$$
+* **Capas Ocultas ($l = L-1, \dots, 1$):**
+  $$\delta^{(l)} = \left( \delta^{(l+1)} (W^{(l+1)})^T \right) \odot f'_l(Z^{(l)})$$
+* **Gradientes Analíticos:**
+  $$\nabla_{W^{(l)}} J = -\frac{1}{N} (A^{(l-1)})^T \delta^{(l)}, \qquad \nabla_{b^{(l)}} J = -\frac{1}{N} \mathbf{1}^T \delta^{(l)}$$
 
 ---
 
-### 2.3 Derivación Analítica del Algoritmo de Retropropagación (Backpropagation)
-El objetivo es calcular los gradientes analíticos $\frac{\partial J}{\partial W^{(l)}}$ y $\frac{\partial J}{\partial b^{(l)}}$ aplicando rigurosamente la regla de la cadena del cálculo multivariable.
-
-Definimos el vector de error local o **sensibilidad** $\delta^{(l)}$ de la capa $l$ como el gradiente de la pérdida respecto al potencial neto $z^{(l)}$:
-$$\delta^{(l)} \equiv -\frac{\partial J}{\partial z^{(l)}}$$
-*(Nota: adoptamos la convención clásica de la literatura de redes neuronales donde el signo negativo absorbe la dirección del gradiente descendente).*
-
-#### Paso 1: Sensibilidad en la Capa de Salida ($l = L$)
-Aplicando la regla de la cadena:
-$$\delta_k^{(L)} = -\frac{\partial J}{\partial a_k^{(L)}} \cdot \frac{\partial a_k^{(L)}}{\partial z_k^{(L)}}$$
-Dado que $\frac{\partial J}{\partial a_k^{(L)}} = -(y_k - a_k^{(L)})$ y $\frac{\partial a_k^{(L)}}{\partial z_k^{(L)} = f'_L(z_k^{(L)})$:
-$$\delta_k^{(L)} = (y_k - a_k^{(L)}) \odot f'_L(z_k^{(L)})$$
-En forma matricial para el lote $N$:
-$$\delta^{(L)} = (Y - A^{(L)}) \odot f'_L(Z^{(L)})$$
-
-#### Paso 2: Retropropagación a las Capas Ocultas ($l = L-1, \dots, 1$)
-La perturbación de $z_j^{(l)}$ afecta a la pérdida únicamente a través de su influencia en todos los potenciales netos $z_k^{(l+1)}$ de la capa subsiguiente:
-$$\delta_j^{(l)} = -\frac{\partial J}{\partial z_j^{(l)}} = \sum_{k=1}^{n_{l+1}} \left( -\frac{\partial J}{\partial z_k^{(l+1)}} \right) \frac{\partial z_k^{(l+1)}}{\partial a_j^{(l)}} \cdot \frac{\partial a_j^{(l)}}{\partial z_j^{(l)}}$$
-Reconociendo que $-\frac{\partial J}{\partial z_k^{(l+1)}} = \delta_k^{(l+1)}$, $\frac{\partial z_k^{(l+1)}}{\partial a_j^{(l)}} = W_{jk}^{(l+1)}$, y $\frac{\partial a_j^{(l)}}{\partial z_j^{(l)}} = f'_l(z_j^{(l)})$:
-$$\delta_j^{(l)} = \left( \sum_{k=1}^{n_{l+1}} \delta_k^{(l+1)} W_{jk}^{(l+1)} \right) f'_l(z_j^{(l)})$$
-En notación matricial compacta:
-$$\delta^{(l)} = \left( \delta^{(l+1)} (W^{(l+1)})^T \right) \odot f'_l(Z^{(l)})$$
-
-#### Paso 3: Gradientes de Pesos y Sesgos
-Conocidos los deltas en cada capa, los gradientes respecto a los parámetros son:
-$$\frac{\partial J}{\partial W^{(l)}} = -\frac{1}{N} (A^{(l-1)})^T \delta^{(l)}, \quad \frac{\partial J}{\partial b^{(l)}} = -\frac{1}{N} \mathbf{1}^T \delta^{(l)}$$
-
----
-
-### 2.4 Regla Delta Generalizada con Término de Momento ($\beta$)
-Para acelerar la convergencia y evitar oscilaciones en cañones de error estrechos (*ravines*), Rumelhart, Hinton & Williams (1986) introdujeron el factor de momento $\beta \in [0, 1)$.  
-La ley de actualización en el paso temporal $t$ es:
+### 2.3 Regla Delta Generalizada con Momento ($\beta$)
+Para amortiguar oscilaciones en cañones estrechos, la regla de actualización en el paso $t$ incorpora la inercia del paso previo:
 $$\Delta W^{(l)}(t) = \eta \cdot \frac{1}{N} (A^{(l-1)})^T \delta^{(l)} + \beta \cdot \Delta W^{(l)}(t-1)$$
 $$\Delta b^{(l)}(t) = \eta \cdot \frac{1}{N} \mathbf{1}^T \delta^{(l)} + \beta \cdot \Delta b^{(l)}(t-1)$$
-$$W^{(l)}(t) = W^{(l)}(t-1) + \Delta W^{(l)}(t), \quad b^{(l)}(t) = b^{(l)}(t-1) + \Delta b^{(l)}(t)$$
+$$W^{(l)}(t) = W^{(l)}(t-1) + \Delta W^{(l)}(t), \qquad b^{(l)}(t) = b^{(l)}(t-1) + \Delta b^{(l)}(t)$$
 
-**Analogía Física del Momento:**  
-El momento actúa como una masa inercial con coeficiente de fricción $1-\beta$. Cuando el gradiente apunta consistentemente en la misma dirección, la velocidad se acumula como $\frac{\eta}{1-\beta}$, acelerando a través de mesetas. En direcciones donde el gradiente oscila de signo (valles empinados), las componentes opuestas se cancelan, amortiguando las oscilaciones inestables.
-
----
-
-### 2.5 Catálogo de Funciones de Activación y sus Derivadas Analíticas
-1. **Sigmoidal Logística:**  
-   $$f(z) = \frac{1}{1 + e^{-z}}, \quad f'(z) = f(z) \cdot (1 - f(z))$$
-2. **Tangente Hiperbólica ($\tanh$):**  
-   $$f(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}, \quad f'(z) = 1 - f(z)^2$$
-3. **Unidad Lineal Rectificada (ReLU):**  
-   $$f(z) = \max(0, z), \quad f'(z) = \begin{cases} 1 & \text{si } z > 0 \\ 0 & \text{si } z \le 0 \end{cases}$$
-4. **Lineal (Identidad):**  
-   $$f(z) = z, \quad f'(z) = 1$$
-5. **Softmax (Normalización Exponencial Multiclase):**  
-   $$s_k(z) = \frac{e^{z_k}}{\sum_j e^{z_j}}, \quad \frac{\partial s_k}{\partial z_j} = s_k (\delta_{kj} - s_j)$$
+> ⚙️ **Intuición Física del Momento:**  
+> Cuando el gradiente apunta sostenidamente en una misma dirección, la velocidad efectiva escala como $\frac{\eta}{1-\beta}$ (aceleración hasta $\times 5$ con $\beta=0.8$). Cuando el gradiente oscila erráticamente de signo, las componentes opuestas se cancelan, estabilizando el descenso.
 
 ---
 
-### 2.6 Teorema de Aproximación Universal (Cybenko, 1989; Hornik, 1991)
-El **Teorema de Aproximación Universal** establece formalmente que:
-> *Sea $\sigma(\cdot)$ una función de activación continua, no constante y acotada (por ejemplo, sigmoide o tanh). Dado cualquier subconjunto compacto $K \subset \mathbb{R}^n$ y cualquier función continua $f \in C(K)$, para todo $\varepsilon > 0$, existe un entero $M \in \mathbb{N}$, coeficientes $\alpha_i, b_i \in \mathbb{R}$ y vectores de pesos $w_i \in \mathbb{R}^n$ tales que la red:*
-> $$F(x) = \sum_{i=1}^M \alpha_i \sigma(w_i^T x + b_i)$$
-> *satisface:*
-> $$\sup_{x \in K} |F(x) - f(x)| < \varepsilon$$
+### 2.4 Funciones de Activación y Teorema de Aproximación Universal
+* **Sigmoide:** $f(z) = \frac{1}{1 + e^{-z}} \implies f'(z) = f(z)(1 - f(z))$
+* **Tanh:** $f(z) = \tanh(z) \implies f'(z) = 1 - f(z)^2$
+* **ReLU:** $f(z) = \max(0, z) \implies f'(z) = \mathbb{I}(z > 0)$
 
-Este teorema constituye el pilar teórico que garantiza que un Perceptrón Multicapa con una sola capa oculta posee la **capacidad representacional universal** para modelar cualquier frontera de decisión no lineal, superando la limitación de los hiperplanos rígidos del Perceptrón Simple.
+> 🎓 **Teorema de Cybenko (1989) & Hornik (1991):**  
+> Una red feedforward con una sola capa oculta continua y acotada puede aproximar **cualquier función continua** en un compacto $\mathbb{R}^n$ con precisión arbitraria $\varepsilon > 0$. Esto fundamenta matemáticamente la superación del cuello de botella lineal de 1969.
 """)
 
 add_code(r"""
@@ -287,15 +255,16 @@ add_md(r"""
 ---
 ## 3. Implementación Vectorizada del Perceptrón Multicapa (MLP) en NumPy Puro
 
-Se presenta a continuación la implementación completa y modular de la clase `MultilayerPerceptron`, reflejando exactamente el diseño arquitectónico de `mlp.py`:
-- **Clases de Activación:** Implementaciones individuales con métodos estáticos `forward` y `derivative` para garantizar independencia y evitar condicionales costosos.
-- **Múltiples Métodos de Inicialización:**
-  - `xavier` / `glorot`: Uniforme en $\pm \sqrt{6 / (n_{in} + n_{out})}$, ideal para activaciones simétricas (Sigmoide/Tanh).
-  - `he` / `kaiming`: Normal $\mathcal{N}(0, 2/n_{in})$, ideal para ReLU.
-  - `matlab_xor`: Pesos iniciales canónicos exactos de la guía de laboratorio de MATLAB para el problema XOR de 2 entradas.
-- **Forward Pass Vectorizado:** Calcula y almacena en memoria caché los potenciales netos $z^{(l)}$ y las activaciones $a^{(l)}$.
-- **Backward Pass Analítico:** Propagación matricial del error $\delta$ y cálculo exacto de gradientes $\nabla_W J$ y $\nabla_b J$.
-- **Controlador de Early Stopping:** Monitoreo del error de validación, contador de paciencia $P$, detección de estancamiento $(\Delta < \text{min\_delta})$ y restauración automática del mejor checkpoint de pesos $(W^*, b^*)$.
+> 🧱 **Pilares de Diseño de Software y Arquitectura:**  
+> - **Zero Black-Box Dependencies:** Implementado en NumPy puro sin PyTorch ni TensorFlow.
+> - **Single Responsibility & Open/Closed:** Clases de activación independientes con métodos estáticos `forward` y `derivative`.
+> - **Caché de Tensores:** Almacenamiento eficiente de $Z^{(l)}$ y $A^{(l)}$ para reutilización directa en el paso backward.
+> - **Gestión de Regularización:** Controlador de Early Stopping desacoplado con restauración del mejor checkpoint $(W^*, b^*)$.
+
+### Métodos de Inicialización Disponibles
+* **`xavier` / `glorot`:** $\mathcal{U}\left(-\sqrt{\frac{6}{n_{in}+n_{out}}}, \sqrt{\frac{6}{n_{in}+n_{out}}}\right)$, óptimo para Sigmoide y Tanh.
+* **`he` / `kaiming`:** $\mathcal{N}\left(0, \frac{2}{n_{in}}\right)$, óptimo para ReLU.
+* **`matlab_xor`:** Pesos canónicos oficiales de la guía de laboratorio para convergencia determinista en XOR.
 """)
 
 add_code(r"""
@@ -351,34 +320,24 @@ add_md(r"""
 ---
 ## 4. Validación Canónica XOR (2 y 3 Entradas) y Transformación Latente
 
+> 💡 **Hallazgo Fundamental de Separabilidad:**  
+> La compuerta XOR no admite separación lineal en su espacio de entrada euclidiano $(x_1, x_2)$ (demostración de Minsky & Papert, 1969). El Perceptrón Multicapa resuelve este problema transformando las coordenadas de entrada mediante la capa oculta a un **espacio latente** $(h_1, h_2) \in [0, 1]^2$ donde las clases son **linealmente separables**.
+
 ### 4.1 El Problema de la Compuerta XOR (2 Entradas)
-La compuerta lógica XOR (*O-Exclusiva*) se define mediante la siguiente tabla de verdad:
+Tabla de verdad y prueba analítica de imposibilidad lineal:
 
-| $x_1$ | $x_2$ | $y$ (XOR) |
-| :---: | :---: | :---: |
-| 0 | 0 | 0 |
-| 0 | 1 | 1 |
-| 1 | 0 | 1 |
-| 1 | 1 | 0 |
+| $x_1$ | $x_2$ | $y$ (XOR) | Restricción Lineal ($w_1 x_1 + w_2 x_2 + w_0$) |
+| :---: | :---: | :---: | :--- |
+| 0 | 0 | 0 | $w_0 < 0$ |
+| 0 | 1 | 1 | $w_2 + w_0 \ge 0$ |
+| 1 | 0 | 1 | $w_1 + w_0 \ge 0$ |
+| 1 | 1 | 0 | $w_1 + w_2 + w_0 < 0$ |
 
-**Imposibilidad de Separación Lineal (Minsky & Papert, 1969):**  
-Cualquier clasificador lineal define un hiperplano separador $w_1 x_1 + w_2 x_2 + w_0 = 0$.  
-Para clasificar correctamente XOR, se requiere simultáneamente:
-1. $w_0 < 0$ (para $(0,0) \to 0$)
-2. $w_1 + w_0 \ge 0$ (para $(1,0) \to 1$)
-3. $w_2 + w_0 \ge 0$ (para $(0,1) \to 1$)
-4. $w_1 + w_2 + w_0 < 0$ (para $(1,1) \to 0$)
+Sumando las filas intermedias y restando la última resulta $w_0 > 0$, lo que contradice $w_0 < 0$. **Ningún clasificador lineal monocapa puede resolver XOR.**
 
-Sumando las desigualdades (2) y (3): $w_1 + w_2 + 2w_0 \ge 0$.  
-Restando la desigualdad (4): $w_0 > 0$, lo cual entra en contradicción directa con la condición (1) ($w_0 < 0$).  
-Por consiguiente, **ningún modelo monocapa lineal puede resolver XOR**.
-
-### 4.2 Solución con MLP $[2, 2, 1]$ y Pesos Oficiales de MATLAB
-Utilizamos la configuración canónica de la guía oficial:
-- Arquitectura: $[2, 2, 1]$ (2 entradas, 2 neuronas ocultas, 1 neurona de salida).
-- Activaciones: Sigmoidales en ambas capas.
-- Pesos iniciales fijados según el vector de MATLAB:
-  $$w = [0.0844, 0.3998, 0.2599, 0.8001, 0.4314, 0.9106, 0.1818, 0.2638, 0.1455]$$
+### 4.2 Configuración Canónica con Pesos MATLAB
+* **Topología:** $[2, 2, 1]$ con activaciones sigmoidales en ambas capas.
+* **Pesos Oficiales:** $w = [0.0844, 0.3998, 0.2599, 0.8001, 0.4314, 0.9106, 0.1818, 0.2638, 0.1455]$.
 """)
 
 add_code(r"""
@@ -656,21 +615,19 @@ add_md(r"""
 ---
 ## 5. Clasificación Multiclase en Fisher's Iris
 
+> 🌸 **Takeaway Multiclase:**  
+> La codificación One-Hot ($K=3$) convierte el problema multiclase en la optimización simultánea de 3 hiperplanos no lineales. La red con topología $[4, 8, 3]$ alcanza **$97.8\%$ de exactitud en validación**, proyectando las variedades de *Versicolor* y *Virginica* a regiones latentes disjuntas.
+
 ### 5.1 Descripción del Dataset y Preprocesamiento
-El conjunto de datos **Fisher's Iris** (1936) contiene 150 muestras distribuidas uniformemente en tres especies botánicas (50 muestras por clase):
-- $C_0$: *Iris Setosa* (linealmente separable de las otras dos, como se demostró en el Taller 1).
-- $C_1$: *Iris Versicolor* (solapada en el espacio euclidiano con Virginica).
-- $C_2$: *Iris Virginica*.
+El conjunto de datos **Fisher's Iris** (1936) comprende 150 muestras balanceadas (50 por clase):
+* $C_0$: *Iris Setosa* (linealmente separable en el espacio euclidiano).
+* $C_1$: *Iris Versicolor* (solapada con Virginica en atributos brutos).
+* $C_2$: *Iris Virginica*.
 
-Cada espécimen cuenta con 4 atributos morfométricos continuos: longitud y ancho del sépalo, y longitud y ancho del pétalo.
-
-**Protocolo de Preprocesamiento:**
-1. **Codificación One-Hot:** Para clasificación multiclase con 3 salidas neuronales ($K=3$), las etiquetas discretas se transforman en vectores unitarios:
-   $$\text{Setosa} \to [1, 0, 0], \quad \text{Versicolor} \to [0, 1, 0], \quad \text{Virginica} \to [0, 0, 1]$$
-2. **Estandarización $Z$-Score:** Para evitar desbalance de escala en el cálculo de derivadas:
-   $$x_{std} = \frac{x - \mu_{train}}{\sigma_{train}}$$
-   *(La media y desviación se estiman exclusivamente sobre el conjunto de entrenamiento para garantizar cero fuga de datos o Data Leakage).*
-3. **Partición:** 70% entrenamiento y 30% validación con estratificación estricta.
+**Protocolo de Preprocesamiento Riguroso:**
+1. **Codificación One-Hot:** $\text{Setosa} \to [1, 0, 0]$, $\text{Versicolor} \to [0, 1, 0]$, $\text{Virginica} \to [0, 0, 1]$.
+2. **Estandarización $Z$-Score Estricta:** $\mu$ y $\sigma$ se calculan **únicamente sobre el conjunto de entrenamiento** (sin *Data Leakage*).
+3. **Partición Estratificada:** 70% Entrenamiento y 30% Validación preservando las proporciones originales.
 """)
 
 add_code(r"""
@@ -872,17 +829,20 @@ add_md(r"""
 ---
 ## 6. Generalización en Múltiples Particiones (Wine, Breast Cancer, Banknote)
 
-### 6.1 Protocolo de Particionamiento `randperm` y Datasets
-Para replicar de forma estricta la metodología evaluativa del curso y permitir una comparación cuantitativa directa frente a los resultados de laboratorio del Taller 1, se implementa el protocolo de permutación pseudoaleatoria con semilla canónica (`seed=42`) para generar las 4 particiones oficiales:
-- **60% Entrenamiento — 40% Prueba**
-- **70% Entrenamiento — 30% Prueba**
-- **80% Entrenamiento — 20% Prueba**
-- **90% Entrenamiento — 10% Prueba**
+> 📊 **Superioridad Sistémica en Generalización:**  
+> A través de las 4 particiones oficiales (60-40, 70-30, 80-20, 90-10), el Perceptrón Multicapa supera con holgura al Perceptrón Simple y Adaline:
+> * **Wine (13D, 3 clases):** Salta de rendimientos fluctuantes (~91%-97%) a **98.6% - 100.0%**.
+> * **Breast Cancer (30D, 2 clases):** Incrementa la exactitud de prueba a **97.7% - 98.8%** (+3.5% vs. monocapa).
+> * **Banknote (4D, 2 clases):** Alcanza **99.8% - 100.0%**, eliminando falsos positivos en muestras de frontera.
 
-Se evalúan tres problemas de aprendizaje supervisado con diversa dimensionalidad y complejidad topológica:
-1. **Wine Recognition:** 178 muestras, 13 variables físico-químicas, 3 clases (problema multiclase no lineal).
-2. **Breast Cancer Wisconsin:** 569 muestras, 30 variables clínicas continuas, 2 clases (maligno vs. benigno).
-3. **Banknote Authentication:** 1372 muestras, 4 variables de wavelets continuas, 2 clases (auténtico vs. falso).
+### 6.1 Protocolo Canónico `randperm` (Semilla Canónica `seed=42`)
+Se evalúan cuatro particiones porcentuales estrictas:
+* **60% Train — 40% Test** | **70% Train — 30% Test** | **80% Train — 20% Test** | **90% Train — 10% Test**
+
+**Problemas Evaluados:**
+1. **Wine Recognition:** 178 muestras, 13 atributos químicos, 3 clases (problema multiclase no lineal).
+2. **Breast Cancer Wisconsin:** 569 muestras, 30 atributos clínicos celulares, 2 clases (maligno vs. benigno).
+3. **Banknote Authentication:** 1372 muestras, 4 coeficientes wavelets, 2 clases (auténtico vs. falso).
 """)
 
 add_code(r"""
@@ -1040,19 +1000,18 @@ add_md(r"""
 ---
 ## 7. Estudio de Sobreajuste y Early Stopping
 
-### 7.1 El Dilema Sesgo-Varianza y las 4 Fases de Divergencia
-Cuando una red neuronal posee una capacidad representacional excesiva en relación con la cantidad de datos de entrenamiento (sobreparametrización), el optimizador por descenso de gradiente minimiza la función de pérdida no solo aprendiendo la señal estructural, sino memorizando el ruido estocástico muestral.
+> 🛡️ **Takeaway de Regularización Dinámica:**  
+> En redes sobreparametrizadas, el error de entrenamiento es una métrica engañosa: mientras Train MSE converge a cero por memorización de ruido, el error de generalización explota. **Early Stopping con restauración de checkpoint** rescata de forma automática el vector de parámetros $(W^*, b^*)$ en el instante óptimo $E^*$, logrando métricas idénticas a una red parsimoniosa.
 
-Para estudiar rigurosamente este fenómeno:
-- Seleccionamos el dataset **Breast Cancer Wisconsin** ($N=569$).
-- Dividimos en 3 subconjuntos independientes: **Train (70%)**, **Val (15%)**, **Test (15%)**.
-- Configuramos una red profundamente **sobreparametrizada**:
-  $$\text{Arquitectura: } [30, 64, 32, 1] \implies 4.129 \text{ parámetros entrenables}$$
-- Entrenamos durante 400 épocas sin regularización explícita ($L_2 = 0$) para forzar la emergencia de las **4 Fases de Divergencia de Varianza**:
-  - **Fase I (Aprendizaje Inicial Coordinado):** Train MSE y Val MSE descienden velozmente en sincronía.
-  - **Fase II (Punto Óptimo $E^*$ / Confluencia):** Val MSE alcanza su mínimo global estricto. Es el estado con máxima capacidad de generalización.
-  - **Fase III (Divergencia Incipiente de Varianza):** Train MSE continúa descendiendo mientras Val MSE comienza a estancarse y a exhibir fluctuaciones crecientes.
-  - **Fase IV (Sobreajuste Severo / Memorización):** Train MSE tiende asintóticamente a cero mientras Val MSE diverge marcadamente hacia arriba.
+### 7.1 El Dilema Sesgo-Varianza y las 4 Fases de Divergencia
+Diseño experimental sobre **Breast Cancer Wisconsin** ($N=569$):
+* **Partición Tripartita:** Train ($70\%$), Validación ($15\%$), Prueba Retenida ($15\%$).
+* **Red Sobreparametrizada:** Topología $[30, 64, 32, 1]$ con $4.129$ parámetros entrenables (proporción $10.4:1$ frente al número de muestras de entrenamiento).
+* **Las 4 Fases de Divergencia:**
+  1. **Fase I (Aprendizaje Inicial Coordinado):** Descenso rápido y simultáneo de Train y Val MSE.
+  2. **Fase II (Punto Óptimo $E^*$):** Mínimo global de Val MSE. Pico de capacidad de generalización.
+  3. **Fase III (Divergencia Incipiente):** Train MSE sigue bajando; Val MSE se estanca y oscila.
+  4. **Fase IV (Sobreajuste Severo):** Memorización pura del ruido muestral; Val MSE diverge fuertemente.
 """)
 
 add_code(r"""
@@ -1227,32 +1186,31 @@ add_md(r"""
 ---
 ## 8. Conclusiones y Síntesis de Aprendizajes
 
-### 8.1 Cuadro Comparativo Integral de Modelos de Redes Neuronales
+### 8.1 Cuadro Comparativo Integral de Modelos Neuronales
 
-| Dimensión Analítica | Perceptrón Simple (Rosenblatt, Taller 1) | Red Adaline (Widrow-Hoff, Taller 1) | Perceptrón Multicapa (MLP Backpropagation, Taller 2) |
+| Dimensión Analítica | Perceptrón Simple (Taller 1) | Adaline / LMS (Taller 1) | Perceptrón Multicapa / MLP (Taller 2) |
 | :--- | :--- | :--- | :--- |
-| **Topología y Capas** | Monocapa (1 neurona, sin capas ocultas) | Monocapa (1 neurona lineal adaptable) | Multicapa densa ($L \ge 2$, capas ocultas arbitrarias) |
-| **Función de Activación** | Discreta no diferenciable (Escalón Heaviside) | Lineal continua $f(z) = z$ | Continuas no lineales ($\sigma$, $\tanh$, ReLU, Softmax) |
-| **Mecanismo de Pérdida** | Cuantizada sobre el error discreto $d - y_{disc}$ | Cuadrática continua $MSE = \frac{1}{2}(d - W^T X)^2$ | Cuadrática o Entropía Cruzada sobre capas profundas |
-| **Superficie de Error** | Discontinua a trozos (sin gradiente suave) | Cuadrática y estrictamente convexa (LMS) | No convexa con múltiples mínimos locales y ensilladuras |
-| **Algoritmo de Optimización**| Regla Delta perceptrón heurística | Descenso de gradiente analítico directo | Retropropagación analítica con regla de la cadena multivariable |
-| **Capacidad Representacional**| Exclusivamente linealmente separable | Hiperplano óptimo de mínima varianza | **Aproximador Universal de Funciones** (Cybenko, 1989) |
-| **Problema XOR (2 y 3 bit)** | **Falla sistemáticamente** (Exactitud $\approx 50\%$) | **Falla sistemáticamente** (Exactitud $\approx 50\%$) | **Convergencia perfecta** ($100\%$ exactitud y MSE $\le 0.005$) |
-| **Resolución de No Linealidad**| Inexistente | Inexistente | **Linealización en el Espacio Latente** ($h_1, h_2$) |
-| **Sensibilidad a Parámetros**| Baja (afecta velocidad, no frontera) | Moderada a la tasa $\alpha$ y escala de datos | Alta: requiere balance de $\eta$, momento $\beta$ y pesos |
-| **Riesgo de Sobreajuste** | Nulo (sesgo estructural severo) | Nulo (modelo lineal de alta rigidez) | Alto si sobreparametrizado; mitigable con **Early Stopping** |
+| **Topología y Capas** | Monocapa (1 neurona rígida) | Monocapa (1 neurona lineal) | Multicapa densa ($L \ge 2$, capas ocultas) |
+| **Función de Activación** | Escalón Heaviside (no diferenciable) | Lineal continua $f(z) = z$ | No lineales diferenciables ($\sigma$, $\tanh$, ReLU) |
+| **Mecanismo de Pérdida** | Cuantizada sobre error discreto | Cuadrática continua (MSE) | Cuadrática / Entropía Cruzada multicapa |
+| **Superficie de Error** | Discontinua a trozos | Paraboloide convexo único | No convexa con múltiples mínimos locales |
+| **Algoritmo de Optimización**| Regla Delta perceptrón | Descenso de gradiente directo | Retropropagación analítica multivariable |
+| **Capacidad Representacional**| Linealmente separable estricto | Hiperplano óptimo de mínima varianza | **Aproximador Universal de Funciones** |
+| **Problema XOR (2 y 3 bit)** | **Falla sistemáticamente** (~50%) | **Falla sistemáticamente** (~50%) | **Convergencia perfecta** ($100\%$ exactitud) |
+| **Transformación Latente** | Inexistente | Inexistente | **Linealización en Espacio Latente** ($h_1, h_2$) |
+| **Riesgo de Sobreajuste** | Nulo (sesgo estructural severo) | Nulo (rigidez lineal) | Mitigable vía **Early Stopping** y regularización |
 
 ---
 
 ### 8.2 Síntesis de Conclusiones de Ingeniería y Teoría
-1. **La Transformación del Espacio Latente como Núcleo de la Inteligencia Artificial:**  
-   El experimento canónico de XOR demostró matemáticamente y visualmente que el poder del Perceptrón Multicapa radica en la proyección de datos no lineales a través de las funciones de activación de la capa oculta. Las neuronas ocultas no solo "ponderan", sino que deforman y pliegan el espacio de entrada, convirtiendo variedades geométricamente intrincadas en arreglos linealmente separables por la capa de salida.
-2. **Dinámica Inercial del Coeficiente de Momento ($\beta$):**  
-   Los barridos paramétricos en XOR confirmaron que el momento actúa como un filtro pasa-bajos para los gradientes estocásticos: filtra las oscilaciones de alta frecuencia en direcciones transversales a los valles de error y acumula velocidad en trayectorias con gradiente consistente, logrando reducciones del tiempo de convergencia superiores al $75\%$.
-3. **Rol Vital de la Estandarización $Z$-Score en Redes Multicapa:**  
-   En problemas como Wine (13 variables) y Breast Cancer (30 variables), la normalización z-score calculada rigurosamente solo sobre Train evita que los atributos de mayor magnitud dominen los gradientes analíticos, protegiendo las activaciones sigmoides de la saturación prematura donde $f'(z) \approx 0$ (*vanishing gradient*).
-4. **Generalización Estadística y Parada Temprana:**  
-   El estudio empírico de sobreajuste demostró que el error de entrenamiento es una métrica engañosa para evaluar la calidad de una red. El monitoreo de un conjunto de validación independiente y el control de parada temprana (*Early Stopping*) con restauración de pesos $(W^*, b^*)$ constituye una de las herramientas de regularización más robustas y elegantes en el aprendizaje de máquinas contemporáneo.
+1. **La Transformación Latente como Esencia del Aprendizaje Profundo:**  
+   El Perceptrón Multicapa no clasifica directamente en el espacio de entrada; primero lo **deforma y desentrelaza** en el espacio latente de la capa oculta, haciendo que la frontera de decisión final sea linealmente separable.
+2. **Efecto Filtrante y Acelerador del Momento ($\beta$):**  
+   El término inercial $\beta$ actúa como un filtro pasa-bajos que atenúa el ruido estocástico transversal y acelera la trayectoria a lo largo de gradientes consistentes, reduciendo el tiempo de cómputo en más de un $75\%$.
+3. **Imperativo de la Estandarización $Z$-Score:**  
+   Normalizar los datos exclusivamente sobre el conjunto de entrenamiento previene el *vanishing gradient* derivado de la saturación prematura de funciones sigmoideas ante atributos de gran magnitud.
+4. **Regularización Dinámica con Early Stopping:**  
+   Monitorear el error de validación y restaurar el checkpoint óptimo $(W^*, b^*)$ evita que redes sobreparametrizadas degraden su capacidad predictiva por memorizar ruido muestral.
 """)
 
 # Asignar celdas al notebook
