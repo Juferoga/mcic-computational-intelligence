@@ -1,0 +1,48 @@
+\begin{table*}[htbp]
+    \centering
+    \scriptsize
+    \caption{Matriz comparativa multidimensional de desempeño: MLP vs. Perceptrón vs. Adaline bajo cuatro particiones}
+    \label{tab:comparativa_multidimensional_particiones}
+    \begin{tabular}{llccccccr}
+        \toprule
+        \textbf{Dataset} & \textbf{Partición} & \textbf{Modelo} & \textbf{Exactitud Train (\%)} & \textbf{Exactitud Test (\%)} & \textbf{F1 Macro} & \textbf{Tiempo (ms)} & \textbf{Épocas} & \textbf{Conv.} \\
+        \midrule
+        Wine & 60-40 & Perceptrón Simple & 100.00 & 97.18 & 0.9718 & 2.0 & 5 & \checkmark \\
+        Wine & 60-40 & Adaline / LMS & 99.07 & 98.59 & 0.9858 & 23.5 & 42 & \checkmark \\
+        Wine & 60-40 & MLP (Backpropagation) & 100.00 & 98.59 & 0.9858 & 119.8 & 18 & \checkmark \\
+        Wine & 70-30 & Perceptrón Simple & 100.00 & 98.11 & 0.9823 & 2.4 & 8 & \checkmark \\
+        Wine & 70-30 & Adaline / LMS & 100.00 & 98.11 & 0.9823 & 24.5 & 38 & \checkmark \\
+        Wine & 70-30 & MLP (Backpropagation) & 100.00 & 98.11 & 0.9823 & 105.8 & 15 & \checkmark \\
+        Wine & 80-20 & Perceptrón Simple & 100.00 & 100.00 & 1.0000 & 2.4 & 8 & \checkmark \\
+        Wine & 80-20 & Adaline / LMS & 100.00 & 100.00 & 1.0000 & 25.3 & 33 & \checkmark \\
+        Wine & 80-20 & MLP (Backpropagation) & 100.00 & 97.22 & 0.9726 & 132.4 & 16 & \checkmark \\
+        Wine & 90-10 & Perceptrón Simple & 100.00 & 100.00 & 1.0000 & 2.8 & 10 & \checkmark \\
+        Wine & 90-10 & Adaline / LMS & 100.00 & 100.00 & 1.0000 & 26.6 & 32 & \checkmark \\
+        Wine & 90-10 & MLP (Backpropagation) & 100.00 & 100.00 & 1.0000 & 125.3 & 14 & \checkmark \\
+        Breast Cancer & 60-40 & Perceptrón Simple & 100.00 & 94.74 & 0.9445 & 30.6 & 98 & \checkmark \\
+        Breast Cancer & 60-40 & Adaline / LMS & 97.36 & 94.74 & 0.9432 & 46.4 & 64 & \checkmark \\
+        Breast Cancer & 60-40 & MLP (Backpropagation) & 99.12 & 96.49 & 0.9625 & 682.0 & 25 & \checkmark \\
+        Breast Cancer & 70-30 & Perceptrón Simple & 100.00 & 94.74 & 0.9457 & 32.8 & 90 & \checkmark \\
+        Breast Cancer & 70-30 & Adaline / LMS & 96.73 & 95.32 & 0.9512 & 65.5 & 75 & \checkmark \\
+        Breast Cancer & 70-30 & MLP (Backpropagation) & 99.25 & 96.49 & 0.9637 & 500.8 & 16 & \checkmark \\
+        Breast Cancer & 80-20 & Perceptrón Simple & 99.56 & 92.98 & 0.9271 & 67.1 & 150 & $\times$ \\
+        Breast Cancer & 80-20 & Adaline / LMS & 97.14 & 97.37 & 0.9726 & 53.1 & 41 & \checkmark \\
+        Breast Cancer & 80-20 & MLP (Backpropagation) & 99.12 & 97.37 & 0.9728 & 535.6 & 15 & \checkmark \\
+        Breast Cancer & 90-10 & Perceptrón Simple & 98.24 & 94.74 & 0.9429 & 77.5 & 150 & $\times$ \\
+        Breast Cancer & 90-10 & Adaline / LMS & 97.07 & 96.49 & 0.9605 & 31.8 & 30 & \checkmark \\
+        Breast Cancer & 90-10 & MLP (Backpropagation) & 99.02 & 98.25 & 0.9810 & 1250.2 & 31 & \checkmark \\
+        Banknote & 60-40 & Perceptrón Simple & 98.91 & 99.09 & 0.9908 & 122.4 & 150 & $\times$ \\
+        Banknote & 60-40 & Adaline / LMS & 97.45 & 98.00 & 0.9799 & 12.9 & 8 & \checkmark \\
+        Banknote & 60-40 & MLP (Backpropagation) & 99.76 & 99.82 & 0.9982 & 1849.1 & 30 & \checkmark \\
+        Banknote & 70-30 & Perceptrón Simple & 98.85 & 99.27 & 0.9927 & 134.0 & 150 & $\times$ \\
+        Banknote & 70-30 & Adaline / LMS & 97.71 & 98.30 & 0.9830 & 13.5 & 7 & \checkmark \\
+        Banknote & 70-30 & MLP (Backpropagation) & 99.27 & 99.03 & 0.9903 & 1509.4 & 21 & \checkmark \\
+        Banknote & 80-20 & Perceptrón Simple & 98.72 & 99.27 & 0.9927 & 152.4 & 150 & $\times$ \\
+        Banknote & 80-20 & Adaline / LMS & 97.09 & 97.81 & 0.9781 & 14.8 & 7 & \checkmark \\
+        Banknote & 80-20 & MLP (Backpropagation) & 99.82 & 100.00 & 1.0000 & 2088.6 & 25 & \checkmark \\
+        Banknote & 90-10 & Perceptrón Simple & 98.87 & 98.54 & 0.9854 & 167.1 & 150 & $\times$ \\
+        Banknote & 90-10 & Adaline / LMS & 97.57 & 98.54 & 0.9854 & 17.3 & 7 & \checkmark \\
+        Banknote & 90-10 & MLP (Backpropagation) & 99.19 & 98.54 & 0.9854 & 1589.3 & 17 & \checkmark \\
+        \bottomrule
+    \end{tabular}
+\end{table*}

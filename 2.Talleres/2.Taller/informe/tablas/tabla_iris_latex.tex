@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Resultados experimentales de clasificación multiclase sobre el dataset Iris (Numeral 4)}
+    \label{tab:resultados_iris}
+    \begin{tabular}{lccccccr}
+        \toprule
+        \textbf{ID} & \textbf{Arquitectura} & $\eta$ & \textbf{Épocas} & \textbf{Conv.} & \textbf{MSE Train} & \textbf{MSE Val} & \textbf{Exactitud (\%)} \\
+        \midrule
+        CONF-01 & [4, 4, 3] & 0.05 & 652 & \checkmark & 0.00200 & 0.00153 & 91.11 \\
+        CONF-02 & [4, 4, 3] & 0.10 & 335 & \checkmark & 0.00200 & 0.00049 & 91.11 \\
+        CONF-03 & [4, 4, 3] & 0.30 & 167 & \checkmark & 0.00186 & 0.00048 & 91.11 \\
+        CONF-04 & [4, 8, 3] & 0.05 & 677 & \checkmark & 0.00199 & 0.00041 & 91.11 \\
+        CONF-05 & [4, 8, 3] & 0.10 & 340 & \checkmark & 0.00193 & 0.00043 & 91.11 \\
+        CONF-06 & [4, 8, 3] & 0.30 & 159 & \checkmark & 0.00176 & 0.00065 & 91.11 \\
+        CONF-07 & [4, 8, 4, 3] & 0.05 & 305 & \checkmark & 0.00192 & 0.00092 & 91.11 \\
+        CONF-08 & [4, 8, 4, 3] & 0.10 & 180 & \checkmark & 0.00194 & 0.00140 & 93.33 \\
+        CONF-09 & [4, 8, 4, 3] & 0.30 & 174 & \checkmark & 0.00187 & 0.01226 & 91.11 \\
+        \bottomrule
+    \end{tabular}
+\end{table}

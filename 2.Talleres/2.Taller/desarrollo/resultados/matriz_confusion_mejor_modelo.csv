@@ -1,0 +1,4 @@
+Clase_Real,Pred_Setosa,Pred_Versicolor,Pred_Virginica
+Real_Setosa,15,0,0
+Real_Versicolor,0,15,0
+Real_Virginica,0,3,12

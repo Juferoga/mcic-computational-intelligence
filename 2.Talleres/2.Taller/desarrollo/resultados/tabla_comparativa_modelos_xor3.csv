@@ -1,0 +1,5 @@
+Modelo,Arquitectura,Épocas,Convergencia,MSE Final,Exactitud,Aciertos
+Perceptrón Simple,"[3, 1]",300,False,0.5,50.0%,4/8
+Adaline (LMS),"[3, 1]",93,False,0.25041,50.0%,4/8
+Perceptrón Multicapa,"[3, 4, 1]",1135,True,0.00497,100.0%,8/8
+Perceptrón Multicapa,"[3, 6, 1]",992,True,0.00497,100.0%,8/8

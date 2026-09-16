@@ -1,0 +1,4 @@
+Modelo,Arquitectura,Lineal,Épocas,Convergencia,MSE Final,Exactitud (Accuracy),"Predicciones (00,01,10,11)",Diagnóstico
+Perceptrón Simple (Taller 1),"Monocapa [2, 1]",Sí,200,False,0.5,50.0%,"[1, 1, 0, 0]",Fracaso por no linealidad separable (Cicla sin converger)
+Adaline (Taller 1),"Monocapa [2, 1] (LMS)",Sí,67,False,0.2507,75.0%,"[0, 1, 0, 0]",Fracaso por hiperplano plano en MSE (MSE estancado ~0.25)
+Perceptrón Multicapa (MLP),"Multicapa [2, 2, 1]",No (Capas ocultas no lineales),1649,True,0.00499,100.0%,"[0, 1, 1, 0]",Éxito total (Aprende la frontera no lineal exacta)

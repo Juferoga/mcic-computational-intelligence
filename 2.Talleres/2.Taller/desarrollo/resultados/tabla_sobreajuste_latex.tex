@@ -1,0 +1,15 @@
+% Tabla generada automáticamente por experiment_overfitting.py
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Comparativa Cuantitativa de Sobreajuste y Parada Temprana en Breast Cancer (Numeral 6)}
+    \label{tab:sobreajuste_early_stopping}
+    \begin{tabular}{lccccccr}
+        \toprule
+        \textbf{Modelo} & \textbf{Época} & \textbf{Train MSE} & \textbf{Val MSE} & \textbf{Test MSE} & \textbf{Exactitud (\%)} & \textbf{Brecha $|E_{\text{test}}-E_{\text{tr}}|$} & \textbf{Ahorro} \\
+        \midrule
+        Sobreajustado (Final)    & 1500 & 0.000013 & 0.025724 & 0.043489 & 95.10 & 0.043476 & 0.00\% \\
+        Early Stopping ($W^*$)   & \textbf{24}  & \textbf{0.008957} & \textbf{0.012722} & \textbf{0.036247} & \textbf{94.41} & \textbf{0.027290} & \textbf{95.73\%} \\
+        \bottomrule
+    \end{tabular}
+\end{table}

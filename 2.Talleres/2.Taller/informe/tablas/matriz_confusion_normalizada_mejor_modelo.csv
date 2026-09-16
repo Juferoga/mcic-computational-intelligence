@@ -1,0 +1,4 @@
+Clase_Real,Pred_Setosa_pct,Pred_Versicolor_pct,Pred_Virginica_pct
+Real_Setosa,100.0,0.0,0.0
+Real_Versicolor,0.0,100.0,0.0
+Real_Virginica,0.0,20.0,80.0
