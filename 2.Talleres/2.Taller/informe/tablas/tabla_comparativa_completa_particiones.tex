@@ -1,8 +1,9 @@
-\begin{table*}[htbp]
+\begin{table}[htbp]
     \centering
     \scriptsize
     \caption{Matriz comparativa multidimensional de desempeño: MLP vs. Perceptrón vs. Adaline bajo cuatro particiones}
     \label{tab:comparativa_multidimensional_particiones}
+    \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{llccccccr}
         \toprule
         \textbf{Dataset} & \textbf{Partición} & \textbf{Modelo} & \textbf{Exactitud Train (\%)} & \textbf{Exactitud Test (\%)} & \textbf{F1 Macro} & \textbf{Tiempo (ms)} & \textbf{Épocas} & \textbf{Conv.} \\
@@ -45,4 +46,5 @@
         Banknote & 90-10 & MLP (Backpropagation) & 99.19 & 98.54 & 0.9854 & 1589.3 & 17 & \checkmark \\
         \bottomrule
     \end{tabular}
-\end{table*}
+    \end{adjustbox}
+\end{table}

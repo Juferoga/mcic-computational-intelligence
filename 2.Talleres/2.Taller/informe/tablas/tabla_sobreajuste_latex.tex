@@ -4,6 +4,7 @@
     \small
     \caption{Comparativa Cuantitativa de Sobreajuste y Parada Temprana en Breast Cancer (Numeral 6)}
     \label{tab:sobreajuste_early_stopping}
+    \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{lccccccr}
         \toprule
         \textbf{Modelo} & \textbf{Época} & \textbf{Train MSE} & \textbf{Val MSE} & \textbf{Test MSE} & \textbf{Exactitud (\%)} & \textbf{Brecha $|E_{\text{test}}-E_{\text{tr}}|$} & \textbf{Ahorro} \\
@@ -12,4 +13,5 @@
         Early Stopping ($W^*$)   & \textbf{24}  & \textbf{0.008957} & \textbf{0.012722} & \textbf{0.036247} & \textbf{94.41} & \textbf{0.027290} & \textbf{95.73\%} \\
         \bottomrule
     \end{tabular}
+    \end{adjustbox}
 \end{table}

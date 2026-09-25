@@ -1,0 +1,917 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noindentfirst,es-tabla]{babel}
+\usepackage[margin=2.2cm,headheight=14pt]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{microtype}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, shadows, fit, backgrounds}
+\usepackage[hidelinks,breaklinks=true]{hyperref}
+
+% Definición de paleta de colores institucional
+\definecolor{azulud}{RGB}{20,65,115}
+\definecolor{doradoud}{RGB}{180,135,35}
+\definecolor{grisud}{RGB}{70,75,80}
+\definecolor{azulsuave}{RGB}{240,245,250}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=azulud,
+    citecolor=azulud,
+    urlcolor=azulud
+}
+
+\setlength{\headheight}{14pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.48em}
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.14}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+% Estilos TikZ para diagramas de red
+\tikzset{
+    input_neuron/.style={circle, draw=azulud!90!black, fill=azulud!15, minimum size=0.80cm, align=center, font=\footnotesize\bfseries},
+    hidden_neuron/.style={circle, draw=doradoud!90!black, fill=doradoud!20, minimum size=0.80cm, align=center, font=\footnotesize\bfseries},
+    output_neuron/.style={circle, draw=teal!90!black, fill=teal!20, minimum size=0.80cm, align=center, font=\footnotesize\bfseries},
+    bias_neuron/.style={circle, draw=gray!80!black, fill=gray!15, minimum size=0.66cm, align=center, font=\scriptsize\bfseries},
+    forward_edge/.style={-{Latex[length=2.0mm, width=1.4mm]}, draw=gray!60!black, thin},
+    backward_edge/.style={-{Latex[length=2.0mm, width=1.4mm]}, draw=red!70!black, dashed, thick},
+    objbox/.style={rectangle, rounded corners=4pt, draw=azulud!80!black, fill=azulsuave, line width=0.8pt, align=left, inner sep=6pt, font=\small, drop shadow={opacity=0.15, shadow xshift=1pt, shadow yshift=-1pt}},
+    flowarrow/.style={-{Latex[length=2.5mm, width=1.5mm]}, line width=1.2pt, draw=azulud!90!black},
+    block/.style={rectangle, rounded corners=3pt, draw=azulud!80!black, fill=white, line width=0.8pt, align=center, inner sep=5pt, font=\footnotesize, drop shadow={opacity=0.12, shadow xshift=1pt, shadow yshift=-1pt}},
+    pipearrow/.style={-{Latex[length=2.2mm, width=1.3mm]}, line width=1.0pt, draw=azulud!90!black},
+    backarrow/.style={-{Latex[length=2.2mm, width=1.3mm]}, line width=1.0pt, draw=red!75!black, dashed}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize\textcolor{grisud}{Taller 2: Perceptrón Multicapa y Backpropagation}}
+\rhead{\footnotesize\textcolor{grisud}{MCIC -- Inteligencia Computacional Aplicada}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{azulud}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{azulud!90!black}}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries\color{grisud}}{\thesubsubsection.}{0.5em}{}
+\captionsetup{font=small,labelfont=bf}
+
+\newcommand{\nombreEstudiante}{Juan Felipe Rodríguez Galindo}
+\newcommand{\codigoEstudiante}{20261595004}
+\newcommand{\nombreDocente}{Cesar Andrey Perdomo Charry}
+\newcommand{\nombreAsignatura}{Inteligencia Computacional Aplicada}
+\newcommand{\fechaInforme}{25 de septiembre de 2026}
+
+\begin{document}
+
+% ============================================================
+% PORTADA INSTITUCIONAL
+% ============================================================
+\begin{titlepage}
+    \centering
+    \vspace*{1.0cm}
+    \includegraphics[width=1.10in]{EscudoUD.png}\hfill
+    \includegraphics[width=1.50in]{LogoMCIC.png}
+    \vspace{1.2cm}
+    
+    {\LARGE\bfseries\color{azulud} Taller 2: Redes Neuronales Multicapa (MLP)\\
+    y Backpropagation\par}
+    \vspace{0.4cm}
+    {\large\bfseries\color{grisud} Implementación Vectorizada, Dinámica de Hiperparámetros, Espacios Latentes y Regularización por Parada Temprana\par}
+    \vspace{0.3cm}
+    {\normalsize\itshape Informe Técnico y Experimental de Resultados\par}
+    
+    \vspace{1.5cm}
+    \begin{tabular}{ll}
+        \textbf{Asignatura:} & \nombreAsignatura \\
+        \textbf{Docente:} & \nombreDocente \\
+        \textbf{Estudiante:} & \nombreEstudiante \\
+        \textbf{Código:} & \codigoEstudiante \\
+        \textbf{Programa:} & Maestría en Ciencias de la Información y las Comunicaciones (MCIC) \\
+        \textbf{Fecha:} & \fechaInforme
+    \end{tabular}
+    
+    \vfill
+    {\large\bfseries Universidad Distrital Francisco José de Caldas}\\[0.15cm]
+    {\normalsize Facultad de Ingeniería -- Bogotá D.C., Colombia}
+    \vspace*{0.5cm}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+% SECCIÓN 1: INTRODUCCIÓN
+% ============================================================
+\section{Introducción}
+
+La computación neuronal moderna experimentó su punto de partida a mediados del siglo XX con el \textbf{Perceptrón Simple} de Rosenblatt (1958)~\cite{rosenblatt1958} y el modelo \textbf{Adaline} de Widrow y Hoff (1960)~\cite{widrow1960}. Ambos modelos establecieron la viabilidad de adaptar ponderaciones sinápticas mediante señales de retroalimentación de error. No obstante, compartían una restricción arquitectónica infranqueable: al basar la decisión en una única combinación lineal afín, la superficie discriminante en $\mathbb{R}^D$ queda confinada forzosamente a un hiperplano de dimensión $D-1$.
+
+Esta rigidez geométrica fue formalizada analíticamente por Marvin Minsky y Seymour Papert en 1969~\cite{minsky1969}. Demostraron matemáticamente que operadores lógicos no lineales fundamentales, tales como la disyunción exclusiva ($\text{XOR}$), resultan insolubles para cualquier clasificador monocapa. Al no existir un hiperplano capaz de separar los vértices cruzados del hipercubo booleano, el Perceptrón oscila indefinidamente sin converger (exactitud $\le 50.0\%$), mientras que Adaline colapsa en un compromiso plano ($MSE \approx 0.25$). Esta barrera teórica condujo al denominado primer ``invierno de la inteligencia artificial'', debido a la ausencia de una regla formal para propagar gradientes y asignar responsabilidad a neuronas intermedias ocultas.
+
+La superación de esta limitación histórica se consolidó en 1986 con Rumelhart, Hinton y Williams~\cite{rumelhart1986}, al formular la regla delta generalizada y el algoritmo de \textbf{Retropropagación del Error} (\textit{Backpropagation}). Al reemplazar funciones de activación escalón discontinuas por sigmoides diferenciables ($\sigma(z) \in (0, 1)$), y aplicar sistemáticamente la regla de la cadena del cálculo multivariable, se habilitó la transmisión retrógrada de gradientes hacia capas ocultas. El \textbf{Perceptrón Multicapa} (\textit{Multilayer Perceptron}, MLP) adquirió así la facultad de construir representaciones latentes jerárquicas capaces de deformar y desenredar variedades no lineales.
+
+El presente estudio aborda la fundamentación teórica, formulación analítica desde primeros principios y evaluación experimental sistemática del Perceptrón Multicapa (\textit{Multilayer Perceptron}, MLP) optimizado mediante el algoritmo de retropropagación del error con aceleración inercial por momento ($\beta$). El propósito central radica en comprender cómo la composición de transformaciones afines no lineales permite franquear las barreras de separabilidad lineal impuestas por los clasificadores monocapa, caracterizar la topología del espacio latente intermedio, y analizar cuantitativamente las dinámicas de convergencia hiperparamétrica y regularización frente a datos complejos y ruidosos.
+
+A fin de articular el desarrollo de la investigación de manera metódica, los objetivos se estructuran en cinco fases interconectadas, presentadas esquemáticamente en la Figura~\ref{fig:diagrama_objetivos}:
+\begin{enumerate}
+    \item \textbf{Formulación y Gradientes:} Deducir rigurosamente las ecuaciones del gradiente retrógrado y de la regla delta con momento inercial $\beta$ para activaciones continuas.
+    \item \textbf{Validación No Lineal:} Contrastar analítica y empíricamente el MLP frente al Perceptrón Simple y Adaline en compuertas $\text{XOR-2}$ y $\text{XOR-3}$ (paridad), examinando el espacio latente $[h_1, h_2]$.
+    \item \textbf{Dinámica de Hiperparámetros:} Explorar la superficie de convergencia en el plano $(\eta, \beta)$, cuantificando la aceleración inercial y los límites de estabilidad.
+    \item \textbf{Clasificación en Variedades Reales:} Evaluar el comportamiento en los conjuntos \textit{Iris}, \textit{Wine}, \textit{Breast Cancer} y \textit{Banknote} bajo protocolo \textit{Zero Data Leakage}.
+    \item \textbf{Diagnóstico de Generalización:} Caracterizar el compromiso sesgo-varianza en regímenes sobreparametrizados y cuantificar la eficacia de la parada temprana (\textit{Early Stopping}).
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.45cm and 0.45cm, scale=0.86, transform shape]
+    \node[objbox, text width=7.2cm] (fase1) {
+        \textbf{\textcolor{azulud}{Fase 1: Formulación y Gradientes}}\\
+        $\bullet$ Modelado MLP con activaciones continuas.\\
+        $\bullet$ Derivación analítica de $\delta^{(L)}$ y $\delta^{(l)}$.\\
+        $\bullet$ Regla Delta con momento inercial $\beta$.
+    };
+    \node[objbox, text width=7.2cm, right=of fase1] (fase2) {
+        \textbf{\textcolor{azulud}{Fase 2: Validación No Lineal}}\\
+        $\bullet$ Resolución de compuertas $\text{XOR-2}$ y $\text{XOR-3}$.\\
+        $\bullet$ Superación de cotas de Minsky-Papert.\\
+        $\bullet$ Despliegue del espacio latente $[h_1, h_2]$.
+    };
+    \node[objbox, text width=7.2cm, below=of fase1] (fase3) {
+        \textbf{\textcolor{azulud}{Fase 3: Dinámica de Optimización}}\\
+        $\bullet$ Barrido denso en el plano $(\eta, \beta)$.\\
+        $\bullet$ Cuantificación de aceleración inercial.\\
+        $\bullet$ Análisis de amortiguamiento y estabilidad.
+    };
+    \node[objbox, text width=7.2cm, right=of fase3] (fase4) {
+        \textbf{\textcolor{azulud}{Fase 4: Variedades del Mundo Real}}\\
+        $\bullet$ Clasificación multiclase en datos continuos.\\
+        $\bullet$ Protocolo estricto Zero Data Leakage.\\
+        $\bullet$ Evaluación estratificada (60/40 a 90/10).
+    };
+    \node[objbox, text width=15.1cm, below=0.45cm of $(fase3.south)!0.5!(fase4.south)$, anchor=north] (fase5) {
+        \centering
+        \textbf{\textcolor{azulud}{Fase 5: Diagnóstico de Generalización \& Parada Temprana}}\\
+        $\bullet$ Sobreparametrización inducida ($[30, 64, 32, 1]$) $\quad\bullet$ Descomposición empírica sesgo-varianza\\
+        $\bullet$ Regularización implícita vía Early Stopping $\quad\bullet$ Compromiso profundidad vs. ancho
+    };
+
+    \draw[flowarrow] (fase1.east) -- (fase2.west);
+    \draw[flowarrow] (fase1.south) -- (fase3.north);
+    \draw[flowarrow] (fase2.south) -- (fase4.north);
+    \draw[flowarrow] (fase3.east) -- (fase4.west);
+    \draw[flowarrow] ($(fase3.south)!0.5!(fase4.south)$) -- (fase5.north);
+\end{tikzpicture}
+\caption{Diagrama de flujo metodológico y articulación secuencial de las cinco fases de investigación.}
+\label{fig:diagrama_objetivos}
+\end{figure}
+
+% ============================================================
+% SECCIÓN 2: MARCO TEÓRICO
+% ============================================================
+\section{Marco Teórico}
+\label{sec:marco_teorico}
+
+\subsection{Arquitectura y Propagación Hacia Adelante (\textit{Forward Pass})}
+
+La unidad elemental de procesamiento en las redes neuronales artificiales es el nodo o neurona artificial, formulada conceptualmente por McCulloch y Pitts (1943) y formalizada en el perceptrón de Rosenblatt (1958)~\cite{rosenblatt1958}. Como ilustra la Figura~\ref{fig:esquema_neurona_unit}, cada neurona recibe un vector sensorial de estímulos $x \in \mathbb{R}^{n_0}$, modula cada componente mediante una ponderación sináptica $w_i$, incorpora un sesgo escalar $b$ para desplazar el umbral de activación, y proyecta la combinación afín resultante a través de una función de transferencia no lineal $f(\cdot)$.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[c]{0.43\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/web_esquema_neurona_artificial.png}
+    \caption{Modelo formal de la unidad neuronal artificial (fuente canónica~\cite{haykin2009}): integración afín ponderada y mapeo no lineal.}
+    \label{fig:esquema_neurona_unit}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.54\textwidth}
+    \small
+    \textbf{Transición del Nodo Individual a la Red Multicapa:}\\
+    Si bien un único nodo lineal queda acotado a discriminar regiones separadas por un hiperplano afín $\sum w_i x_i + b = 0$, la concatenación de múltiples neuronas organizadas en capas secuenciales permite construir superficies continuas de decisión altamente complejas. 
+    
+    Cada capa proyecta las activaciones de la capa antecedente hacia un nuevo espacio de representación latente, transformando progresivamente variedades complejas en geometrías linealmente desacopladas en la capa de salida.
+\end{minipage}
+\end{figure}
+
+Al extender esta unidad elemental a una arquitectura en red, considérese un sistema estructurado en $L$ capas de procesamiento indexadas por $l = 0, 1, \dots, L$, donde $l = 0$ denota la capa sensorial de entrada ($n_0$ dimensiones), $l \in \{1, \dots, L-1\}$ representa las capas ocultas intermedias, y $l = L$ corresponde a la capa de salida. Cada capa $l$ agrupa $n_l$ unidades neuronales.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.86, transform shape]
+    % Capa de Entrada
+    \node[input_neuron] (x1) at (0, 3.0) {$x_1$};
+    \node[input_neuron] (x2) at (0, 1.5) {$x_2$};
+    \node[align=center] (xdots) at (0, 0.4) {$\vdots$};
+    \node[input_neuron] (xD) at (0, -0.8) {$x_{n_0}$};
+    \node[bias_neuron] (b1) at (0, 4.3) {$+1$};
+
+    % Capa Oculta 1
+    \node[hidden_neuron] (h11) at (3.8, 3.5) {$a_1^{(1)}$};
+    \node[hidden_neuron] (h12) at (3.8, 2.0) {$a_2^{(1)}$};
+    \node[align=center] (h1dots) at (3.8, 0.8) {$\vdots$};
+    \node[hidden_neuron] (h1M) at (3.8, -0.4) {$a_{n_1}^{(1)}$};
+    \node[bias_neuron] (b2) at (3.8, 4.7) {$+1$};
+
+    % Capa Oculta 2
+    \node[hidden_neuron] (h21) at (7.6, 3.0) {$a_1^{(2)}$};
+    \node[align=center] (h2dots) at (7.6, 1.6) {$\vdots$};
+    \node[hidden_neuron] (h2P) at (7.6, 0.2) {$a_{n_2}^{(2)}$};
+    \node[bias_neuron] (b3) at (7.6, 4.2) {$+1$};
+
+    % Capa de Salida
+    \node[output_neuron] (y1) at (11.4, 2.5) {$\hat{y}_1$};
+    \node[align=center] (ydots) at (11.4, 1.5) {$\vdots$};
+    \node[output_neuron] (yK) at (11.4, 0.5) {$\hat{y}_{n_L}$};
+
+    % Conexiones Forward
+    \foreach \i in {x1, x2, xD, b1} {
+        \foreach \j in {h11, h12, h1M} {
+            \draw[forward_edge] (\i) -- (\j);
+        }
+    }
+    \foreach \i in {h11, h12, h1M, b2} {
+        \foreach \j in {h21, h2P} {
+            \draw[forward_edge] (\i) -- (\j);
+        }
+    }
+    \foreach \i in {h21, h2P, b3} {
+        \foreach \j in {y1, yK} {
+            \draw[forward_edge] (\i) -- (\j);
+        }
+    }
+
+    % Etiquetas de Capas
+    \node[font=\bfseries\small, text=azulud] at (0, -1.6) {Entrada ($l=0$)};
+    \node[font=\bfseries\small, text=doradoud!90!black] at (3.8, -1.6) {Oculta 1 ($l=1$)};
+    \node[font=\bfseries\small, text=doradoud!90!black] at (7.6, -1.6) {Oculta 2 ($l=2$)};
+    \node[font=\bfseries\small, text=teal!90!black] at (11.4, -1.6) {Salida ($l=L$)};
+
+    % Flechas Globales Forward y Backward
+    \draw[-{Latex[length=3mm]}, line width=1.4pt, azulud] (1.0, 5.2) -- (10.4, 5.2) 
+        node[midway, above, font=\bfseries\footnotesize] {Propagación Directa: $z^{(l)} = a^{(l-1)}W^{(l)} + b^{(l)}, \quad a^{(l)} = f(z^{(l)})$};
+    \draw[-{Latex[length=3mm]}, line width=1.4pt, red!75!black] (10.4, -2.3) -- (1.0, -2.3) 
+        node[midway, below, font=\bfseries\footnotesize] {Retropropagación del Error: $\delta^{(l)} = \big(\delta^{(l+1)}(W^{(l+1)})^T\big) \odot f'^{(l)}(z^{(l)})$};
+\end{tikzpicture}
+\caption{Diagrama estructural del Perceptrón Multicapa (MLP) ilustrando la cinemática de propagación directa y el flujo retrógrado de gradientes locales de error.}
+\label{fig:esquema_mlp_tikz}
+\end{figure}
+
+Para cada capa $l \in \{1, \dots, L\}$, los parámetros entrenables comprenden la matriz de pesos sinápticos $W^{(l)} \in \mathbb{R}^{n_{l-1} \times n_l}$ y el vector de sesgos (\textit{biases}) $b^{(l)} \in \mathbb{R}^{1 \times n_l}$. Dado el vector de activación de la capa previa $a^{(l-1)}$ (con $a^{(0)} = x \in \mathbb{R}^{1 \times n_0}$), la propagación hacia adelante se gobierna por:
+\begin{equation}
+    z^{(l)} = a^{(l-1)} W^{(l)} + b^{(l)}, \qquad a^{(l)} = f^{(l)}\big(z^{(l)}\big)
+    \label{eq:forward_vectorial}
+\end{equation}
+donde $z^{(l)}$ es el potencial neto post-sináptico y $f^{(l)}: \mathbb{R} \to \mathbb{R}$ representa la función de activación no lineal. En forma escalar, para cada neurona $j \in \{1, \dots, n_l\}$:
+\begin{equation}
+    z_j^{(l)} = \sum_{i=1}^{n_{l-1}} a_i^{(l-1)} W_{ij}^{(l)} + b_j^{(l)}, \qquad a_j^{(l)} = f^{(l)}\big(z_j^{(l)}\big).
+\end{equation}
+
+\subsubsection{Catálogo de Funciones de Activación y sus Derivadas}
+
+En conformidad con el Numeral 1 de la guía, se incorporaron y vectorizaron las tres funciones canónicas de activación junto con la función Softmax multiclase y la activación lineal. La Tabla~\ref{tab:catalogo_activaciones} sintetiza sus formulaciones, derivadas analíticas y propiedades cinemáticas.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Formulación matemática y derivadas analíticas de las funciones de activación implementadas.}
+\label{tab:catalogo_activaciones}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l l l c c}
+\toprule
+\textbf{Función} & \textbf{Ecuación Directa $f(z)$} & \textbf{Derivada Analítica $f'(z)$} & \textbf{Rango $\mathcal{R}_f$} & \textbf{Zona de Saturación} \\
+\midrule
+\textbf{Sigmoide} & $\sigma(z) = \frac{1}{1 + e^{-z}}$ & $\sigma(z)\big(1 - \sigma(z)\big) = a(1 - a)$ & $(0, 1)$ & $|z| > 4 \implies f' \to 0$ \\
+\textbf{Tanh} & $\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$ & $1 - \tanh^2(z) = 1 - a^2$ & $(-1, 1)$ & $|z| > 3 \implies f' \to 0$ \\
+\textbf{ReLU} & $\max(0, z)$ & $\begin{cases} 1 & z > 0 \\ 0 & z \le 0 \end{cases}$ & $[0, \infty)$ & $z < 0 \implies \text{Neurona Inactiva}$ \\
+\textbf{Lineal} & $f(z) = z$ & $f'(z) = 1$ & $(-\infty, \infty)$ & No satura \\
+\textbf{Softmax} & $s_i(z) = \frac{e^{z_i - \max(z)}}{\sum_j e^{z_j - \max(z)}}$ & $\frac{\partial s_i}{\partial z_j} = s_i(\delta_{ij} - s_j)$ & $(0, 1), \, \sum s_i = 1$ & Normalización probabilística \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\textbf{Inicialización Sináptica:} Para prevenir la saturación prematura de las sigmoides en épocas iniciales, se implementó la inicialización Xavier/Glorot uniforme, $W \sim U\big[-\sqrt{6/(n_{\text{in}}+n_{\text{out}})}, \sqrt{6/(n_{\text{in}}+n_{\text{out}})}\big]$, la cual preserva la varianza de las activaciones a través de las capas. Para capas ReLU se programó la inicialización He normal, $W \sim \mathcal{N}(0, 2/n_{\text{in}})$.
+
+\subsection{Retropropagación del Error y Regla Delta Generalizada con Momento}
+
+Dado un conjunto supervisado de entrenamiento $\mathcal{D} = \{(x^{(p)}, y^{(p)})\}_{p=1}^N$, la función de costo cuadrática instantánea (\textit{Mean Squared Error}) se define como:
+\begin{equation}
+    J(W, b) = \frac{1}{2} \|y - a^{(L)}\|^2 = \frac{1}{2} \sum_{k=1}^{n_L} \big(y_k - a_k^{(L)}\big)^2.
+    \label{eq:costo_cuadratico}
+\end{equation}
+Se define el \textbf{error local} $\delta_j^{(l)}$ de la neurona $j$ en la capa $l$ como la sensibilidad negativa del costo respecto a su potencial neto post-sináptico:
+\begin{equation}
+    \delta_j^{(l)} \equiv -\frac{\partial J}{\partial z_j^{(l)}}.
+    \label{eq:def_delta}
+\end{equation}
+
+\subsubsection{1. Gradiente del Error en la Capa de Salida ($l = L$)}
+Aplicando la regla de la cadena sobre la neurona de salida $k$:
+\begin{equation}
+    \frac{\partial J}{\partial z_k^{(L)}} = \frac{\partial J}{\partial a_k^{(L)}} \frac{\partial a_k^{(L)}}{\partial z_k^{(L)}} = -(y_k - a_k^{(L)}) f'^{(L)}\big(z_k^{(L)}\big).
+\end{equation}
+Sustituyendo en (\ref{eq:def_delta}), el error local en la capa de salida adquiere la forma vectorial:
+\begin{equation}
+    \delta^{(L)} = \big(y - a^{(L)}\big) \odot f'^{(L)}\big(z^{(L)}\big)
+    \label{eq:delta_salida_vectorial}
+\end{equation}
+donde $\odot$ denota el producto de Hadamard (elemento a elemento).
+
+\subsubsection{2. Retropropagación a Capas Ocultas ($l = L-1, \dots, 1$)}
+El potencial neto $z_j^{(l)}$ de una unidad oculta afecta el costo $J$ a través de todas las conexiones que parten hacia la capa subsiguiente $l+1$:
+\begin{equation}
+    \frac{\partial J}{\partial z_j^{(l)}} = \sum_{k=1}^{n_{l+1}} \frac{\partial J}{\partial z_k^{(l+1)}} \frac{\partial z_k^{(l+1)}}{\partial a_j^{(l)}} \frac{\partial a_j^{(l)}}{\partial z_j^{(l)}} = \sum_{k=1}^{n_{l+1}} (-\delta_k^{(l+1)}) W_{jk}^{(l+1)} f'^{(l)}\big(z_j^{(l)}\big).
+\end{equation}
+Multiplicando por $-1$, se deduce la ecuación fundamental de retropropagación:
+\begin{equation}
+    \delta_j^{(l)} = \left( \sum_{k=1}^{n_{l+1}} \delta_k^{(l+1)} W_{jk}^{(l+1)} \right) f'^{(l)}\big(z_j^{(l)}\big).
+    \label{eq:delta_oculta_escalar}
+\end{equation}
+En notación matricial fila vectorizada:
+\begin{equation}
+    \delta^{(l)} = \Big( \delta^{(l+1)} \big(W^{(l+1)}\big)^T \Big) \odot f'^{(l)}\big(z^{(l)}\big).
+    \label{eq:delta_oculta_vectorial}
+\end{equation}
+
+\subsubsection{3. Regla Delta Generalizada con Momento Inercial ($\beta$)}
+El descenso de gradiente estándar sufre oscilaciones destructivas en valles de gradiente escarpado y anisotrópico. La \textbf{Regla Delta Generalizada} incorpora un término inercial $\beta \in [0, 1)$ que almacena memoria de la dirección previa:
+\begin{align}
+    \Delta W^{(l)}(t) &= \eta \big(a^{(l-1)}\big)^T \delta^{(l)} + \beta \Delta W^{(l)}(t-1) \label{eq:momento_W} \\
+    \Delta b^{(l)}(t) &= \eta \delta^{(l)} + \beta \Delta b^{(l)}(t-1) \label{eq:momento_b} \\
+    W^{(l)}(t+1) &= W^{(l)}(t) + \Delta W^{(l)}(t), \qquad b^{(l)}(t+1) = b^{(l)}(t) + \Delta b^{(l)}(t).
+\end{align}
+
+\textbf{Analogía Física y Filtrado Espectral:} Físicamente, el momento equivale a modelar el aprendizaje como una partícula con masa en un campo de potencial viscoso amortiguado~\cite{qian1999}. Si el gradiente es persistente en magnitud $g$, la actualización asintótica converge a:
+\begin{equation}
+    \Delta w(t) = \eta g \sum_{k=0}^{t} \beta^k \xrightarrow[t \to \infty]{} \frac{\eta}{1 - \beta} g.
+\end{equation}
+Por ende, con $\beta = 0.9$, la velocidad de avance efectivo longitudinal se amplifica por un factor de $10\times$ ($\frac{1}{1-0.9}$), mientras que los gradientes transversales de signo alternante interfieren destructivamente y se cancelan. Si $\beta \ge 1.0$, el sistema pierde disipación y diverge inestablemente.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.46\textwidth]{figuras/web_gradient_descent_momentum.png}
+\caption{Dinámica comparativa de optimización en topografías anisotrópicas (adaptado de~\cite{qian1999,ruder2016}): el descenso de gradiente estándar oscila bruscamente en valles estrechos, mientras que el momento inercial $\beta$ acumula velocidad en la dirección persistente y cancela oscilaciones parásitas.}
+\label{fig:web_momentum_contour}
+\end{figure}
+
+\subsection{Separabilidad Lineal, Espacios Latentes y Regularización}
+
+\textbf{Separabilidad Lineal y Teorema de Aproximación Universal:} Un clasificador lineal monocapa (Perceptrón/Adaline) genera una frontera plana $w^T x + b = 0$. En problemas no linealmente separables como $\text{XOR}$, los estados activos y pasivos no admiten separación por un hiperplano. En contraste, el Teorema de Aproximación Universal (Cybenko, 1989~\cite{cybenko1989}; Hornik, 1991~\cite{hornik1991}) estipula que una red feedforward con al menos una capa oculta no lineal continua puede aproximar con precisión arbitraria cualquier funcional continuo sobre compactos de $\mathbb{R}^n$.
+
+Geométricamente, las capas ocultas ejecutan una transformación no lineal continua $\Phi: \mathbb{R}^{n_0} \to \mathbb{R}^{n_1}$ que proyecta los datos a un \textbf{espacio latente} $H = a^{(1)}$. En este nuevo espacio, la variedad geométrica entrelazada se deforma y desdobla, logrando que clases originalmente no separables resulten trivialmente separables mediante la capa de salida lineal.
+
+\textbf{Descomposición Sesgo-Varianza y Parada Temprana:} El error esperado de generalización ante datos no vistos se descompone en tres fuentes ortogonales~\cite{bishop2006}:
+\begin{equation}
+    \mathbb{E}\Big[\big(y - \hat{f}(x)\big)^2\Big] = \underbrace{\Big(f(x) - \mathbb{E}[\hat{f}(x)]\Big)^2}_{\text{Sesgo}^2} + \underbrace{\mathbb{E}\Big[\big(\hat{f}(x) - \mathbb{E}[\hat{f}(x)]\big)^2\Big]}_{\text{Varianza}} + \underbrace{\sigma_\epsilon^2}_{\text{Ruido Irreducible}}.
+    \label{eq:sesgo_varianza}
+\end{equation}
+Conforme el número de épocas tiende a infinito en una red sobreparametrizada, el sesgo sobre entrenamiento colapsa asintóticamente a cero mientras la varianza se incrementa patológicamente (memorización de ruido). \textit{Early Stopping} congela los pesos en el punto de mínima pérdida de validación $t^*$. Teóricamente, esto actúa como una regularización espectral implícita equivalente al decaimiento de pesos $L_2$ (\textit{Weight Decay}) con coeficiente efectivo $\lambda_{\text{efectivo}} \approx \frac{1}{\eta t^*}$~\cite{goodfellow2016}, acotando la norma de Frobenius $\|W\|_F$ sin requerir cálculo de multiplicadores de Lagrange.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.52\textwidth]{figuras/web_early_stopping_concept.png}
+\caption{Curva conceptual del compromiso sesgo-varianza y mecanismo de Parada Temprana (\textit{Early Stopping}) (adaptado de~\cite{goodfellow2016}): evolución divergente del error de entrenamiento frente al error de validación e identificación del punto óptimo de generalización antes del sobreajuste.}
+\label{fig:web_early_stopping_concept}
+\end{figure}
+
+% ============================================================
+% SECCIÓN 3: METODOLOGÍA
+% ============================================================
+\section{Metodología}
+\label{sec:metodologia}
+
+\subsection{Diseño Arquitectónico y Parametrizabilidad (Numeral 2)}
+
+En observancia del Numeral 2 de la guía, el modelo neuronal se implementó siguiendo un diseño orientado a objetos en Python, empleando matrices de álgebra lineal vectorizada con NumPy para trasladar las transformaciones afines y la retropropagación a operaciones contiguas de memoria en CPU. Este diseño modular desacopla la topología de la optimización y viabiliza la parametrización sistemática de la red:
+\begin{itemize}
+    \item \textbf{Topología Parametrizable:} Configuración arbitraria de dimensiones $[n_0, n_1, \dots, n_L]$ mediante la lista \texttt{layer\_sizes}, permitiendo evaluar redes delgadas o profundas sin alterar la lógica de cálculo.
+    \item \textbf{Polimorfismo de Activación:} Selección flexible por capa de funciones continuas (Sigmoide, Tanh, ReLU, Lineal y Softmax) con derivadas analíticas vectorizadas y acotamiento numérico (\textit{clipping} $[-50, 50]$) para estabilidad en coma flotante.
+    \item \textbf{Regímenes de Optimización:} Soporte para aprendizaje estocástico muestra a muestra (\textit{online}), por lote completo (\textit{batch}) y mini-lotes (\textit{mini-batch}), gobernados por la tasa $\eta$ y el factor de momento $\beta$.
+    \item \textbf{Monitor de Generalización y Parada Temprana:} Evaluación periódica sobre un subconjunto de validación con persistencia y restauración del estado sináptico óptimo $\mathbf{W}^*$ ante el agotamiento de la paciencia configurada.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.40cm and 0.40cm, scale=0.82, transform shape]
+    \node[block, fill=azulsuave, text width=2.5cm] (in) {\textbf{Ingesta de Datos}\\[0.1cm] $\mathbf{X} \in \mathbb{R}^{N \times D}$, $\mathbf{y}$};
+    \node[block, right=of in, text width=2.8cm] (scale) {\textbf{Preproceso $z$-Score}\\[0.1cm] Aislamiento de Fuga\\(Congelado en Train)};
+    \node[block, right=of scale, fill=doradoud!15, text width=3.4cm] (fwd) {\textbf{Pila Feedforward}\\[0.1cm] $\mathbf{z}^{(l)} = \mathbf{a}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{b}^{(l)}$\\ $\mathbf{a}^{(l)} = f^{(l)}(\mathbf{z}^{(l)})$};
+    \node[block, right=of fwd, text width=2.7cm] (eval) {\textbf{Cálculo de Pérdida}\\[0.1cm] $J = \frac{1}{2}\|\mathbf{y} - \mathbf{a}^{(L)}\|^2$\\Monitor de Validación};
+    \node[block, below=0.65cm of eval, fill=red!10, text width=3.4cm] (bwd) {\textbf{Motor Backpropagation}\\[0.1cm] $\boldsymbol{\delta}^{(L)} = (\mathbf{y}-\mathbf{a})\odot f'(\mathbf{z})$\\ $\boldsymbol{\delta}^{(l)} = (\boldsymbol{\delta}^{(l+1)}{\mathbf{W}^{(l+1)}}^T)\odot f'$};
+    \node[block, below=0.65cm of fwd, fill=teal!15, text width=3.4cm] (opt) {\textbf{Optimizador con Momento}\\[0.1cm] $\Delta\mathbf{W} = \eta\mathbf{a}^T\boldsymbol{\delta} + \beta\Delta\mathbf{W}_{prev}$\\Actualización Inercial};
+    \node[block, below=0.65cm of scale, fill=gray!15, text width=2.7cm] (chk) {\textbf{Early Stopping}\\[0.1cm] Control de Paciencia\\Restauración $\mathbf{W}^*$};
+
+    \draw[pipearrow] (in) -- (scale);
+    \draw[pipearrow] (scale) -- (fwd);
+    \draw[pipearrow] (fwd) -- (eval);
+    \draw[pipearrow] (eval.south) -- (bwd.north);
+    \draw[backarrow] (bwd) -- (opt);
+    \draw[backarrow] (opt) -- (chk);
+    \draw[pipearrow, draw=doradoud!90!black] (opt.north) -- (fwd.south) node[midway, right, font=\tiny\bfseries] {Pesos $\mathbf{W}$};
+\end{tikzpicture}
+\caption{Diagrama del flujo computacional y arquitectura modular del Perceptrón Multicapa.}
+\label{fig:arquitectura_mlp_pipeline}
+\end{figure}
+
+La Tabla~\ref{tab:configuraciones_principales} resume las configuraciones representativas parametrizadas para los experimentos centrales del taller.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Configuraciones arquitectónicas principales implementadas y evaluadas.}
+\label{tab:configuraciones_principales}
+\begin{tabularx}{\textwidth}{l l c c c c L}
+\toprule
+\textbf{Experimento} & \textbf{Topología} & $\eta$ & $\beta$ & \textbf{Activación} & \textbf{Modo} & \textbf{Criterio de Parada} \\
+\midrule
+XOR-2 & $[2, 2, 1]$ & 0.50 & 0.50 & Sigmoide & Online & $MSE \le 0.005$ \\
+XOR-3 (Paridad) & $[3, 4, 1]$ y $[3, 6, 1]$ & 0.50 & 0.50 & Sigmoide & Online & $MSE \le 0.005$ \\
+Iris (Óptimo) & $[4, 8, 4, 3]$ & 0.10 & 0.70 & Sigmoide & Online & $MSE \le 0.002$ (180 épocas) \\
+Particiones Bench. & $[D, 16, 8, K]$ & 0.08 & 0.70 & Sigmoide & Online & Paciencia 40 / 150 épocas \\
+Sobreajuste & $[30, 64, 32, 1]$ & 0.08 & 0.50 & Sigmoide & Online & Paciencia 40 / 1500 épocas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Datasets y Protocolo de Particionamiento}
+
+Se evaluaron cinco conjuntos de datos con diversas propiedades topológicas y dimensionales, descritos en la Tabla~\ref{tab:resumen_datasets}.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Resumen estructural y dimensional de los conjuntos de datos evaluados.}
+\label{tab:resumen_datasets}
+\begin{tabularx}{\textwidth}{l c c c c L}
+\toprule
+\textbf{Dataset} & \textbf{Muestras ($N$)} & \textbf{Atributos ($D$)} & \textbf{Clases ($K$)} & \textbf{Balanceo} & \textbf{Desafío Topológico} \\
+\midrule
+$\text{XOR-2}$ & 4 & 2 & 2 & Balanceado & No separable linealmente en $\mathbb{R}^2$ \\
+$\text{XOR-3}$ & 8 & 3 & 2 & Balanceado & Paridad impar en hipercubo 3D \\
+Fisher's Iris & 150 & 4 & 3 & Balanceado ($50/50/50$) & 1 linealmente separable, 2 solapadas \\
+Wine Recognition & 178 & 13 & 3 & 59 / 71 / 48 & 13 variables químicas continuas \\
+Breast Cancer & 569 & 30 & 2 & 357 Ben. / 212 Mal. & Alta dimensionalidad diagnóstica \\
+Banknote Auth. & 1372 & 4 & 2 & 762 Aut. / 610 Fals. & Momentos continuos wavelet continuos \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Prevención Estricta de Fuga de Información (\textit{Zero Data Leakage}):} En variables continuas con rangos heterogéneos, las componentes de gran escala dominan el gradiente numérico. Se aplicó estandarización $z$-score:
+\begin{equation}
+    x_{\text{std}} = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}.
+    \label{eq:zscore_scaling}
+\end{equation}
+La media $\mu_{\text{train}}$ y desviación $\sigma_{\text{train}}$ se computaron \textbf{exclusivamente sobre la partición de entrenamiento} de cada corte. Los subconjuntos de validación y prueba se transformaron empleando los estadísticos de entrenamiento previamente congelados. Esto garantiza estricta validez científica al impedir cualquier fuga de información hacia el modelo. Además, el centrado en cero sitúa los potenciales netos en la región de máxima derivada sigmoidea ($\sigma'(0) = 0.25$), acelerando el flujo de gradientes.
+
+\textbf{Particionamiento Estratificado:} Para los datasets \textit{Wine}, \textit{Breast Cancer} y \textit{Banknote}, se generaron cuatro particiones estratificadas: 60-40, 70-30, 80-20 y 90-10, preservando la proporción original de clases y fijando la semilla aleatoria en $\text{seed} = 42$ para garantizar absoluta reproducibilidad. Para el estudio multiclase en Iris, se empleó una partición estratificada con $56\%$ train ($N=84$), $14\%$ validación ($N=21$) y $30\%$ test ($N=45$, exactamente 15 por especie). Para el estudio de sobreajuste en Breast Cancer, se fijó una distribución $50\%$ train ($N=284$), $25\%$ val ($N=142$) y $25\%$ test ($N=143$).
+
+\clearpage
+% ============================================================
+% SECCIÓN 4: RESULTADOS
+% ============================================================
+\section{Resultados}
+\label{sec:resultados}
+
+\subsection{Problemas XOR (2 y 3 Entradas) (Numeral 3)}
+
+\subsubsection{Disyunción Exclusiva de 2 Entradas ($\text{XOR-2}$)}
+
+La Tabla~\ref{tab:comp_xor2} compara cuantitativamente el desempeño de los modelos monocapa evaluados en el Taller 1 frente al Perceptrón Multicapa ($[2, 2, 1]$, sigmoide, $\eta = 0.50$, $\beta = 0.50$, umbral de convergencia $MSE \le 0.005$).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Comparativa de convergencia en el problema $\text{XOR-2}$ entre arquitecturas monocapa y multicapa.}
+\label{tab:comp_xor2}
+\begin{tabularx}{\textwidth}{l c c c c c L}
+\toprule
+\textbf{Modelo} & \textbf{Topología} & \textbf{Lineal} & \textbf{Épocas} & \textbf{MSE Final} & \textbf{Exactitud} & \textbf{Diagnóstico Cinemático} \\
+\midrule
+Perceptrón Simple & $[2, 1]$ & Sí & 200 & 0.5000 & 50.0\% & Oscilación periódica sin convergencia \\
+Adaline (LMS) & $[2, 1]$ & Sí & 67 & 0.2507 & 75.0\% & Estancamiento en mínimo plano de compromiso \\
+\textbf{MLP (Backpropagation)} & $[2, 2, 1]$ & \textbf{No} & \textbf{1649} & \textbf{0.00499} & \textbf{100.0\%} & \textbf{Convergencia perfecta: resuelve la no-linealidad} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/fig7_comparativa_modelos_xor2.png}
+    \caption*{(a) Trayectorias y predicciones en $\text{XOR-2}$}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/fig8_comparativa_modelos_xor3_paridad.png}
+    \caption*{(b) Predicciones discretas en paridad $\text{XOR-3}$}
+\end{minipage}
+\vspace{0.2cm}
+\caption{Contraste empírico de modelos en compuertas $\text{XOR}$: el Perceptrón Simple y Adaline colapsan en el 50\%, mientras el MLP alcanza exactitud perfecta del 100\% en 2 y 3 dimensiones.}
+\label{fig:xor_comparativa_dual}
+\end{figure}
+
+Como evidencia la Figura~\ref{fig:xor_comparativa_dual}(a), el Perceptrón Simple oscila periódicamente entre clasificar tres vértices y cometer un error, mientras que Adaline proyecta un compromiso plano con salidas continuas en torno a $0.5$. En contraste, el MLP reduce monótonamente su costo cuadrático hasta alcanzar $MSE = 0.00499$, generando predicciones continuas de $[0.0768, 0.9329, 0.9330, 0.0728]^T$ que se traducen en una exactitud del \textbf{100.0\%}.
+
+\subsubsection{Mecanismo de Despliegue en el Espacio Latente}
+
+El Numeral 3 de la guía solicita explícitamente evidenciar la necesidad de la capa oculta. La Figura~\ref{fig:xor_espacio_latente} desglosa geométricamente este mecanismo:
+\begin{itemize}
+    \item \textbf{Espacio Sensorial de Entrada $[x_1, x_2]$ (Panel A):} Los estados activos $(0, 1)$ y $(1, 0)$ ocupan las esquinas de una diagonal, mientras los estados pasivos $(0, 0)$ y $(1, 1)$ ocupan la diagonal opuesta. Ninguna recta en $\mathbb{R}^2$ puede separar simultáneamente ambos conjuntos conexos.
+    \item \textbf{Espacio Latente Intermedio $[h_1, h_2]$ (Panel B):} Las dos neuronas ocultas calculan combinaciones afines sigmoideas que repliegan el espacio. Los vértices $(0, 1)$ y $(1, 0)$ son proyectados congruentemente a la región $(0.93, 0.07)$, mientras $(0, 0)$ viaja hacia $(0.07, 0.07)$ y $(1, 1)$ es enviado hacia $(0.93, 0.93)$.
+    \item \textbf{Separabilidad Lineal Inducida:} En el espacio latente $H$, las dos clases se encuentran geométricamente desacopladas, permitiendo que la neurona de salida trace un hiperplano lineal con margen amplio y robusto.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\textwidth]{figuras/fig6_fronteras_decision_espacio_entrada_y_latente.png}
+\caption{Mecanismo de linealización del MLP en $\text{XOR-2}$: (A) Superficie de decisión no lineal en el espacio de entrada $\mathbb{R}^2$; (B) Mapeo continuo al espacio latente $[h_1, h_2]$ generado por la capa oculta, donde los patrones resultan linealmente separables.}
+\label{fig:xor_espacio_latente}
+\end{figure}
+
+\subsubsection{Dinámica de Hiperparámetros y Aceleración Inercial por Momento ($\beta$)}
+
+Se ejecutó un barrido de alta densidad en el plano $(\eta, \beta) \in [0.1, 2.0] \times [0.0, 1.0]$. La Figura~\ref{fig:xor_barridos} ilustra los cortes paramétricos unidimensionales:
+\begin{itemize}
+    \item \textbf{Efecto de la Tasa $\eta$ ($\beta = 0.0$):} El incremento de $\eta$ desde $0.1$ hasta $2.0$ reduce las épocas de convergencia de 9371 a 581 ($93.8\%$ de reducción). Para $\eta > 2.0$, aparecen rebotes oscilatorios y divergencia.
+    \item \textbf{Efecto del Momento $\beta$ ($\eta = 0.5$):} Con $\beta = 0.0$ se requieren 3137 épocas. Al incrementar el momento a $\beta = 0.5$ se reduce a 1649 épocas; con $\beta = 0.7$, a 1051; y con $\beta = 0.9$, la red converge en apenas \textbf{394 épocas} (una reducción del \textbf{87.44\%} en costo computacional).
+    \item \textbf{Inestabilidad Crítica en $\beta = 1.0$:} Sin disipación viscosa de energía cinética, la optimización oscila indefinidamente, agotando el techo de 15000 épocas sin converger ($MSE = 0.2521$).
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/fig1_convergencia_eta_beta0.png}
+    \caption*{(a) Épocas vs. Tasa $\eta$ ($\beta=0.0$)}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/fig2_convergencia_beta_eta05.png}
+    \caption*{(b) Épocas vs. Momento $\beta$ ($\eta=0.5$)}
+\end{minipage}
+\vspace{0.2cm}
+\caption{Dinámica de convergencia en $\text{XOR-2}$ evaluando el impacto individual de la tasa de aprendizaje $\eta$ y el momento $\beta$.}
+\label{fig:xor_barridos}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/fig3_superficie_3d_eta_beta.png}
+    \caption*{(a) Superficie 3D de Épocas de Convergencia}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/fig4_mapa_calor_contorno_eta_beta.png}
+    \caption*{(b) Mapa de Calor y Contornos de Isotiempo}
+\end{minipage}
+\vspace{0.2cm}
+\caption{Caracterización bidimensional global del espacio de hiperparámetros $(\eta, \beta)$ para el entrenamiento del MLP en $\text{XOR-2}$.}
+\label{fig:xor_superficie_malla}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.74\textwidth]{figuras/fig5_curvas_aprendizaje_mse.png}
+\caption{Curvas de evolución temporal del Error Cuadrático Medio ($MSE$) en función de las épocas bajo diferentes intensidades de momento inercial $\beta$ para una tasa fija $\eta = 0.50$.}
+\label{fig:xor_curvas_mse}
+\end{figure}
+
+La caracterización bidimensional completa (Figura~\ref{fig:xor_superficie_malla}) evidencia una cuenca de mínima resistencia computacional en el rango $\eta \in [0.5, 1.2]$ con $\beta \in [0.6, 0.9]$. Las trayectorias de $MSE$ (Figura~\ref{fig:xor_curvas_mse}) demuestran cómo un $\beta$ elevado comprime drásticamente la fase de meseta inicial previa al desprendimiento del gradiente.
+
+\subsubsection{Paridad Impar de 3 Entradas ($\text{XOR-3}$)}
+
+La compuerta $\text{XOR-3}$ asigna salida $1$ si el número de entradas activas es impar. La Tabla~\ref{tab:comp_xor3} resume la comparación frente a clasificadores monocapa, mientras que la Tabla~\ref{tab:pred_xor3} detalla las predicciones patrón por patrón.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Rendimiento cuantitativo en el problema de paridad booleana de 3 entradas ($\text{XOR-3}$).}
+\label{tab:comp_xor3}
+\begin{tabularx}{\textwidth}{l c c c c c C}
+\toprule
+\textbf{Modelo Evaluado} & \textbf{Topología} & \textbf{Épocas} & \textbf{Convergencia} & \textbf{MSE Final} & \textbf{Exactitud} & \textbf{Patrones Correctos} \\
+\midrule
+Perceptrón Simple & $[3, 1]$ & 300 & No & 0.5000 & 50.0\% & 4 / 8 \\
+Adaline (LMS) & $[3, 1]$ & 93 & No & 0.2504 & 50.0\% & 4 / 8 \\
+\textbf{MLP (4 Ocultas)} & $[3, 4, 1]$ & \textbf{1135} & \textbf{Sí} & \textbf{0.00497} & \textbf{100.0\%} & \textbf{8 / 8} \\
+\textbf{MLP (6 Ocultas)} & $[3, 6, 1]$ & \textbf{992} & \textbf{Sí} & \textbf{0.00497} & \textbf{100.0\%} & \textbf{8 / 8} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Predicciones analíticas continuas y discretas sobre los 8 patrones de la compuerta $\text{XOR-3}$.}
+\label{tab:pred_xor3}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c c c c c c c c}
+\toprule
+\textbf{Patrón $(x_1, x_2, x_3)$} & \textbf{Target $y$} & \textbf{Pred. Perc.} & \textbf{Pred. Adal.} & \textbf{Pred. MLP-4} & $\hat{P}(\text{MLP-4})$ & \textbf{Pred. MLP-6} & $\hat{P}(\text{MLP-6})$ \\
+\midrule
+$(0, 0, 0)$ & 0 & 0 & 0 & \textbf{0} & 0.0130 & \textbf{0} & 0.0333 \\
+$(0, 0, 1)$ & 1 & 0 & 0 & \textbf{1} & 0.9557 & \textbf{1} & 0.9462 \\
+$(0, 1, 0)$ & 1 & 1 & 0 & \textbf{1} & 0.9763 & \textbf{1} & 0.9494 \\
+$(0, 1, 1)$ & 0 & 1 & 0 & \textbf{0} & 0.0729 & \textbf{0} & 0.0753 \\
+$(1, 0, 0)$ & 1 & 1 & 1 & \textbf{1} & 0.9555 & \textbf{1} & 0.9816 \\
+$(1, 0, 1)$ & 0 & 1 & 1 & \textbf{0} & 0.0760 & \textbf{0} & 0.0715 \\
+$(1, 1, 0)$ & 0 & 1 & 1 & \textbf{0} & 0.0761 & \textbf{0} & 0.0741 \\
+$(1, 1, 1)$ & 1 & 1 & 1 & \textbf{1} & 0.8651 & \textbf{1} & 0.8711 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+En 3 dimensiones, la alternancia de paridad requiere particionar el hipercubo con al menos dos planos de corte paralelos. El Perceptrón y Adaline quedan estrictamente restringidos al $50\%$ de acierto, mientras que el MLP con 4 neuronas ocultas converge en 1135 épocas, y con 6 neuronas ocultas acelera a 992 épocas, alcanzando \textbf{100.0\%} de acierto con alta certidumbre probabilística en todos los vértices.
+
+\subsection{Clasificación Multiclase: Fisher's Iris (Numeral 4)}
+
+En atención estricta al Numeral 4 de la guía, se exploró una matriz de 9 configuraciones sistemáticas producto de combinar tres topologías ($[4, 4, 3]$, $[4, 8, 3]$ y la red profunda $[4, 8, 4, 3]$) con tres tasas de aprendizaje $\eta \in \{0.05, 0.10, 0.30\}$, bajo momento inercial fijo $\beta = 0.70$. La Tabla~\ref{tab:resultados_iris} compendia los resultados sobre el subconjunto de prueba independiente ($N_{\text{test}} = 45$).
+
+\input{tablas/tabla_iris_latex.tex}
+
+\textbf{Análisis de Convergencia y Arquitectura Óptima:} Como ilustra la Figura~\ref{fig:iris_convergencia_dual}, todas las configuraciones convergieron antes del límite de 1500 épocas. La arquitectura profunda CONF-08 ($[4, 8, 4, 3]$ con $\eta = 0.10$) logró el desempeño superior con \textbf{93.33\%} de exactitud en prueba y $F_1 = 0.9327$ en 180 épocas.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\textwidth]{figuras/iris_convergencia_dual_9_configs.png}
+\caption{Curvas duales de convergencia del error ($MSE_{\text{train}}$ vs. $MSE_{\text{val}}$) en función de las épocas para las 9 configuraciones evaluadas sobre el dataset Iris (Numeral 4).}
+\label{fig:iris_convergencia_dual}
+\end{figure}
+
+\textbf{Matriz de Confusión y Exactitud por Configuración:} La Figura~\ref{fig:iris_metricas_mejor}(a) y el panel general (Figura~\ref{fig:iris_matrices_malla}) confirman clasificación impecable al $100\%$ en \textit{Setosa} (15/15) y \textit{Versicolor} (15/15). Los tres únicos errores corresponden a patrones de \textit{Virginica} clasificados como \textit{Versicolor}, atribuibles a la zona de solapamiento morfométrico natural entre ambas especies botánicas.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/iris_matriz_confusion_mejor_modelo.png}
+    \caption*{(a) Matriz de Confusión Mejor Modelo ([4, 8, 4, 3])}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/iris_comparativa_metricas_malla.png}
+    \caption*{(b) Exactitud en Test según Tasa $\eta$}
+\end{minipage}
+\vspace{0.2cm}
+\caption{Evaluación multiclase sobre prueba en Iris: (a) Desempeño del mejor modelo; (b) Comparativa de exactitud entre las tres arquitecturas y tasas evaluadas.}
+\label{fig:iris_metricas_mejor}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{figuras/iris_matrices_confusion_malla.png}
+\caption{Panel comparativo de matrices de confusión sobre el conjunto de prueba independiente para las 9 configuraciones exploradas en Iris.}
+\label{fig:iris_matrices_malla}
+\end{figure}
+
+\textbf{Desenredo Topológico en Espacios Latentes:} La proyección PCA (Figura~\ref{fig:iris_espacio_latente}) ilustra con gran elocuencia el principio de representación interna: en el espacio sensorial $\mathbb{R}^4$ (Panel A), \textit{Versicolor} y \textit{Virginica} se intersectan; en la primera capa oculta $H^{(1)} \in \mathbb{R}^8$ (Panel B), la dispersión intra-clase disminuye; y en la segunda capa oculta $H^{(2)} \in \mathbb{R}^4$ (Panel C), los cúmulos se condensan en entidades linealmente separables antes de ingresar a la capa de decisión Softmax.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\textwidth]{figuras/iris_espacio_latente_proyeccion.png}
+\caption{Proyección PCA bidimensional del espacio sensorial $\mathbb{R}^4$ frente a los espacios latentes $H^{(1)} \in \mathbb{R}^8$ y $H^{(2)} \in \mathbb{R}^4$ en la red óptima $[4, 8, 4, 3]$, evidenciando la separación progresiva de las clases.}
+\label{fig:iris_espacio_latente}
+\end{figure}
+
+\subsection{Evaluación en Múltiples Particiones: Wine, Breast Cancer y Banknote (Numeral 5)}
+
+En cumplimiento del Numeral 5, se adaptó el protocolo de particionamiento estratificado sobre los tres conjuntos continuos bajo razones 60-40, 70-30, 80-20 y 90-10. La Tabla~\ref{tab:particiones_exactitud} resume la exactitud en prueba, y la Tabla~\ref{tab:comparativa_multidimensional_particiones} detalla el costo en tiempo (ms), épocas y métricas F1 frente a Perceptrón y Adaline.
+
+\input{tablas/tabla_particiones_latex.tex}
+
+\subsubsection{Hallazgos Numéricos Principales}
+\begin{itemize}
+    \item \textbf{Wine Recognition ($D=13$):} El MLP alcanzó exactitud perfecta del \textbf{100.0\%} en la partición 90-10 ($F_1 = 1.0000$) y $98.59\%$ en 60-40, resolviendo la correlación cruzada entre compuestos químicos.
+    \item \textbf{Breast Cancer Wisconsin ($D=30$):} El MLP superó de forma sistemática a los modelos monocapa en todas las particiones: $96.49\%$ en 60-40 y 70-30, $97.37\%$ en 80-20 y \textbf{98.25\%} en 90-10 (frente al $94.74\%$ del Perceptrón). En diagnóstico oncológico, el MLP redujo los falsos negativos a su mínima expresión (Figura~\ref{fig:particiones_cm_8020}).
+    \item \textbf{Banknote Authentication ($D=4$):} En la partición estándar 80-20, el MLP logró \textbf{100.00\%} de acierto perfecto (274/274 instancias de prueba correctamente discriminadas, $F_1 = 1.0000$).
+    \item \textbf{Tiempo vs. Épocas de Convergencia:} Como detalla la Figura~\ref{fig:particiones_global}(b), aunque el MLP involucra mayor sobrecosto en milisegundos por iteración debido a las multiplicaciones matriciales del paso retrógrado, el momento inercial amortiguado reduce drásticamente las épocas requeridas: el MLP converge en apenas \textbf{14 a 31 épocas}, mientras el Perceptrón agota el techo de 150 épocas sin converger formalmente en Breast Cancer y Banknote.
+\end{itemize}
+
+\input{tablas/tabla_comparativa_completa_particiones.tex}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/particiones_comparativa_global_accuracy.png}
+    \caption*{(a) Exactitud de Prueba vs. Tamaño de Partición}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/particiones_comparativa_tiempos_epocas.png}
+    \caption*{(b) Tiempo (ms) y Épocas en Partición 80-20}
+\end{minipage}
+\vspace{0.2cm}
+\caption{Desempeño global en particiones continuas: (a) Evolución de la exactitud frente al volumen de entrenamiento; (b) Costo computacional de convergencia.}
+\label{fig:particiones_global}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/particiones_wine_accuracy.png}
+    \caption*{(a) Wine Recognition}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/particiones_cancer_accuracy.png}
+    \caption*{(b) Breast Cancer Diagnostic}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figuras/particiones_banknote_accuracy.png}
+    \caption*{(c) Banknote Authentication}
+\end{minipage}
+\vspace{0.2cm}
+\caption{Desglose detallado de exactitud en prueba por partición para cada uno de los tres conjuntos de datos continuos evaluados.}
+\label{fig:particiones_desglose}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{figuras/particiones_matrices_confusion_80_20.png}
+\caption{Panel $3 \times 3$ de matrices de confusión sobre prueba (partición 80-20) contrastando Perceptrón Simple, Adaline y MLP.}
+\label{fig:particiones_cm_8020}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{figuras/particiones_curvas_aprendizaje_mlp.png}
+\caption{Curvas de aprendizaje del MLP ($MSE$ logarítmico) a lo largo de las cuatro particiones para Wine, Breast Cancer y Banknote.}
+\label{fig:particiones_curvas_mlp}
+\end{figure}
+
+\subsection{Sobreajuste y Parada Temprana (\textit{Early Stopping}) (Numeral 6)}
+
+Para modelar la patología del sobreajuste en cumplimiento del Numeral 6, se entrenó una red fuertemente sobreparametrizada sobre el subconjunto reducido de Breast Cancer ($N_{\text{tr}} = 284$ muestras):
+\begin{equation}
+    \mathcal{M}_{\text{sobre}}: \quad [30 \to 64 \to 32 \to 1], \quad \eta = 0.08, \quad \beta = 0.50 \implies \mathbf{4097\text{ parámetros entrenables}}.
+\end{equation}
+La razón de capacidad es de \textbf{14.43 parámetros por muestra}, propiciando memorización del conjunto de entrenamiento. Se implementó parada temprana con paciencia $P = 40$ y tolerancia $\Delta_{\text{min}} = 10^{-4}$ sobre el subconjunto de validación ($N_{\text{val}} = 142$), preservando copias de los pesos óptimos $W^*$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.74\textwidth]{figuras/overfitting_curvas_aprendizaje_early_stopping.png}
+\caption{Dinámica temporal de sobreajuste en la red $[30, 64, 32, 1]$ a lo largo de 1500 épocas: delimitación de las cuatro fases canónicas (subajuste, mínimo óptimo en $t^*=24$, disparo de parada en $t_{\text{stop}}=64$ y divergencia por sobreajuste).}
+\label{fig:sobreajuste_curvas}
+\end{figure}
+
+La Figura~\ref{fig:sobreajuste_curvas} valida con gran nitidez las cuatro fases temporales del aprendizaje:
+\begin{enumerate}
+    \item \textbf{Subajuste Inicial ($t \in [1, 10]$):} Descenso conjunto y rápido de $E_{\text{train}}$ y $E_{\text{val}}$ desde $0.0998$ hasta $\approx 0.0150$.
+    \item \textbf{Mínimo Óptimo de Validación ($t^* = 24$):} Mínimo error global en validación ($E_{\text{val}}^* = 0.012722$, $E_{\text{train}} = 0.008957$).
+    \item \textbf{Disparo de Parada ($t_{\text{stop}} = 64$):} Tras transcurrir 40 épocas sin registrar una mejora de magnitud $\Delta_{\text{min}}$, se suspende la optimización.
+    \item \textbf{Divergencia de Varianza ($t > 64 \to 1500$):} $E_{\text{train}}$ continúa decreciendo asintóticamente hasta $0.000013$, mientras $E_{\text{val}}$ diverge un \textbf{+102.2\%} hasta $0.025724$ debido a la memorización espuria de ruido.
+\end{enumerate}
+
+La Tabla~\ref{tab:sobreajuste_early_stopping} cuantifica el impacto directo sobre el subconjunto independiente de prueba ($N_{\text{test}} = 143$).
+
+\input{tablas/tabla_sobreajuste_latex.tex}
+
+\subsubsection{Impacto de la Variación del Número de Neuronas Ocultas}
+
+Para cumplir con el mandato de evaluar la variación en el número de neuronas ocultas, se entrenaron cuatro arquitecturas de complejidad creciente bajo el mismo protocolo a 1500 épocas. La Tabla~\ref{tab:complejidad_arquitecturas} y la Figura~\ref{fig:sobreajuste_comparativa} detallan los resultados.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Impacto de la complejidad estructural sobre el sobreajuste y la generalización en Breast Cancer.}
+\label{tab:complejidad_arquitecturas}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l c c c c c c c c}
+\toprule
+\textbf{Régimen} & \textbf{Topología} & \textbf{Parám.} & \textbf{Ratio P/N} & $t^*$ & $E_{\text{tr}}(1500)$ & $E_{\text{val}}(1500)$ & $E_{\text{test}}(\text{Overfit})$ & $E_{\text{test}}(\text{ES})$ \\
+\midrule
+Subajustada & $[30, 2, 1]$ & 65 & 0.23 & 30 & $5.74 \times 10^{-5}$ & 0.02553 & 0.04577 & \textbf{0.03725} \\
+Parsimoniosa & $[30, 8, 1]$ & 257 & 0.90 & 28 & $5.40 \times 10^{-5}$ & 0.02713 & 0.04621 & \textbf{0.03718} \\
+Balanceada & $[30, 16, 8, 1]$ & 641 & 2.26 & 22 & $1.64 \times 10^{-5}$ & 0.02580 & 0.04627 & \textbf{0.03572} \\
+Sobreparametrizada & $[30, 64, 32, 1]$ & 4097 & 14.43 & \textbf{24} & $1.27 \times 10^{-5}$ & 0.02572 & 0.04349 & \textbf{0.03625} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+El panel analítico de la Figura~\ref{fig:sobreajuste_comparativa} valida tres beneficios cardinales:
+\begin{enumerate}
+    \item \textbf{Reducción del Error Cuadrático en Prueba:} $E_{\text{test}}$ desciende de $0.043489$ en el modelo sobreajustado a $0.036247$ con Early Stopping, representando una mejora neta del \textbf{16.65\%}.
+    \item \textbf{Contracción de la Brecha de Generalización:} La brecha $|E_{\text{test}} - E_{\text{train}}|$ se contrae de $0.043476$ a $0.027290$, una reducción del \textbf{37.23\%}.
+    \item \textbf{Ahorro Computacional Drástico:} Al suspender en la época 64 y restaurar $W_{24}^*$, se economiza el \textbf{95.73\%} del tiempo total de procesamiento.
+    \item \textbf{Calibración Probabilística:} Como corrobora la estimación de densidad KDE (Panel B), Early Stopping previene la saturación extrema de probabilidades hacia los bordes $0$ y $1$, preservando una excelente calibración en la predicción.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{figuras/overfitting_comparativa_generalizacion.png}
+\caption{Panel analítico de regularización por Early Stopping: (A) Exactitud, MSE y brecha de generalización en prueba; (B) Estimación de densidad KDE de probabilidades en test; (C) Trayectorias de $E_{\text{val}}$ para cuatro niveles de complejidad.}
+\label{fig:sobreajuste_comparativa}
+\end{figure}
+
+\clearpage
+% ============================================================
+% SECCIÓN 5: ANÁLISIS Y DISCUSIÓN
+% ============================================================
+\section{Análisis y Discusión}
+\label{sec:analisis_discusion}
+
+\subsection{Cuadro Comparativo Multidimensional: Perceptrón vs. Adaline vs. MLP}
+
+La Tabla~\ref{tab:cuadro_comparativo_global} sintetiza el análisis formal contrastando las tres arquitecturas neuronales abordadas en el curso a través de ocho dimensiones analíticas directrices.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Cuadro comparativo multidimensional entre el Perceptrón Simple, Adaline y el Perceptrón Multicapa.}
+\label{tab:cuadro_comparativo_global}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabularx}{\textwidth}{p{3.0cm} L L L}
+\toprule
+\textbf{Criterio} & \textbf{Perceptrón Simple (Rosenblatt)} & \textbf{Red Adaline (Widrow-Hoff)} & \textbf{Perceptrón Multicapa (Rumelhart)} \\
+\midrule
+\textbf{Topología} & Monocapa, sin capas ocultas ($[D, 1]$) & Monocapa, sin capas ocultas ($[D, 1]$) & Multicapa profunda ($[D, n_1, \dots, n_L]$) \\
+\textbf{Activación} & Escalón Heaviside discreto $\{0, 1\}$ & Lineal en entrenamiento, umbral en test & Sigmoide, Tanh, ReLU, Softmax continuas \\
+\textbf{Función Costo} & No diferenciable (recuento de fallos) & Cuadrática convexa (MSE en pre-activación) & No convexa altamente multimodal (MSE, CE) \\
+\textbf{Optimización} & Regla heurística de corrección & Descenso de Gradiente Estocástico (LMS) & Retropropagación con Momento Inercial $\beta$ \\
+\textbf{Separabilidad} & Estrictamente lineal ($\mathbb{R}^{D-1}$) & Estrictamente lineal (mínimos cuadrados) & No lineal arbitraria (Aproximador Universal) \\
+\textbf{Resolución XOR} & \textbf{Fracaso} (cicla indefinido, $50\%$) & \textbf{Fracaso} (compromiso plano, $50\%-75\%$) & \textbf{Éxito perfecto} ($100.0\%$, deformación latente) \\
+\textbf{Sensibilidad Escala} & Moderada (altera velocidad angular) & Severa (diverge si $\alpha > 2/\lambda_{\max}$) & Crítica (satura gradientes sin estandarizar) \\
+\textbf{Banco Banknote} & Test Acc: $\approx 98.5\% - 99.3\%$ & Test Acc: $\approx 97.1\% - 98.5\%$ & \textbf{Test Acc: $100.00\%$ ($F_1 = 1.0000$ en 80-20)} \\
+\bottomrule
+\end{tabularx}
+\end{adjustbox}
+\end{table}
+
+\subsection{Sensibilidad Dinámica a la Interacción de Hiperparámetros ($\eta, \beta$)}
+
+El comportamiento dinámico del algoritmo de retropropagación se encuentra determinado por la interacción no lineal entre la tasa de aprendizaje $\eta$ y el coeficiente de momento $\beta$:
+\begin{itemize}
+    \item \textbf{Tasa $\eta$:} Dicta la longitud del paso en el espacio de parámetros. Tasas excesivamente reducidas ($\eta \le 0.01$) causan un progreso exasperadamente lento en zonas de gradiente atenuado; por su parte, valores demasiado altos ($\eta \ge 2.0$) inducen sobrepasos oscilatorios desestabilizadores.
+    \item \textbf{Momento $\beta$:} Actúa como un filtro pasa-bajo que suaviza la trayectoria de descenso. Al ponderar la inercia acumulada, cancela componentes alternantes de alta frecuencia transversal y multiplica el desplazamiento en direcciones de curvatura consistente por $\frac{1}{1-\beta}$. La aceleración del \textbf{87.44\%} evidenciada en $\text{XOR-2}$ comprueba que el momento es imprescindible para atravesar mesetas de bajo gradiente sin estancarse.
+\end{itemize}
+
+\subsection{Compromiso entre Profundidad y Ancho (\textit{Depth vs. Width Trade-off})}
+
+Los hallazgos en Iris y Breast Cancer sustentan principios fundamentales de diseño arquitectónico:
+\begin{itemize}
+    \item Redes excesivamente anchas y superficiales requieren un número cuadrático de sinapsis en una sola capa, propiciando memorización localizada de patrones individuales.
+    \item Redes más profundas y parsimoniosas ($[4, 8, 4, 3]$ o $[30, 16, 8, 1]$) construyen jerarquías composicionales progresivas. Como ratificó la proyección PCA en Iris, la primera capa extrae combinaciones lineales básicas, mientras que las capas intermedias subsiguientes desenredan la variedad topológica, alcanzando mayor exactitud con menor número de parámetros totales.
+\end{itemize}
+
+% ============================================================
+% SECCIÓN 6: CONCLUSIONES
+% ============================================================
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+\begin{enumerate}
+    \item \textbf{Superación Categórica de la Barrera Lineal:} El Perceptrón Multicapa demostró capacidad analítica y empírica para resolver las compuertas $\text{XOR}$ de 2 y 3 entradas (paridad) con exactitud perfecta del \textbf{100.0\%}, desarticulando la restricción geométrica monocapa formalizada por Minsky y Papert (1969). Frente a la oscilación permanente del Perceptrón ($50.0\%$) y la degradación plana de Adaline ($50.0\%-75.0\%$), la inclusión de capas ocultas intermedias no lineales faculta a la red para modelar contornos cerrados y regiones de decisión de complejidad arbitraria.
+    \item \textbf{Desenredo Topológico en Espacios Latentes:} Se evidenció visual y geométricamente mediante análisis de componentes principales (PCA) que las capas ocultas actúan como proyectores no lineales que transforman las variedades continuas. En el problema $\text{XOR-2}$, la capa oculta mapea los patrones a un espacio latente bidimensional $[h_1, h_2]$ donde las clases son trivialmente separables por una recta. De forma análoga, en el dataset Iris, la red profunda $[4, 8, 4, 3]$ desacopló progresivamente las clases solapadas \textit{Versicolor} y \textit{Virginica}, alcanzando un \textbf{93.33\%} de exactitud en prueba.
+    \item \textbf{Aceleración Inercial por Momento ($\beta$):} La incorporación del término inercial $\beta$ demostró acelerar la convergencia del entrenamiento en hasta un \textbf{87.44\%} ($\beta = 0.9$ vs. $\beta = 0.0$). Su mecanismo opera como un filtro pasa-bajo que amortigua oscilaciones destructivas en cañones estrechos de error y amplifica la velocidad efectiva por un factor de $\frac{1}{1-\beta}$. Asimismo, se comprobó experimentalmente la cota de inestabilidad divergente en $\beta = 1.0$ por ausencia de amortiguamiento viscoso.
+    \item \textbf{Desempeño Superior en Benchmarks Continuos Multiclase:} En los tres conjuntos de datos del Taller 1, el MLP superó holgadamente a los modelos lineales monocapa: \textbf{100.00\%} en Banknote Authentication (partición 80-20, $F_1 = 1.0000$), \textbf{100.00\%} en Wine Recognition (partición 90-10) y \textbf{98.25\%} en Breast Cancer Wisconsin. Aunque el paso hacia atrás incrementa el tiempo por época, la convergencia se logró en solo \textbf{14 a 31 épocas}, mientras que el Perceptrón Simple agotó 150 épocas sin converger en datos complejos.
+    \item \textbf{Regularización Efectiva por Parada Temprana:} En una red sobreparametrizada con $14.43$ parámetros por muestra, la técnica de \textit{Early Stopping} redujo el error de prueba en un \textbf{16.65\%}, contrajo la brecha de generalización en un \textbf{37.23\%} y brindó una economía computacional del \textbf{95.73\%}, confirmando su comportamiento como un regularizador implícito de norma sináptica ($L_2$ \textit{weight decay}) que elude la memorización destructiva de ruido sin requerir re-entrenamientos sucesivos.
+    \item \textbf{Garantía Metodológica Contra Fuga de Información (\textit{Data Leakage}):} Se demostró que computar la media y desviación estándar de estandarización $z$-score exclusivamente sobre la partición de entrenamiento no solo preserva la validez estadística, sino que conditioned los potenciales netos en la región de máxima conductividad de gradiente de la sigmoide ($\sigma'(0) = 0.25$), suprimiendo la saturación temprana de los pesos sinápticos.
+\end{enumerate}
+
+% ============================================================
+% SECCIÓN 7: REFERENCIAS
+% ============================================================
+\section{Referencias}
+\label{sec:referencias}
+
+\begingroup
+\renewcommand{\section}[2]{}% Anula el encabezado redundante generado internamente por thebibliography
+\begin{thebibliography}{99}
+    \bibitem{rosenblatt1958} F. Rosenblatt, ``The Perceptron: A probabilistic model for information storage and organization in the brain,'' \textit{Psychological Review}, vol. 65, no. 6, pp. 386--408, 1958. \href{https://doi.org/10.1037/h0042519}{doi:10.1037/h0042519}
+    \bibitem{widrow1960} B. Widrow and M. E. Hoff, ``Adaptive switching circuits,'' in \textit{IRE WESCON Convention Record}, part 4, pp. 96--104, 1960.
+    \bibitem{minsky1969} M. L. Minsky and S. A. Papert, \textit{Perceptrons: An Introduction to Computational Geometry}, Cambridge, MA, USA: MIT Press, 1969.
+    \bibitem{rumelhart1986} D. E. Rumelhart, G. E. Hinton, and R. J. Williams, ``Learning representations by back-propagating errors,'' \textit{Nature}, vol. 323, no. 6088, pp. 533--536, 1986. \href{https://doi.org/10.1038/323533a0}{doi:10.1038/323533a0}
+    \bibitem{cybenko1989} G. Cybenko, ``Approximation by superpositions of a sigmoidal function,'' \textit{Mathematics of Control, Signals, and Systems}, vol. 2, no. 4, pp. 303--314, 1989. \href{https://doi.org/10.1007/BF02551274}{doi:10.1007/BF02551274}
+    \bibitem{hornik1991} K. Hornik, ``Approximation capabilities of multilayer feedforward networks,'' \textit{Neural Networks}, vol. 4, no. 2, pp. 251--257, 1991. \href{https://doi.org/10.1016/0893-6080(91)90009-T}{doi:10.1016/0893-6080(91)90009-T}
+    \bibitem{qian1999} N. Qian, ``On the momentum term in gradient descent learning algorithms,'' \textit{Neural Networks}, vol. 12, no. 1, pp. 145--151, 1999. \href{https://doi.org/10.1016/S0893-6080(98)00116-6}{doi:10.1016/S0893-6080(98)00116-6}
+    \bibitem{ruder2016} S. Ruder, ``An overview of gradient descent optimization algorithms,'' \textit{arXiv preprint arXiv:1609.04747}, 2016. \href{https://arxiv.org/abs/1609.04747}{arXiv:1609.04747}
+    \bibitem{haykin2009} S. Haykin, \textit{Neural Networks and Learning Machines}, 3rd ed. Upper Saddle River, NJ, USA: Pearson Prentice Hall, 2009.
+    \bibitem{bishop2006} C. M. Bishop, \textit{Pattern Recognition and Machine Learning}, New York, NY, USA: Springer, 2006.
+    \bibitem{goodfellow2016} I. Goodfellow, Y. Bengio, and A. Courville, \textit{Deep Learning}, Cambridge, MA, USA: MIT Press, 2016.
+    \bibitem{fisher1936} R. A. Fisher, ``The use of multiple measurements in taxonomic problems,'' \textit{Annals of Eugenics}, vol. 7, no. 2, pp. 179--188, 1936.
+    \bibitem{dua2017} D. Dua and C. Graff, ``UCI Machine Learning Repository,'' School of Information and Computer Science, University of California, Irvine, CA, 2017. \url{http://archive.ics.uci.edu/ml}
+\end{thebibliography}
+\endgroup
+
+\end{document}
