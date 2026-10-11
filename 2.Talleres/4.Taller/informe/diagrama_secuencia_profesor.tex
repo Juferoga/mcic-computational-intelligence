@@ -1,0 +1,55 @@
+% Diagrama de secuencia (UML) del cuaderno resuelto de lógica difusa del profesor (Taller_LogicaDifusa_RESUELTO_Colab).
+% Se incluye con \input{diagrama_secuencia_profesor} dentro de un entorno figure. Paleta de ud-informe.
+\begin{tikzpicture}[yscale=0.76, font=\fontsize{7.6pt}{9pt}\selectfont,
+    part/.style={draw=udsable!70, fill=white, rounded corners=2pt, minimum width=2.25cm, minimum height=0.7cm, align=center, inner sep=2pt},
+    parthecho/.style={part, draw=udrojo, fill=udrojo!8, font=\fontsize{7.6pt}{9pt}\selectfont\bfseries},
+    vida/.style={udplata!80, dash pattern=on 2.5pt off 2.5pt, line width=0.5pt},
+    sync/.style={-{Latex[length=1.8mm]}, line width=0.65pt, color=udsable},
+    retorno/.style={-{Latex[length=1.8mm, open]}, line width=0.55pt, color=udsable!65, dash pattern=on 3pt off 2pt},
+    txt/.style={fill=white, inner sep=1.2pt, text=udsable},
+    et/.style={txt, above=1.6pt},
+    marco/.style={draw=udrojo!80, line width=0.7pt, rounded corners=1pt},
+    etiq/.style={fill=udrojoosc, text=white, font=\fontsize{6.8pt}{8pt}\selectfont\bfseries, inner sep=2pt, anchor=north west},
+    nota/.style={draw=udplata, fill=udfondo, font=\fontsize{7pt}{8.4pt}\selectfont, align=left, inner sep=3pt}]
+
+  \def\xU{0.0}   \def\xC{2.95}  \def\xM{5.9}   \def\xI{8.85}  \def\xS{11.8}  \def\xR{14.75}
+  \node[part]      at (\xU,0) {\textbf{Usuario}\\(estudiante)};
+  \node[parthecho] at (\xC,0) {Cuaderno\\(Colab, Python)};
+  \node[part]      at (\xM,0) {\texttt{MF y operadores}\\(\texttt{trimf}, \texttt{trapmf}, \ldots)};
+  \node[part]      at (\xI,0) {Motor de\\inferencia};
+  \node[part]      at (\xS,0) {\texttt{scikit-fuzzy}\\(referencia)};
+  \node[part]      at (\xR,0) {Reglas desde datos\\(Wang--Mendel, FCM)};
+  \foreach \x in {\xU,\xC,\xM,\xI,\xS,\xR} \draw[vida] (\x,-0.35) -- (\x,-18.3);
+
+  % marco de repetición: una vuelta por cada regla del motor Mamdani
+  \draw[marco] (\xM-0.5,-5.55) rectangle (\xI+0.6,-8.0);
+  \node[etiq] at (\xM-0.5,-5.55) {loop \;\;para cada regla (3)};
+
+  \draw[sync]    (\xU,-1.5)  -- node[et]{ejecutar pasos 0 a 7} (\xC,-1.5);
+  \draw[sync]    (\xC,-2.2)  -- node[et]{\texttt{trimf(x, a, b, c)}} (\xM,-2.2);
+  \draw[retorno] (\xM,-2.75) -- node[et]{grados $\mu\in[0,1]$} (\xC,-2.75);
+  \draw[sync]    (\xC,-3.45) -- node[et]{\texttt{fuzz.trimf}: comparar} (\xS,-3.45);
+  \draw[retorno] (\xS,-4.0)  -- node[et]{valores iguales} (\xC,-4.0);
+  \draw[sync]    (\xC,-4.75) -- node[et]{\texttt{evaluar\_mamdani(servicio=1, comida=2)}} (\xI,-4.75);
+  \draw[sync]    (\xI,-6.45) -- node[et]{$\mu$ de cada entrada} (\xM,-6.45);
+  \draw[sync]    (\xI,-7.0)  -- (\xI+0.5,-7.0) -- (\xI+0.5,-7.45) -- (\xI,-7.45);
+  \node[txt, anchor=west] at (\xI+0.6,-7.22) {fuerza (Y/O); recorte con mín};
+  \draw[sync]    (\xI,-8.5)  -- (\xI+0.5,-8.5) -- (\xI+0.5,-8.95) -- (\xI,-8.95);
+  \node[txt, anchor=west] at (\xI+0.6,-8.72) {agregación (máx) y centroide};
+  \draw[retorno] (\xI,-9.6)  -- node[et]{propina = 5,5586} (\xC,-9.6);
+  \draw[sync]    (\xC,-10.35)-- node[et]{\texttt{ControlSystemSimulation}} (\xS,-10.35);
+  \draw[retorno] (\xS,-10.9) -- node[et]{5,5539 ($\approx$)} (\xC,-10.9);
+  \draw[sync]    (\xC,-11.65)-- node[et]{\texttt{evaluar\_sugeno0}} (\xI,-11.65);
+  \draw[retorno] (\xI,-12.2) -- node[et]{5,3445} (\xC,-12.2);
+  \draw[sync]    (\xC,-13.0) -- node[et]{\texttt{extraer\_reglas(Iris, 3 MF)}} (\xR,-13.0);
+  \draw[sync]    (\xR,-13.6) -- (\xR+0.5,-13.6) -- (\xR+0.5,-14.05) -- (\xR,-14.05);
+  \node[txt, anchor=east] at (\xR-0.15,-13.82) {una regla por muestra; se queda la de mayor grado};
+  \draw[retorno] (\xR,-14.7) -- node[et]{16 reglas} (\xC,-14.7);
+  \draw[sync]    (\xC,-15.35)-- node[et]{\texttt{predecir\_reglas(prueba)}} (\xR,-15.35);
+  \draw[retorno] (\xR,-15.9) -- node[et]{exactitud 0,889} (\xC,-15.9);
+  \draw[sync]    (\xC,-16.6) -- node[et]{\texttt{fcm\_propio(c = 3)}} (\xR,-16.6);
+  \draw[retorno] (\xR,-17.2) -- node[et]{ARI = 0,729} (\xC,-17.2);
+  \draw[retorno] (\xC,-17.9) -- node[et]{\texttt{[OK]} / \texttt{[REVISAR]}} (\xU,-17.9);
+
+  \node[nota, anchor=north east] at (\xR+0.55,-18.7) {Paso 7: repite \texttt{extraer\_reglas} con $n=2$ a 5 y compara con un árbol de decisión.};
+\end{tikzpicture}

@@ -1,0 +1,25 @@
+si,clase,peso,soporte
+"['cerca', 'muy cerca', 'cerca', 'cerca']",Sharp-Right-Turn,0.975,0.084
+"['cerca', 'muy cerca', 'cerca', 'lejos']",Sharp-Right-Turn,1.0,0.018
+"['cerca', 'muy cerca', 'lejos', 'cerca']",Sharp-Right-Turn,0.991,0.045
+"['cerca', 'muy cerca', 'lejos', 'lejos']",Sharp-Right-Turn,0.987,0.126
+"['cerca', 'cerca', 'cerca', 'cerca']",Sharp-Right-Turn,0.989,0.242
+"['cerca', 'cerca', 'cerca', 'lejos']",Sharp-Right-Turn,0.992,0.187
+"['cerca', 'cerca', 'lejos', 'cerca']",Sharp-Right-Turn,0.974,0.085
+"['cerca', 'cerca', 'lejos', 'lejos']",Sharp-Right-Turn,0.984,0.178
+"['cerca', 'lejos', 'cerca', 'cerca']",Sharp-Right-Turn,1.0,0.009
+"['cerca', 'lejos', 'cerca', 'lejos']",Sharp-Right-Turn,0.949,0.011
+"['cerca', 'lejos', 'lejos', 'cerca']",Sharp-Right-Turn,1.0,0.001
+"['cerca', 'lejos', 'lejos', 'lejos']",Sharp-Right-Turn,0.894,0.012
+"['lejos', 'muy cerca', 'cerca', 'cerca']",Slight-Right-Turn,0.97,0.125
+"['lejos', 'muy cerca', 'cerca', 'lejos']",Slight-Right-Turn,0.885,0.021
+"['lejos', 'muy cerca', 'lejos', 'cerca']",Slight-Right-Turn,0.975,0.335
+"['lejos', 'muy cerca', 'lejos', 'lejos']",Slight-Right-Turn,0.971,0.463
+"['lejos', 'cerca', 'cerca', 'cerca']",Move-Forward,0.973,0.422
+"['lejos', 'cerca', 'cerca', 'lejos']",Move-Forward,0.942,0.173
+"['lejos', 'cerca', 'lejos', 'cerca']",Move-Forward,0.852,0.198
+"['lejos', 'cerca', 'lejos', 'lejos']",Move-Forward,0.793,0.285
+"['lejos', 'lejos', 'cerca', 'cerca']",Slight-Left-Turn,0.498,0.0
+"['lejos', 'lejos', 'cerca', 'lejos']",Slight-Left-Turn,0.997,0.418
+"['lejos', 'lejos', 'lejos', 'cerca']",Slight-Left-Turn,0.499,0.0
+"['lejos', 'lejos', 'lejos', 'lejos']",Slight-Left-Turn,0.999,0.561

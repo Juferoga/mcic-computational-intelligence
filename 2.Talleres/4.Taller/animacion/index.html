@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller 4 — Lógica difusa</title>
+<meta name="description" content="Animación interactiva para estudiar el Taller 4: funciones de pertenencia, Mamdani paso a paso, reglas desde datos, agrupamiento sustractivo, Fuzzy C-Means y los modelos difusos del robot.">
+<style>
+:root {
+  --rojo: #ED3237; --rojo-osc: #A61C22; --azul: #1291C0; --dorado: #B49739; --verde: #00A859; --plata: #98999A; --sable: #373435;
+  --fondo: #F6F4EE; --tarjeta: #FFFFFF; --borde: #DDD8CB; --texto: #373435; --suave: #6b6768; --cuadro: #EFEBDF;
+  --pix-fondo: #ECE8DC; --sombra: 0 1px 2px rgba(55,52,53,.08), 0 6px 20px rgba(55,52,53,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fondo: #1c1a1b; --tarjeta: #262324; --borde: #3d3839; --texto: #ECE8E0; --suave: #a8a29c; --cuadro: #2f2b2c;
+    --pix-fondo: #332f30; --azul: #34a9d6; --rojo: #f2565a; --dorado: #cdb25a; --verde: #20c577; --sombra: none;
+  }
+}
+:root[data-tema="oscuro"] {
+  --fondo: #1c1a1b; --tarjeta: #262324; --borde: #3d3839; --texto: #ECE8E0; --suave: #a8a29c; --cuadro: #2f2b2c;
+  --pix-fondo: #332f30; --azul: #34a9d6; --rojo: #f2565a; --dorado: #cdb25a; --verde: #20c577; --sombra: none;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 17px/1.55 Cambria, "Times New Roman", Times, serif; }
+h1, h2, h3 { font-family: Cambria, Georgia, serif; line-height: 1.2; margin: 0; }
+button, select, input { font: inherit; color: inherit; }
+.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86em; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* barra de navegación */
+nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--fondo) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--borde); }
+nav .in { max-width: 1120px; margin: auto; padding: 8px 16px; display: flex; gap: 4px; overflow-x: auto; align-items: center; scrollbar-width: thin; }
+nav a { color: var(--suave); text-decoration: none; padding: 6px 10px; border-radius: 8px; white-space: nowrap; font-size: .92rem; }
+nav a:hover { background: var(--cuadro); color: var(--texto); }
+nav a.act { color: var(--rojo-osc); background: color-mix(in srgb, var(--rojo) 12%, transparent); font-weight: 700; }
+#tema { margin-left: auto; border: 1px solid var(--borde); background: var(--tarjeta); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+
+header.hero { max-width: 1120px; margin: auto; padding: 40px 16px 8px; }
+.hero .kick { color: var(--rojo); letter-spacing: .08em; text-transform: uppercase; font-size: .82rem; font-weight: 700; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 10px; }
+.hero p { max-width: 70ch; color: var(--suave); margin: 0 0 8px; }
+.hero .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip { background: var(--tarjeta); border: 1px solid var(--borde); border-left: 3px solid var(--dorado); border-radius: 8px; padding: 6px 12px; font-size: .9rem; }
+.chip b { color: var(--texto); }
+
+main { max-width: 1120px; margin: auto; padding: 0 16px 60px; }
+section { margin-top: 34px; }
+section > h2 { font-size: 1.65rem; display: flex; gap: 10px; align-items: baseline; }
+section > h2 .n { color: var(--rojo); font-size: 1.1rem; }
+section > .lead { color: var(--suave); max-width: 75ch; margin: 6px 0 14px; }
+.card { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 14px; padding: 18px; box-shadow: var(--sombra); margin-top: 14px; }
+.card > h3 { font-size: 1.08rem; margin-bottom: 8px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 18px; align-items: start; }
+.fila { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.nota { color: var(--suave); font-size: .92rem; }
+.callout { border-left: 4px solid var(--azul); background: color-mix(in srgb, var(--azul) 8%, transparent); padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 12px 0; }
+.callout.rojo { border-color: var(--rojo); background: color-mix(in srgb, var(--rojo) 8%, transparent); }
+.callout.dorado { border-color: var(--dorado); background: color-mix(in srgb, var(--dorado) 12%, transparent); }
+
+/* controles */
+.btn { border: 1px solid var(--borde); background: var(--tarjeta); border-radius: 9px; padding: 7px 14px; cursor: pointer; transition: background .15s, border-color .15s; }
+.btn:hover { background: var(--cuadro); }
+.btn.prim { background: var(--rojo); border-color: var(--rojo); color: #fff; font-weight: 700; }
+.btn.prim:hover { background: var(--rojo-osc); }
+.btn:focus-visible, select:focus-visible, input:focus-visible, nav a:focus-visible, summary:focus-visible, .mini:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--borde); border-radius: 9px; overflow: hidden; }
+.seg button { border: 0; background: var(--tarjeta); padding: 6px 12px; cursor: pointer; border-right: 1px solid var(--borde); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--sable); color: #fff; }
+:root[data-tema="oscuro"] .seg button[aria-pressed="true"] { background: var(--dorado); color: #1c1a1b; }
+label.ctl { display: inline-flex; align-items: center; gap: 8px; font-size: .94rem; }
+input[type=range] { accent-color: var(--rojo); width: 150px; }
+select { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 5px 8px; }
+
+/* pixeles */
+.pix { image-rendering: pixelated; image-rendering: crisp-edges; background: var(--pix-fondo); border-radius: 4px; display: block; }
+.lienzo { position: relative; display: inline-block; line-height: 0; }
+.lienzo canvas.ov { position: absolute; inset: 0; pointer-events: none; image-rendering: auto; }
+.cap { font-size: .86rem; color: var(--suave); margin-top: 6px; line-height: 1.35; }
+.tira { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 8px; }
+.mini { border: 2px solid transparent; border-radius: 6px; padding: 0; background: none; cursor: pointer; line-height: 0; flex: none; }
+.mini[aria-pressed="true"] { border-color: var(--rojo); }
+.mini.err { box-shadow: 0 0 0 1px var(--dorado); }
+.mini canvas { width: 42px; height: 42px; border-radius: 3px; }
+
+/* tablas numéricas */
+table.m { border-collapse: collapse; margin: 4px 0; }
+table.m td { border: 1px solid var(--borde); width: 54px; height: 30px; text-align: center; font-size: .82rem; font-variant-numeric: tabular-nums; }
+table.m td.pad { color: var(--plata); background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in srgb, var(--plata) 18%, transparent) 4px 5px); }
+.eq { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+.eq b { color: var(--rojo); }
+
+/* diagrama general */
+.pipe { display: flex; gap: 0; overflow-x: auto; padding: 8px 2px 14px; align-items: stretch; }
+.blq { flex: none; width: 128px; border: 2px solid var(--borde); border-radius: 12px; background: var(--tarjeta); padding: 10px 8px; text-align: center; cursor: pointer; position: relative; transition: transform .2s, border-color .2s, background .2s; font: inherit; color: inherit; }
+.blq:hover, .blq[aria-pressed="true"] { transform: translateY(-3px); border-color: var(--rojo); }
+.blq[aria-pressed="true"] { background: color-mix(in srgb, var(--rojo) 7%, var(--tarjeta)); }
+.blq .t { font-weight: 700; font-size: .95rem; }
+.blq .s { font-size: .8rem; color: var(--suave); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.blq .p { font-size: .78rem; margin-top: 6px; color: var(--azul); font-weight: 700; }
+.flecha { flex: none; width: 34px; align-self: center; position: relative; height: 4px; background: var(--borde); border-radius: 2px; overflow: hidden; }
+.flecha::after { content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: var(--rojo); animation: viaja 1.8s linear infinite; animation-delay: calc(var(--i) * .22s); }
+@keyframes viaja { to { left: 100%; } }
+@media (prefers-reduced-motion: reduce) { .flecha::after { animation: none; left: 0; width: 100%; opacity: .35; } * { scroll-behavior: auto !important; transition: none !important; } }
+
+/* forward completo */
+.flujo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.card, .grid2 > *, .paso { min-width: 0; }
+.paso { overflow-x: auto; }
+.seg { flex-wrap: wrap; max-width: 100%; }
+.paso { border: 1px solid var(--borde); border-left: 4px solid var(--borde); border-radius: 10px; padding: 12px 14px; background: var(--tarjeta); opacity: .22; transform: translateY(8px); transition: opacity .5s, transform .5s, border-color .3s; }
+.paso.on { opacity: 1; transform: none; }
+.paso.ahora { border-left-color: var(--rojo); box-shadow: var(--sombra); }
+.paso h4 { margin: 0 0 6px; font-size: 1rem; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.paso h4 small { color: var(--suave); font-weight: 400; font-size: .84rem; }
+.barras { display: grid; gap: 3px; }
+.barra { display: grid; grid-template-columns: 74px 1fr 64px; gap: 8px; align-items: center; font-size: .86rem; }
+.barra .pista { position: relative; height: 15px; background: var(--cuadro); border-radius: 4px; }
+.barra .rel { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--plata); transition: width .45s, left .45s, background .3s; }
+.barra.win .rel { background: var(--verde); }
+.barra.real .et { font-weight: 700; color: var(--rojo); }
+.barra .et { white-space: nowrap; }
+.barra .val { text-align: right; font-variant-numeric: tabular-nums; }
+.zero { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--sable); opacity: .5; }
+
+/* código */
+pre.cod { background: var(--sable); color: #f1ece1; border-radius: 10px; padding: 12px 14px; margin: 0; overflow-x: auto; font-size: .84rem; line-height: 1.7; }
+pre.cod .ln { display: block; padding: 0 8px; margin: 0 -8px; border-left: 3px solid transparent; color: #cfc8b8; cursor: pointer; }
+pre.cod .ln.act { background: rgba(237,50,55,.22); border-left-color: var(--rojo); color: #fff; }
+pre.cod .c { color: #98999A; }
+
+details { border: 1px solid var(--borde); border-radius: 10px; background: var(--tarjeta); padding: 0; margin-top: 8px; }
+summary { cursor: pointer; padding: 11px 14px; font-weight: 700; }
+details > div { padding: 0 14px 12px; }
+details[open] { border-color: var(--rojo); }
+
+.tabla-res { border-collapse: collapse; width: 100%; font-size: .92rem; font-variant-numeric: tabular-nums; }
+.tabla-res th, .tabla-res td { border-bottom: 1px solid var(--borde); padding: 6px 8px; text-align: right; }
+.tabla-res th:first-child, .tabla-res td:first-child { text-align: left; }
+svg text { font-family: inherit; fill: var(--suave); font-size: 12px; }
+svg .eje { stroke: var(--borde); }
+svg .tx { fill: var(--texto); }
+footer { max-width: 1120px; margin: 0 auto; padding: 8px 16px 50px; color: var(--suave); font-size: .9rem; border-top: 1px solid var(--borde); }
+.sr { position: absolute; left: -9999px; }
+
+canvas.lienzo2 { background: var(--pix-fondo); border-radius: 8px; max-width: 100%; touch-action: none; cursor: crosshair; }
+.fila.sep { gap: 10px 22px; }
+.rg { display: grid; grid-template-columns: 22px 1fr 58px; gap: 8px; align-items: center; font-size: .86rem; margin: 3px 0; }
+.rg .pista { position: relative; height: 15px; background: var(--cuadro); border-radius: 4px; }
+.rg .rel { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--plata); transition: width .25s, background .25s; }
+.rg.gana .rel { background: var(--verde); } .rg .nm { color: var(--suave); font-size: .8rem; }
+.rg .t { grid-column: 2 / 4; font-size: .8rem; color: var(--suave); margin-top: -2px; }
+.paso-b button { margin-right: 4px; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .84rem; color: var(--suave); }
+.leyenda i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.kv { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.kv div { font-size: .9rem; } .kv b { font-size: 1.1rem; color: var(--texto); font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; padding: 1px 9px; border-radius: 99px; font-size: .8rem; font-weight: 700; color: #fff; }
+</style>
+</head>
+<body>
+<nav aria-label="Secciones"><div class="in" id="menu"></div></nav>
+
+<header class="hero">
+  <div class="kick">Inteligencia Computacional Aplicada · MCIC · Taller 4</div>
+  <h1>Lógica difusa, paso a paso</h1>
+  <p>Todo lo que se hizo en el taller, animado y con <b>los datos y modelos reales</b>: las funciones de pertenencia, el sistema Mamdani del profesor, las reglas extraídas de <i>Wine</i>, el agrupamiento sustractivo, Fuzzy C-Means y los dos modelos del robot.
+     El código de esta página es JavaScript puro y reproduce los números de Python (verificado: <span class="mono">node prueba_nucleo.js</span>).</p>
+  <div class="chips" id="chips"></div>
+</header>
+
+<main>
+  <section id="mf"><h2><span class="n">01</span> Funciones de pertenencia</h2>
+    <p class="lead">Un conjunto difuso asigna a cada valor un <b>grado</b> μ(x) entre 0 y 1. No es una probabilidad: «la temperatura es alta con grado 0,7» dice <i>cuánto</i> cumple la propiedad. Cambia los parámetros y mueve x.</p>
+    <div class="card"><div class="fila sep"><div class="seg" id="mf-tipo" role="group" aria-label="Tipo"><button data-t="trimf" aria-pressed="true">trimf [a b c]</button><button data-t="trapmf" aria-pressed="false">trapmf [a b c d]</button><button data-t="gaussmf" aria-pressed="false">gaussmf [σ c]</button></div>
+      <span id="mf-params" class="fila sep"></span></div>
+      <div class="fila sep" style="margin-top:8px"><label class="ctl">x <input type="range" id="mf-x" min="0" max="10" step="0.05" value="4"> <b class="num" id="mf-xv"></b></label><span class="eq" id="mf-mu"></span></div>
+      <div id="mf-svg" style="max-width:640px"></div></div>
+  </section>
+
+  <section id="mamdani"><h2><span class="n">02</span> Mamdani paso a paso: la propina</h2>
+    <p class="lead">El sistema del cuaderno del profesor: <i>servicio</i> y <i>comida</i> (0 a 10) deciden la <i>propina</i> (0 a 30 %). Cinco etapas: fuzzificar, fuerza de cada regla, implicación (recorte), agregación y centroide. Con servicio = 1 y comida = 2 debe dar <b>5,5586</b>.</p>
+    <div class="card">
+      <div class="fila sep"><label class="ctl">servicio <input type="range" id="mm-s" min="0" max="10" step="0.1" value="1"> <b class="num" id="mm-sv"></b></label>
+        <label class="ctl">comida <input type="range" id="mm-c" min="0" max="10" step="0.1" value="2"> <b class="num" id="mm-cv"></b></label>
+        <span class="paso-b"><button class="btn" id="mm-prev">← Anterior</button><button class="btn prim" id="mm-next">Siguiente →</button><button class="btn" id="mm-todo">Todo</button></span></div>
+      <div class="fila" style="margin:8px 0"><span class="badge" style="background:var(--azul)" id="mm-paso"></span><span class="nota" id="mm-txt"></span></div>
+      <div class="grid2"><div><div id="mm-in1"></div><div id="mm-in2"></div></div><div><div id="mm-reglas"></div><div id="mm-out"></div></div></div>
+      <div class="kv" id="mm-res" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <section id="wm"><h2><span class="n">03</span> Reglas extraídas de los datos (Wang–Mendel)</h2>
+    <p class="lead">En vez de escribir las reglas, se <b>sacan de los datos</b>: cada vino genera una regla con la etiqueta dominante en cada característica (aquí flavonoides y prolina, normalizadas). Con <i>n</i> etiquetas la rejilla completa tendría <i>n</i>² reglas en 2D (<i>n</i>⁴ en el taller con 4 características); solo existen las que aparecen en los datos.</p>
+    <div class="card"><div class="fila sep"><label class="ctl">etiquetas por variable <i>n</i> <input type="range" id="wm-n" min="2" max="6" step="1" value="3"> <b class="num" id="wm-nv"></b></label><div class="kv" id="wm-kv"></div></div>
+      <div class="grid2" style="margin-top:8px"><div><canvas id="wm-cv" class="lienzo2" width="520" height="420" style="width:100%;max-width:520px"></canvas><div class="leyenda" id="wm-ley"></div></div><div><div class="nota"><b>Primeras reglas</b> (mayor grado)</div><div id="wm-reglas" class="mono" style="font-size:.78rem;line-height:1.5"></div></div></div></div>
+  </section>
+
+  <section id="sub"><h2><span class="n">04</span> Agrupamiento sustractivo</h2>
+    <p class="lead">Cada punto tiene un <b>potencial</b>: cuántos vecinos tiene dentro de un radio <i>r</i>. Se elige el de mayor potencial como centro (una regla), se le <b>resta su influencia</b> a los vecinos y se repite hasta que el potencial restante es pequeño. Cuanto mayor <i>r</i>, menos centros: menos reglas. (Aquí se agrupan flavonoides, prolina y la clase; en el cuaderno son las 4 características.)</p>
+    <div class="card"><div class="fila sep"><label class="ctl">radio <i>r</i> <input type="range" id="sb-r" min="0.2" max="1" step="0.05" value="0.5"> <b class="num" id="sb-rv"></b></label>
+      <span class="paso-b"><button class="btn" id="sb-reset">Reiniciar</button><button class="btn prim" id="sb-next">Siguiente centro</button><button class="btn" id="sb-todo">Todos</button></span></div>
+      <div class="grid2" style="margin-top:8px"><div><canvas id="sb-cv" class="lienzo2" width="520" height="420" style="width:100%;max-width:520px"></canvas></div><div><div class="kv" id="sb-kv"></div><p class="nota" id="sb-txt"></p><div id="sb-curva"></div></div></div></div>
+  </section>
+
+  <section id="fcm"><h2><span class="n">05</span> Fuzzy C-Means</h2>
+    <p class="lead">k-means asigna cada punto a <b>un</b> grupo; FCM le da un <b>grado</b> en cada uno (suman 1). Se alternan dos pasos: actualizar los centros con los grados y recalcular los grados con las distancias. El color mezcla los tres grupos: los puntos de la frontera quedan «a medias».</p>
+    <div class="card"><div class="fila sep"><button class="btn prim" id="fc-play">▶ Reproducir</button><button class="btn" id="fc-reset">Reiniciar</button><label class="ctl">iteración <input type="range" id="fc-it" min="0" max="20" value="0"> <b class="num" id="fc-itv"></b></label></div>
+      <div class="grid2" style="margin-top:8px"><div><canvas id="fc-cv" class="lienzo2" width="520" height="420" style="width:100%;max-width:520px"></canvas></div><div><div class="kv" id="fc-kv"></div><div id="fc-j"></div><p class="nota">El objetivo J = Σ uᵐ‖x − v‖² nunca aumenta: por eso el algoritmo converge.</p></div></div></div>
+  </section>
+
+  <section id="robot"><h2><span class="n">06</span> El robot: el modelo de 2 sensores</h2>
+    <p class="lead">5 456 lecturas (frente, izquierda) y su movimiento. Las clases forman <b>rectángulos</b>: son umbrales (frente en 0,9; izquierda en 0,49 y 0,9). Las 2 × 3 = <b>6 reglas</b> del modelo clasifican con esos cortes. Haz clic en el plano para probar una lectura y mueve <i>w</i> para volver más difusas las fronteras.</p>
+    <div class="card"><div class="fila sep"><label class="ctl">semiancho de transición <i>w</i> <input type="range" id="rb-w" min="0" max="0.2" step="0.005" value="0.02"> <b class="num" id="rb-wv"></b></label>
+      <label class="ctl"><input type="checkbox" id="rb-reg" checked> mostrar regiones</label><div class="kv" id="rb-kv"></div></div>
+      <div class="grid2" style="margin-top:8px"><div><canvas id="rb-cv" class="lienzo2" width="560" height="440" style="width:100%;max-width:560px" aria-label="Plano frente–izquierda: haga clic para probar una lectura"></canvas><div class="leyenda" id="rb-ley"></div></div>
+        <div><div id="rb-mfs"></div><div class="nota"><b>Las 6 reglas</b> para la lectura elegida (barra = fuerza × peso)</div><div id="rb-reglas"></div><div id="rb-sal" class="kv" style="margin-top:6px"></div><div id="rb-giro"></div></div></div></div>
+  </section>
+
+  <section id="res"><h2><span class="n">07</span> Resultados del taller</h2>
+    <p class="lead">Las tablas salen de los cuadernos ejecutados. Elige qué mirar.</p>
+    <div class="card"><div class="seg" id="rs-tabs" role="group" aria-label="Tabla"><button data-t="dis" aria-pressed="true">Robot: diseños de MF</button><button data-t="fuga" aria-pressed="false">Robot: partición</button><button data-t="sens" aria-pressed="false">Robot: difusividad</button><button data-t="wine" aria-pressed="false">Wine: reglas y particiones</button></div><div id="rs-vis" style="margin-top:12px"></div></div>
+  </section>
+
+  <section id="preguntas"><h2><span class="n">08</span> Preguntas para la sustentación</h2><div id="qa"></div></section>
+</main>
+<footer>Taller 4 · Inteligencia Computacional Aplicada · Maestría en Ciencias de la Información y las Comunicaciones · Universidad Distrital Francisco José de Caldas.
+  Paleta del manual de marca institucional (el escudo no se anima ni se modifica, por eso no aparece aquí). Autor: Juan Felipe Rodríguez Galindo.</footer>
+<script src="datos.js"></script>
+<script src="nucleo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

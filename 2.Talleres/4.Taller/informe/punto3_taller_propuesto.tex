@@ -1,0 +1,155 @@
+% Taller 4 -- Punto 3: Taller Propuesto de lógica difusa (revisión del script del profesor + desarrollo sobre Wine).  Compilar:  make punto3
+% Las cifras (\cifra...) y las tablas salen de desarrollo/exportar_informe.py a partir de los cuadernos ejecutados.
+\documentclass[11pt,letterpaper]{article}
+\usepackage{ud-informe}
+% Acento azul: el logo del programa (MCIC) es azul, así que se usa la gama azur del manual de marca en lugar del rojo.
+% Para volver al rojo institucional de la plantilla, borrar estas dos líneas.
+\colorlet{udrojo}{udazul}
+\definecolor{udrojoosc}{HTML}{0C6F96}
+\input{numeros.tex}
+
+\renewcommand{\UDtitulo}{Taller propuesto de lógica difusa}
+\renewcommand{\UDsubtitulo}{Revisión del script del profesor y desarrollo sobre el conjunto Wine}
+\renewcommand{\UDtipo}{Taller 4 -- Punto 3 -- Informe de ejecución}
+\renewcommand{\UDasignatura}{Inteligencia Computacional Aplicada}
+\renewcommand{\UDdocente}{Cesar Andrey Perdomo Charry}
+\renewcommand{\UDestudiantes}{Juan Felipe Rodríguez Galindo -- 20261595004}
+\renewcommand{\UDencabezado}{Taller 4 -- Punto 3: taller propuesto}
+\newcommand{\pts}{\,pts}
+
+\begin{document}
+\UDportada
+
+%% ---------------------------------------------------------------------------------------------
+\section{Revisión del script del profesor}
+
+El script es el cuaderno \texttt{Taller\_LogicaDifusa\_RESUELTO\_Colab.ipynb} (Python, con su equivalente \texttt{Taller\_Resuelto\_profesor.mlx} en MATLAB). Recorre los bloques básicos de la lógica difusa:
+funciones de pertenencia, operadores, un sistema Mamdani y uno Sugeno, un clasificador con reglas extraídas de los datos (Wang--Mendel simplificado) y Fuzzy C-Means (FCM), y los contrasta con \texttt{scikit-fuzzy}.
+Para comprobar que cada bloque quedó entendido se reprodujeron con código propio sus valores de referencia (tabla~\ref{tab:ref}); los nueve coinciden.
+
+La figura~\ref{fig:secuencia} muestra quién habla con quién. El \textbf{cuaderno} orquesta: pide grados de pertenencia, delega la inferencia en el motor (que repite el mismo ciclo por cada regla: fuzzificar, calcular la fuerza,
+recortar la salida), compara con \texttt{scikit-fuzzy} y construye reglas a partir de datos.
+
+\begin{figure}[H]
+\centering
+\input{diagrama_secuencia_profesor}
+\caption{Diagrama de secuencia del cuaderno resuelto. Línea continua: llamada; línea discontinua: retorno.}\label{fig:secuencia}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Qué hace cada paso del script, qué idea enseña y el valor de referencia que se reprodujo.}\label{tab:ref}
+\begin{tabularx}{\linewidth}{@{}l L L r@{}}
+\toprule
+Paso & Qué hace & Idea que enseña & Referencia \\
+\midrule
+1--2 & \texttt{trimf}, \texttt{trapmf}, \texttt{gaussmf}; operadores Y (mín, producto) y O (máx, probor) & El grado de pertenencia no es una probabilidad & $\mu(5)=1$ \\
+3 & Mamdani «propina»: 3 reglas, implicación mínimo, agregación máximo, centroide & Fuzzificar, activar reglas, agregar, defuzzificar & \cifrapropMamdani \\
+4 & Sugeno de orden cero: $\sum w_i z_i/\sum w_i$ & Sin agregación ni centroide; base de \texttt{tunefis} & \cifrapropSugeno \\
+5 & Wang--Mendel sobre \textit{Iris}: una regla por muestra y se conserva la de mayor grado & Las reglas salen de los datos; hay menos que $n^F$ & \cifrapropIrisReglas{} reglas, \cifrapropIrisAcc \\
+6 & FCM sobre \textit{Iris} sin etiquetas & Cada punto tiene un grado en cada grupo (suman 1) & ARI \cifrapropIrisAri \\
+7 & Varía las etiquetas $n$ y compara reglas y exactitud con un árbol & Precisión frente a interpretabilidad & --- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Aciertos y límites encontrados al analizar el script.}
+\begin{tabularx}{\linewidth}{@{}l L@{}}
+\toprule
+Tipo & Observación \\
+\midrule
+Acierto & Cada bloque se contrasta con una referencia externa (MathWorks, \texttt{scikit-fuzzy}) y con puntos de control \texttt{[OK]}; el cuaderno avisa de que la prueba de \textit{Iris} es pequeña (un acierto $=2{,}2$ puntos). \\
+Acierto & Muestra la tensión entre precisión y número de reglas (la «explosión de reglas» $n^F$) y por qué \texttt{genfis} con rejilla se vuelve impracticable. \\
+Límite & \textbf{La salida del Sugeno se redondea a un número de clase.} Eso supone que las clases están ordenadas a lo largo de las entradas; el script no lo dice (se mide en la sección~\ref{sec:veinte}). \\
+Límite & Las reglas de Wang--Mendel que no se activan para una muestra caen a la clase 0 por defecto, y todas las cifras salen de \textbf{una sola partición} de 45 muestras de prueba. \\
+Límite & \texttt{GridPartition} solo crea la estructura de reglas (no entrena las salidas); evaluar su exactitud sin ajustar da $\approx 1/3$. El script lo advierte; el taller propuesto repite la advertencia. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%% ---------------------------------------------------------------------------------------------
+\section{Taller propuesto sobre \textit{Wine}}
+
+El \texttt{Taller\_Propuesto.mlx} repite el flujo del profesor con \textbf{Wine} (178 vinos, 13 mediciones químicas, 3 cultivares), con partición estratificada 70/30 y semilla 42 (124 vinos de entrenamiento y 54 de prueba).
+Se resolvió en Python (\texttt{Taller\_4\_Propuesto\_Wine.ipynb}). Equivalencias con MATLAB: \texttt{anova1} $\to$ \texttt{f\_classif}; \texttt{wm\_*} $\to$ \texttt{extraer\_reglas} y \texttt{predecir\_reglas}; \texttt{genfis(...,"SubtractiveClustering")} $\to$ \texttt{SugenoSustractivo}
+(agrupamiento de Chiu, primer orden); \texttt{fcm} $\to$ \texttt{fcm\_propio}. La app \textit{Fuzzy Logic Designer} y \texttt{tunefis} no se pudieron ejecutar (no hay MATLAB): se reprodujeron sus vistas y su idea.
+
+\subsection{TODO 1 y TODO 2: características y reglas desde datos}
+Con los vinos de entrenamiento, las cuatro características de mayor F de ANOVA son \textbf{\cifratodoUnoA} (F\,=\,\cifratodoUnoFA), \textbf{\cifratodoUnoB} (\cifratodoUnoFB), \textbf{\cifratodoUnoC} (\cifratodoUnoFC) y \textbf{\cifratodoUnoD} (\cifratodoUnoFD);
+la selección es estable (solo \cifrapropSelDistintas{} conjuntos distintos en 20 particiones) y se hace solo con el entrenamiento para no filtrar la prueba.
+
+\begin{table}[H]
+\centering\small
+\caption{TODO 2: reglas de Wang--Mendel con 2, 3 y 4 etiquetas frente a la rejilla completa $n^4$.}
+\input{tablas/prop_todo2.tex}
+\end{table}
+
+Las reglas salen de las combinaciones que existen en los datos: son el 62\,\%, el 38\,\% y el 17\,\% de la rejilla. En esta partición $n=3$ supera a $n=4$, pero es ruido de una prueba de 54 vinos (un acierto $=1{,}85$ puntos); con 20 particiones el orden es monótono.
+
+\subsection{TODO 3: agrupamiento sustractivo}
+\begin{table}[H]
+\centering\small
+\caption{TODO 3: \texttt{SugenoSustractivo} con $r=0{,}3$, $0{,}5$ y $0{,}8$ (salida redondeada y acotada a 1..3, NaN $\to$ 1).}
+\input{tablas/prop_todo3.tex}
+\end{table}
+
+El número de reglas \textbf{baja al subir $r$} (radio: reglas): \cifrapropCurvaReglas; con $r\ge0{,}7$ quedan 3, una por cultivar. Con $r=0{,}3$ el sistema sobreajusta: 15 reglas con 5 coeficientes cada una (75 en total) para 124 vinos; en validación cruzada
+la exactitud cae a \cifrapropRidgeSin{} con salidas de hasta $2\cdot10^{6}$, y con regularización \textit{ridge} de 0,1 sube a \cifrapropCvTresRidge{} (\cifrapropTestTresRidge{} en prueba).
+
+\subsection{TODO 4: Fuzzy C-Means}
+FCM sobre las 4 características normalizadas, sin etiquetas, agrupa con \textbf{pureza \cifrapropPureza}, ARI \cifrapropAri{} y coeficiente de partición \cifrapropFpc{} (\cifrapropMalAgrupados{} vinos fuera de su cultivar); k-means da la misma pureza (\cifrapropPurezaKm).
+La versión difusa no mejora el agrupamiento, pero aporta información: \textbf{\cifrapropFrontera{} de los 178 vinos tienen un grado máximo menor de 0,6} (están en una frontera). Coincide con \texttt{skfuzzy.cluster.cmeans}.
+
+\subsection{TODO 5: equivalente de \textit{Fuzzy Logic Designer}}
+El mejor sistema se eligió por validación cruzada de 5 pliegues \textbf{solo con el entrenamiento}: $r=\cifrapropRMejor$ (\cifrapropReglasMejor{} reglas; CV de \cifrapropCvTres{} frente a \cifrapropCvDos{} con $r=0{,}5$ y \cifrapropCvUno{} con $r=0{,}3$), con \cifrapropAccMejor{} de exactitud en prueba.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\linewidth]{figuras/prop_f04_mf_entrada.png}\\[2pt]
+\includegraphics[width=0.72\linewidth]{figuras/prop_f05_superficie.png}
+\caption{Vistas de la app: funciones de pertenencia de dos entradas (sobre el histograma por clase) y superficie de flavonoides $\times$ prolina.}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Las 3 reglas de \texttt{fisSub} (centro de cada MF) y la clase que cada una representa.}
+\input{tablas/prop_reglas.tex}
+\end{table}
+
+\textbf{¿Qué regla es más fácil de leer?} R2 (\textit{flavonoides, prolina, OD280 y alcohol altos $\to$ clase 1}, pureza 0,95): las cuatro condiciones apuntan en el mismo sentido, como anticipaba el ranking de F. R3 (flavonoides y OD280 bajos $\to$ clase 3) también se lee bien.
+R1 (clase 2, pureza 0,98) es la más precisa pero se define por contraste (prolina y alcohol bajos). Las gaussianas de cada entrada se traslapan casi por completo: suavizan la superficie pero obligan a nombrar las etiquetas a mano.
+
+\subsection{Extra: ajuste de parámetros (\textit{Tune FIS})}
+El enunciado remite al ejemplo de MathWorks (\texttt{openExample("fuzzy/TuneAFuzzyInferenceSystemExample")}), que no se pudo ejecutar. Se adaptó su protocolo: sobre \texttt{fisSub}, entrenado con las filas impares, se ajustan centros y anchos de las MF y se mide el RMSE en las filas pares.
+
+\begin{table}[H]
+\centering\small
+\caption{Efecto del ajuste sobre el RMSE (en unidades de clase).}
+\input{tablas/prop_tune.tex}
+\end{table}
+
+Sin control el optimizador \textbf{memoriza}: el RMSE de validación sube de \cifratuneValAntes{} a \cifratuneValSin{} (+\cifratuneValSubida\,\%) porque hay 31 parámetros para 62 filas. Con parada temprana (iteración \cifratuneIter) baja a \cifratuneValDesp{} y la exactitud en prueba pasa de
+\cifratuneAccAntes{} a \cifratuneAccDesp. Es la lección del Taller 2: sin validación, optimizar más no es mejorar.
+
+\subsection{Extra: 20 particiones y numeración de las clases}\label{sec:veinte}
+\begin{table}[H]
+\centering\small
+\caption{Exactitud en prueba (media $\pm$ desviación) en 20 particiones; la selección de características se rehace en cada una.}\label{tab:veinte}
+\input{tablas/prop_veinte.tex}
+\end{table}
+
+El sustractivo con $r=0{,}5$ a $0{,}8$ es el mejor y el más pequeño (3 a 5 reglas frente a unas 42); su diferencia es menor que la desviación y $r=0{,}3$ es el más inestable. Las desviaciones de 0,03 a 0,05 equivalen a 2 o 3 vinos, así que una sola partición no es confiable.
+Además, redondear la salida del Sugeno supone clases ordenadas: al permutar las etiquetas (6 numeraciones), el sustractivo logra \cifrapropPermMax{} con la numeración natural o la inversa y baja hasta \cifrapropPermMin{} con las otras cuatro, mientras que
+Wang--Mendel no cambia (\cifrapropPermWM). Funciona en \textit{Wine} porque su numeración ya es ordinal.
+
+%% ---------------------------------------------------------------------------------------------
+\section{Lectura honesta y reproducibilidad}
+\begin{itemize}
+  \item \textbf{No se ejecutó MATLAB:} la app \textit{Fuzzy Logic Designer}, \texttt{tunefis} y el ejemplo de MathWorks se reprodujeron en Python (vistas e idea).
+  \item \textbf{Prueba pequeña:} con 54 vinos, las diferencias de una partición no son concluyentes; se confirmaron con 20 particiones.
+  \item \textbf{Reproducir:} \texttt{make notebooks} (menos de 2 minutos); semilla 42; 29 verificaciones \texttt{[OK]}.
+\end{itemize}
+
+\end{document}

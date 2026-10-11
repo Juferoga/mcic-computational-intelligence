@@ -1,0 +1,918 @@
+{
+ "n_lecturas": 5456,
+ "clases": [
+  "Sharp-Right-Turn",
+  "Slight-Right-Turn",
+  "Move-Forward",
+  "Slight-Left-Turn"
+ ],
+ "conteo_clases": [
+  2097,
+  826,
+  2205,
+  328
+ ],
+ "cortes_arbol": {
+  "frente": [
+   0.9005
+  ],
+  "izquierda": [
+   0.4945,
+   0.9015
+  ]
+ },
+ "relevancia": {
+  "F de ANOVA": {
+   "frente": 774.239,
+   "izquierda": 2714.577,
+   "derecha": 9.103,
+   "atrás": 119.27
+  },
+  "información mutua": {
+   "frente": 0.793,
+   "izquierda": 0.577,
+   "derecha": 0.31,
+   "atrás": 0.329
+  },
+  "importancia en un árbol de 12 hojas": {
+   "frente": 0.556,
+   "izquierda": 0.444,
+   "derecha": 0.0,
+   "atrás": 0.0
+  }
+ },
+ "n_train": 3856,
+ "n_test": 1600,
+ "modelo2": {
+  "sensores": [
+   "frente",
+   "izquierda"
+  ],
+  "mf_por_variable": [
+   2,
+   3
+  ],
+  "n_reglas": 6,
+  "w": 0.02,
+  "cortes": [
+   [
+    0.9005
+   ],
+   [
+    0.4945,
+    0.9015
+   ]
+  ],
+  "etiquetas": [
+   [
+    "cerca",
+    "lejos"
+   ],
+   [
+    "muy cerca",
+    "cerca",
+    "lejos"
+   ]
+  ],
+  "mfs": [
+   [
+    [
+     "trapmf",
+     [
+      0.3,
+      0.3,
+      0.8805,
+      0.9205
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      0.8805,
+      0.9205,
+      5.0,
+      5.0
+     ]
+    ]
+   ],
+   [
+    [
+     "trapmf",
+     [
+      0.3,
+      0.3,
+      0.4745,
+      0.5145
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      0.4745,
+      0.5145,
+      0.8815,
+      0.9215
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      0.8815,
+      0.9215,
+      5.0,
+      5.0
+     ]
+    ]
+   ]
+  ],
+  "reglas": [
+   {
+    "si": [
+     "cerca",
+     "muy cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.985,
+    "soporte": 0.273
+   },
+   {
+    "si": [
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.987,
+    "soporte": 0.692
+   },
+   {
+    "si": [
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.944,
+    "soporte": 0.033
+   },
+   {
+    "si": [
+     "lejos",
+     "muy cerca"
+    ],
+    "clase": "Slight-Right-Turn",
+    "peso": 0.97,
+    "soporte": 0.944
+   },
+   {
+    "si": [
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Move-Forward",
+    "peso": 0.898,
+    "soporte": 1.079
+   },
+   {
+    "si": [
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Slight-Left-Turn",
+    "peso": 0.998,
+    "soporte": 0.978
+   }
+  ],
+  "prueba": {
+   "exactitud": 0.998125,
+   "exactitud_balanceada": 0.9987785016286646,
+   "f1_macro": 0.9987505418480052
+  }
+ },
+ "modelo4": {
+  "sensores": [
+   "frente",
+   "izquierda",
+   "derecha",
+   "atrás"
+  ],
+  "mf_por_variable": [
+   2,
+   3,
+   2,
+   2
+  ],
+  "n_reglas": 24,
+  "w": 0.02,
+  "cortes": [
+   [
+    0.9005
+   ],
+   [
+    0.4945,
+    0.9015
+   ],
+   [
+    1.732
+   ],
+   [
+    1.0415
+   ]
+  ],
+  "etiquetas": [
+   [
+    "cerca",
+    "lejos"
+   ],
+   [
+    "muy cerca",
+    "cerca",
+    "lejos"
+   ],
+   [
+    "cerca",
+    "lejos"
+   ],
+   [
+    "cerca",
+    "lejos"
+   ]
+  ],
+  "mfs": [
+   [
+    [
+     "trapmf",
+     [
+      0.3,
+      0.3,
+      0.8805,
+      0.9205
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      0.8805,
+      0.9205,
+      5.0,
+      5.0
+     ]
+    ]
+   ],
+   [
+    [
+     "trapmf",
+     [
+      0.3,
+      0.3,
+      0.4745,
+      0.5145
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      0.4745,
+      0.5145,
+      0.8815,
+      0.9215
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      0.8815,
+      0.9215,
+      5.0,
+      5.0
+     ]
+    ]
+   ],
+   [
+    [
+     "trapmf",
+     [
+      0.3,
+      0.3,
+      1.712,
+      1.752
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      1.712,
+      1.752,
+      5.0,
+      5.0
+     ]
+    ]
+   ],
+   [
+    [
+     "trapmf",
+     [
+      0.3,
+      0.3,
+      1.0215,
+      1.0615
+     ]
+    ],
+    [
+     "trapmf",
+     [
+      1.0215,
+      1.0615,
+      5.0,
+      5.0
+     ]
+    ]
+   ]
+  ],
+  "reglas": [
+   {
+    "si": [
+     "cerca",
+     "muy cerca",
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.975,
+    "soporte": 0.084
+   },
+   {
+    "si": [
+     "cerca",
+     "muy cerca",
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 1.0,
+    "soporte": 0.018
+   },
+   {
+    "si": [
+     "cerca",
+     "muy cerca",
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.991,
+    "soporte": 0.045
+   },
+   {
+    "si": [
+     "cerca",
+     "muy cerca",
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.987,
+    "soporte": 0.126
+   },
+   {
+    "si": [
+     "cerca",
+     "cerca",
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.989,
+    "soporte": 0.242
+   },
+   {
+    "si": [
+     "cerca",
+     "cerca",
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.992,
+    "soporte": 0.187
+   },
+   {
+    "si": [
+     "cerca",
+     "cerca",
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.974,
+    "soporte": 0.085
+   },
+   {
+    "si": [
+     "cerca",
+     "cerca",
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.984,
+    "soporte": 0.178
+   },
+   {
+    "si": [
+     "cerca",
+     "lejos",
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 1.0,
+    "soporte": 0.009
+   },
+   {
+    "si": [
+     "cerca",
+     "lejos",
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.949,
+    "soporte": 0.011
+   },
+   {
+    "si": [
+     "cerca",
+     "lejos",
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 1.0,
+    "soporte": 0.001
+   },
+   {
+    "si": [
+     "cerca",
+     "lejos",
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Sharp-Right-Turn",
+    "peso": 0.894,
+    "soporte": 0.012
+   },
+   {
+    "si": [
+     "lejos",
+     "muy cerca",
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Slight-Right-Turn",
+    "peso": 0.97,
+    "soporte": 0.125
+   },
+   {
+    "si": [
+     "lejos",
+     "muy cerca",
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Slight-Right-Turn",
+    "peso": 0.885,
+    "soporte": 0.021
+   },
+   {
+    "si": [
+     "lejos",
+     "muy cerca",
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Slight-Right-Turn",
+    "peso": 0.975,
+    "soporte": 0.335
+   },
+   {
+    "si": [
+     "lejos",
+     "muy cerca",
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Slight-Right-Turn",
+    "peso": 0.971,
+    "soporte": 0.463
+   },
+   {
+    "si": [
+     "lejos",
+     "cerca",
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Move-Forward",
+    "peso": 0.973,
+    "soporte": 0.422
+   },
+   {
+    "si": [
+     "lejos",
+     "cerca",
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Move-Forward",
+    "peso": 0.942,
+    "soporte": 0.173
+   },
+   {
+    "si": [
+     "lejos",
+     "cerca",
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Move-Forward",
+    "peso": 0.852,
+    "soporte": 0.198
+   },
+   {
+    "si": [
+     "lejos",
+     "cerca",
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Move-Forward",
+    "peso": 0.793,
+    "soporte": 0.285
+   },
+   {
+    "si": [
+     "lejos",
+     "lejos",
+     "cerca",
+     "cerca"
+    ],
+    "clase": "Slight-Left-Turn",
+    "peso": 0.498,
+    "soporte": 0.0
+   },
+   {
+    "si": [
+     "lejos",
+     "lejos",
+     "cerca",
+     "lejos"
+    ],
+    "clase": "Slight-Left-Turn",
+    "peso": 0.997,
+    "soporte": 0.418
+   },
+   {
+    "si": [
+     "lejos",
+     "lejos",
+     "lejos",
+     "cerca"
+    ],
+    "clase": "Slight-Left-Turn",
+    "peso": 0.499,
+    "soporte": 0.0
+   },
+   {
+    "si": [
+     "lejos",
+     "lejos",
+     "lejos",
+     "lejos"
+    ],
+    "clase": "Slight-Left-Turn",
+    "peso": 0.999,
+    "soporte": 0.561
+   }
+  ],
+  "prueba": {
+   "exactitud": 0.995,
+   "exactitud_balanceada": 0.9938532995536253,
+   "f1_macro": 0.9944506987975377
+  }
+ },
+ "disenos": [
+  {
+   "modelo": "2 sensores",
+   "diseño": "uniforme (automático)",
+   "mf": "(6, 10)",
+   "reglas": 60,
+   "cv_balanceada": 0.9538,
+   "exactitud": 0.9138,
+   "exactitud_balanceada": 0.9423,
+   "f1_macro": 0.9083
+  },
+  {
+   "modelo": "2 sensores",
+   "diseño": "cuantiles (automático)",
+   "mf": "(6, 8)",
+   "reglas": 48,
+   "cv_balanceada": 0.967,
+   "exactitud": 0.9444,
+   "exactitud_balanceada": 0.9626,
+   "f1_macro": 0.9479
+  },
+  {
+   "modelo": "2 sensores",
+   "diseño": "fcm (automático)",
+   "mf": "(8, 10)",
+   "reglas": 80,
+   "cv_balanceada": 0.9557,
+   "exactitud": 0.9606,
+   "exactitud_balanceada": 0.9729,
+   "f1_macro": 0.9519
+  },
+  {
+   "modelo": "2 sensores",
+   "diseño": "cortes del análisis (propuesto)",
+   "mf": "(2, 3)",
+   "reglas": 6,
+   "cv_balanceada": 0.9984,
+   "exactitud": 0.9981,
+   "exactitud_balanceada": 0.9988,
+   "f1_macro": 0.9988
+  },
+  {
+   "modelo": "4 sensores",
+   "diseño": "uniforme (automático)",
+   "mf": "(5, 5, 2, 2)",
+   "reglas": 100,
+   "cv_balanceada": 0.8671,
+   "exactitud": 0.7869,
+   "exactitud_balanceada": 0.808,
+   "f1_macro": 0.7799
+  },
+  {
+   "modelo": "4 sensores",
+   "diseño": "cuantiles (automático)",
+   "mf": "(3, 4, 3, 2)",
+   "reglas": 72,
+   "cv_balanceada": 0.9537,
+   "exactitud": 0.9525,
+   "exactitud_balanceada": 0.9633,
+   "f1_macro": 0.9552
+  },
+  {
+   "modelo": "4 sensores",
+   "diseño": "fcm (automático)",
+   "mf": "(5, 5, 2, 2)",
+   "reglas": 100,
+   "cv_balanceada": 0.9004,
+   "exactitud": 0.8356,
+   "exactitud_balanceada": 0.8305,
+   "f1_macro": 0.8228
+  },
+  {
+   "modelo": "4 sensores",
+   "diseño": "cortes del análisis (propuesto)",
+   "mf": "(2, 3, 2, 2)",
+   "reglas": 24,
+   "cv_balanceada": 0.9983,
+   "exactitud": 0.995,
+   "exactitud_balanceada": 0.9939,
+   "f1_macro": 0.9945
+  }
+ ],
+ "fuga": [
+  {
+   "modelo": "2 sensores",
+   "método": "difuso con cortes del análisis",
+   "muestra a muestra": 0.9982,
+   "por bloques": 0.9981,
+   "inflación (pts)": 0.01
+  },
+  {
+   "modelo": "2 sensores",
+   "método": "difuso cuantiles",
+   "muestra a muestra": 0.9652,
+   "por bloques": 0.9444,
+   "inflación (pts)": 2.08
+  },
+  {
+   "modelo": "2 sensores",
+   "método": "difuso uniforme",
+   "muestra a muestra": 0.9181,
+   "por bloques": 0.9138,
+   "inflación (pts)": 0.43
+  },
+  {
+   "modelo": "2 sensores",
+   "método": "kNN (k = 15)",
+   "muestra a muestra": 0.9695,
+   "por bloques": 0.95,
+   "inflación (pts)": 1.95
+  },
+  {
+   "modelo": "2 sensores",
+   "método": "árbol (60 hojas)",
+   "muestra a muestra": 1.0,
+   "por bloques": 1.0,
+   "inflación (pts)": 0.0
+  },
+  {
+   "modelo": "4 sensores",
+   "método": "difuso con cortes del análisis",
+   "muestra a muestra": 0.9963,
+   "por bloques": 0.995,
+   "inflación (pts)": 0.13
+  },
+  {
+   "modelo": "4 sensores",
+   "método": "difuso cuantiles",
+   "muestra a muestra": 0.9395,
+   "por bloques": 0.9525,
+   "inflación (pts)": -1.3
+  },
+  {
+   "modelo": "4 sensores",
+   "método": "difuso uniforme",
+   "muestra a muestra": 0.8149,
+   "por bloques": 0.7869,
+   "inflación (pts)": 2.8
+  },
+  {
+   "modelo": "4 sensores",
+   "método": "kNN (k = 15)",
+   "muestra a muestra": 0.9395,
+   "por bloques": 0.8562,
+   "inflación (pts)": 8.33
+  },
+  {
+   "modelo": "4 sensores",
+   "método": "árbol (60 hojas)",
+   "muestra a muestra": 1.0,
+   "por bloques": 1.0,
+   "inflación (pts)": 0.0
+  }
+ ],
+ "sensibilidad": [
+  {
+   "w": 0.0,
+   "modelo": "2 sensores",
+   "ganadora": 1.0,
+   "mamdani": 1.0
+  },
+  {
+   "w": 0.0,
+   "modelo": "4 sensores",
+   "ganadora": 1.0,
+   "mamdani": 1.0
+  },
+  {
+   "w": 0.005,
+   "modelo": "2 sensores",
+   "ganadora": 1.0,
+   "mamdani": 0.9781
+  },
+  {
+   "w": 0.005,
+   "modelo": "4 sensores",
+   "ganadora": 0.9994,
+   "mamdani": 0.9781
+  },
+  {
+   "w": 0.01,
+   "modelo": "2 sensores",
+   "ganadora": 1.0,
+   "mamdani": 0.9594
+  },
+  {
+   "w": 0.01,
+   "modelo": "4 sensores",
+   "ganadora": 0.9981,
+   "mamdani": 0.9588
+  },
+  {
+   "w": 0.02,
+   "modelo": "2 sensores",
+   "ganadora": 0.9981,
+   "mamdani": 0.945
+  },
+  {
+   "w": 0.02,
+   "modelo": "4 sensores",
+   "ganadora": 0.995,
+   "mamdani": 0.9425
+  },
+  {
+   "w": 0.05,
+   "modelo": "2 sensores",
+   "ganadora": 0.9875,
+   "mamdani": 0.8919
+  },
+  {
+   "w": 0.05,
+   "modelo": "4 sensores",
+   "ganadora": 0.9819,
+   "mamdani": 0.89
+  },
+  {
+   "w": 0.1,
+   "modelo": "2 sensores",
+   "ganadora": 0.9675,
+   "mamdani": 0.8194
+  },
+  {
+   "w": 0.1,
+   "modelo": "4 sensores",
+   "ganadora": 0.96,
+   "mamdani": 0.8206
+  },
+  {
+   "w": 0.2,
+   "modelo": "2 sensores",
+   "ganadora": 0.9262,
+   "mamdani": 0.5819
+  },
+  {
+   "w": 0.2,
+   "modelo": "4 sensores",
+   "ganadora": 0.91,
+   "mamdani": 0.5788
+  }
+ ],
+ "cv_w": {
+  "2": {
+   "0.0": 0.9995495495495496,
+   "0.005": 0.9995495495495496,
+   "0.01": 0.9995495495495496,
+   "0.02": 0.9984269660127536,
+   "0.05": 0.9927722355386173,
+   "0.1": 0.9762339141419499
+  },
+  "4": {
+   "0.0": 0.9995495495495496,
+   "0.005": 1.0,
+   "0.01": 1.0,
+   "0.02": 0.9982725281074589,
+   "0.05": 0.987938993711083,
+   "0.1": 0.9731436528799581
+  }
+ },
+ "duplicados": {
+  "sensores4": 50,
+  "sensores2": 279
+ },
+ "racha_mediana": 6.5,
+ "cambios_clase": 395,
+ "matriz_2": [
+  [
+   587,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   264,
+   0,
+   0
+  ],
+  [
+   3,
+   0,
+   611,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   135
+  ]
+ ],
+ "matriz_4": [
+  [
+   587,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   264,
+   0,
+   0
+  ],
+  [
+   3,
+   3,
+   608,
+   0
+  ],
+  [
+   0,
+   0,
+   2,
+   133
+  ]
+ ]
+}

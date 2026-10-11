@@ -1,0 +1,7 @@
+si,clase,peso,soporte
+"['cerca', 'muy cerca']",Sharp-Right-Turn,0.985,0.273
+"['cerca', 'cerca']",Sharp-Right-Turn,0.987,0.692
+"['cerca', 'lejos']",Sharp-Right-Turn,0.944,0.033
+"['lejos', 'muy cerca']",Slight-Right-Turn,0.97,0.944
+"['lejos', 'cerca']",Move-Forward,0.898,1.079
+"['lejos', 'lejos']",Slight-Left-Turn,0.998,0.978
