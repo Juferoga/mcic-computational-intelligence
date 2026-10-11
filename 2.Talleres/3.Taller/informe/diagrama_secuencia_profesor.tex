@@ -1,0 +1,59 @@
+% Diagrama de secuencia (UML) del cuaderno resuelto del profesor. Se incluye con \input{diagrama_secuencia_profesor}
+% dentro de un entorno figure. Usa solo la paleta de ud-informe (udsable, udplata, udrojo, udazul).
+\begin{tikzpicture}[yscale=0.78, font=\fontsize{7.6pt}{9pt}\selectfont,
+    part/.style={draw=udsable!70, fill=white, rounded corners=2pt, minimum width=2.25cm, minimum height=0.7cm, align=center, inner sep=2pt},
+    parthecho/.style={part, draw=udrojo, fill=udrojo!8, font=\fontsize{7.6pt}{9pt}\selectfont\bfseries},
+    vida/.style={udplata!80, dash pattern=on 2.5pt off 2.5pt, line width=0.5pt},
+    sync/.style={-{Latex[length=1.8mm]}, line width=0.65pt, color=udsable},
+    retorno/.style={-{Latex[length=1.8mm, open]}, line width=0.55pt, color=udsable!65, dash pattern=on 3pt off 2pt},
+    txt/.style={fill=white, inner sep=1.2pt, text=udsable},
+    marco/.style={draw=udrojo!80, line width=0.7pt, rounded corners=1pt},
+    etiq/.style={fill=udrojoosc, text=white, font=\fontsize{6.8pt}{8pt}\selectfont\bfseries, inner sep=2pt, anchor=north west},
+    nota/.style={draw=udplata, fill=udfondo, font=\fontsize{7pt}{8.4pt}\selectfont, align=left, inner sep=3pt}]
+
+  % --- participantes (x en cm) ---
+  \def\xU{0.0}   \def\xC{2.95}  \def\xT{5.9}   \def\xD{8.85}  \def\xM{11.8}  \def\xA{14.75}
+  \node[part]      (U) at (\xU,0) {\textbf{Usuario}\\(estudiante)};
+  \node[parthecho] (C) at (\xC,0) {Cuaderno\\(Jupyter / Colab)};
+  \node[part]      (T) at (\xT,0) {\texttt{torchvision}\\(datos)};
+  \node[part]      (D) at (\xD,0) {\texttt{DataLoader}\\(lotes)};
+  \node[part]      (M) at (\xM,0) {\texttt{Modelo}\\(\texttt{nn.Module})};
+  \node[part]      (A) at (\xA,0) {\texttt{Adam}\\(optimizador)};
+  \foreach \p/\x in {U/\xU,C/\xC,T/\xT,D/\xD,M/\xM,A/\xA}
+    \draw[vida] (\x,-0.35) -- (\x,-16.05);
+
+  % --- marcos de repetición (se dibujan primero para quedar al fondo) ---
+  \draw[marco] (\xC-0.45,-5.75) rectangle (\xA+0.55,-13.15);
+  \node[etiq] at (\xC-0.45,-5.75) {loop \;\;para cada época (3)};
+  \draw[marco, dashed] (\xC-0.25,-6.3) rectangle (\xA+0.35,-11.70);
+  \node[etiq] at (\xC-0.25,-6.3) {loop \;\;para cada lote (64 imágenes)};
+
+  % --- mensajes (etiqueta sobre la flecha, sin tapar la línea) ---
+  \tikzset{et/.style={txt, above=1.6pt}}
+  \draw[sync]    (\xU,-1.5)  -- node[et]{ejecutar celdas} (\xC,-1.5);
+  \draw[sync]    (\xC,-2.2)  -- node[et]{\texttt{cargar\_dataset("MNIST")}} (\xT,-2.2);
+  \draw[retorno] (\xT,-2.8)  -- node[et]{tensores $N{\times}1{\times}28{\times}28$} (\xC,-2.8);
+  \draw[sync]    (\xC,-3.4)  -- (\xC+0.55,-3.4) -- (\xC+0.55,-3.85) -- (\xC,-3.85);
+  \node[txt, anchor=west] at (\xC+0.65,-3.62) {\texttt{preparar\_datos()}: 55\,000 / 5\,000 / 10\,000; $x'=(x-\mu)/\sigma$};
+  \draw[sync]    (\xC,-4.55) -- node[et]{\texttt{TensorDataset}, lotes de 64} (\xD,-4.55);
+  \draw[sync]    (\xC,-5.2)  -- node[et]{\texttt{Adam(parámetros, lr=1e-3)}} (\xA,-5.2);
+
+  \draw[retorno] (\xD,-7.40)  -- node[et]{\texttt{xb, yb}} (\xC,-7.40);
+  \draw[sync]    (\xC,-8.00)  -- node[et]{\texttt{zero\_grad()}} (\xA,-8.00);
+  \draw[sync]    (\xC,-8.60)  -- node[et]{\texttt{modelo(xb)}} (\xM,-8.60);
+  \draw[retorno] (\xM,-9.15) -- node[et]{\emph{logits}} (\xC,-9.15);
+  \draw[sync]    (\xC,-9.70)  -- (\xC+0.55,-9.70) -- (\xC+0.55,-10.05) -- (\xC,-10.05);
+  \node[txt, anchor=west] at (\xC+0.65,-9.87) {\texttt{F.cross\_entropy(logits, yb)} $\to$ pérdida};
+  \draw[sync]    (\xC,-10.80) -- node[et]{\texttt{pérdida.backward()}} (\xM,-10.80);
+  \draw[sync]    (\xC,-11.35) -- node[et]{\texttt{opt.step()}} (\xA,-11.35);
+
+  \draw[sync]    (\xC,-12.25) -- node[et]{\texttt{evaluar(validación)}} (\xM,-12.25);
+  \draw[retorno] (\xM,-12.80) -- node[et]{pérdida y exactitud} (\xC,-12.80);
+
+  \draw[sync]    (\xC,-13.80) -- node[et]{\texttt{evaluar(prueba)}, \emph{una sola vez}} (\xM,-13.80);
+  \draw[retorno] (\xM,-14.35) -- node[et]{matriz de confusión; pares} (\xC,-14.35);
+  \draw[sync]    (\xC,-14.95) -- node[et]{\texttt{torch.save} y recargar} (\xM,-14.95);
+  \draw[retorno] (\xC,-15.60) -- node[et]{\texttt{[OK]} / \texttt{[REVISAR]}} (\xU,-15.60);
+
+  \node[nota, anchor=north east] at (\xA+0.55,-16.50) {Paso 5: repite el bucle con $\eta\in\{10^{-1},10^{-3},10^{-5}\}$, 2 épocas cada una.};
+\end{tikzpicture}

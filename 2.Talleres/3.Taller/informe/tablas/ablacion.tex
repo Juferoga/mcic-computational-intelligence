@@ -1,0 +1,11 @@
+\begin{tabular}{lrrrrr}
+\toprule
+Variante & Parám. & Entren. (eval) & Validación (\%) & Prueba (\%) & Brecha \\
+\midrule
+completa (16-32, BN, Dropout) & 20\,586 & 98,06\,\% & 97,15 $\pm$ 0,16 & 92,10 $\pm$ 0,16 & 0,90\,pts \\
+sin BatchNorm & 20\,490 & 98,30\,\% & 97,47 $\pm$ 0,25 & 92,64 $\pm$ 0,34 & 0,83\,pts \\
+sin Dropout & 20\,586 & 98,14\,\% & 96,69 $\pm$ 0,20 & 91,58 $\pm$ 0,35 & 1,45\,pts \\
+sin BatchNorm ni Dropout & 20\,490 & 98,72\,\% & 97,26 $\pm$ 0,09 & 92,56 $\pm$ 0,51 & 1,46\,pts \\
+3 bloques (16-32-64) & 29\,290 & 99,12\,\% & 98,23 $\pm$ 0,16 & 94,21 $\pm$ 0,29 & 0,89\,pts \\
+\bottomrule
+\end{tabular}

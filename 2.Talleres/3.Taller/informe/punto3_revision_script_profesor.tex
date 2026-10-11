@@ -1,0 +1,117 @@
+% Taller 3 -- Punto 3: revisión (análisis) del script del profesor.   Compilar:  make punto3   (tectonic, plantilla UD)
+\documentclass[11pt,letterpaper]{article}
+\usepackage{ud-informe}
+% Acento azul: el logo del programa (MCIC) es azul, así que se usa la gama azur del manual de marca en lugar del rojo.
+% Para volver al rojo institucional de la plantilla, borrar estas dos líneas.
+\colorlet{udrojo}{udazul}
+\definecolor{udrojoosc}{HTML}{0C6F96}
+
+
+\renewcommand{\UDtitulo}{Revisión del script del profesor}
+\renewcommand{\UDsubtitulo}{Análisis de la solución de referencia: MLP y CNN en PyTorch sobre MNIST}
+\renewcommand{\UDtipo}{Taller 3 -- Punto 3 -- Informe de ejecución}
+\renewcommand{\UDasignatura}{Inteligencia Computacional Aplicada}
+\renewcommand{\UDdocente}{Cesar Andrey Perdomo Charry}
+\renewcommand{\UDestudiantes}{Juan Felipe Rodríguez Galindo -- 20261595004}
+\renewcommand{\UDencabezado}{Taller 3 -- Punto 3: revisión del script del profesor}
+
+\begin{document}
+\UDportada
+
+%% ---------------------------------------------------------------------------------------------
+\section{Qué es el script}
+
+El script es el cuaderno \texttt{Taller - DeepLearning PYTHON.ipynb}, escrito en Python con PyTorch y torchvision y ejecutado en Google Colab con GPU.
+Entrena y compara un perceptrón multicapa (MLP) y una red convolucional (CNN) sobre \textbf{MNIST} (70\,000 imágenes de dígitos de $28\times28$, 10 clases) y recorre el
+flujo completo de un proyecto de clasificación de imágenes: datos, línea base, modelo convolucional, evaluación honesta y un experimento sobre la tasa de aprendizaje.
+Esta revisión describe qué hace cada bloque, qué idea enseña y qué límites tiene; las cifras son las que el propio cuaderno dejó guardadas en sus salidas.
+
+
+%% ---------------------------------------------------------------------------------------------
+\section{Diagrama de secuencia}
+
+La figura~\ref{fig:secuencia} muestra quién habla con quién durante la ejecución. El \textbf{cuaderno} es el orquestador: pide los datos a \texttt{torchvision}, crea los lotes con el
+\texttt{DataLoader} y, dentro del bucle de entrenamiento, repite los cinco pasos de cada iteración (borrar gradientes con \texttt{Adam}, propagar hacia adelante en el \texttt{Modelo},
+calcular la pérdida, retropropagar y actualizar). El conjunto de prueba aparece una sola vez, después de los bucles.
+
+\begin{figure}[H]
+\centering
+\input{diagrama_secuencia_profesor}
+\caption{Diagrama de secuencia del cuaderno resuelto. Línea continua: llamada; línea discontinua: retorno.}\label{fig:secuencia}
+\end{figure}
+
+%% ---------------------------------------------------------------------------------------------
+\section{Bloque a bloque}
+
+\begin{table}[H]
+\centering\small
+\caption{Qué hace cada bloque del script y qué idea enseña.}
+\begin{tabularx}{\linewidth}{@{}l L L@{}}
+\toprule
+Bloque & Qué hace & Idea que enseña \\
+\midrule
+Paso 0 & Importa librerías, fija la semilla 42, elige CPU o GPU y define \texttt{verificar()} & Reproducibilidad y puntos de control \texttt{[OK]} / \texttt{[REVISAR]} \\
+Paso 1 & Carga el dataset y separa 55\,000 / 5\,000 / 10\,000 imágenes; \textbf{normaliza con la media y la desviación del entrenamiento}; si no hay red, usa \texttt{digits} de scikit-learn & No filtrar información del futuro hacia el entrenamiento; el cuaderno funciona sin internet \\
+Paso 2 & MLP: aplana la imagen $\to$ 128 neuronas ReLU $\to$ 10 \textit{logits}; entropía cruzada y Adam & Una línea base antes de la CNN; $784\cdot128+128+128\cdot10+10=101\,770$ parámetros \\
+Paso 3 & CNN: dos bloques Conv $3\times3$ + ReLU + \textit{max-pooling} (16 y 32 filtros), \textit{dropout} y capa lineal; sin relleno, $28\to26\to13\to11\to5$ & Pesos compartidos: 12\,810 parámetros, ocho veces menos que el MLP \\
+Paso 4 & Evalúa en prueba una sola vez; matriz de confusión y los tres pares más confundidos & Estimación honesta y análisis de errores \\
+Paso 5 & Entrena con tres tasas de aprendizaje y 2 épocas cada una & Efecto de $\eta$: muy alta no aprende, muy baja es lenta \\
+Paso 6 & Guarda el \texttt{state\_dict}, lo recarga y compara la exactitud & Persistir el modelo sin reentrenar \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%% ---------------------------------------------------------------------------------------------
+\section{Resultados que dejó el script}
+
+\begin{table}[H]
+\centering\small
+\caption{Salidas guardadas en el cuaderno del profesor (3 épocas, Adam, $\eta=10^{-3}$, lotes de 64).}
+\begin{tabularx}{\linewidth}{@{}l r r r L@{}}
+\toprule
+Modelo & Parámetros & Validación & Prueba & Observación \\
+\midrule
+MLP 784-128-10 & 101\,770 & 96,86\,\% & no evaluado & línea base \\
+CNN (2 convoluciones) & 12\,810 & 98,58\,\% & 98,67\,\% & 133 errores de 10\,000; par más frecuente 4$\to$9 (12 veces) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{tabular}{@{}l r r@{}}
+\toprule
+Tasa de aprendizaje $\eta$ (2 épocas) & Validación & Pérdida de validación \\
+\midrule
+$10^{-1}$ & 10,42\,\% & 2,305 \\
+$10^{-3}$ & 98,00\,\% & 0,058 \\
+$10^{-5}$ & 81,22\,\% & 1,183 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ---------------------------------------------------------------------------------------------
+\section{Valoración del script}
+
+\begin{table}[H]
+\centering\small
+\caption{Aciertos y límites encontrados al analizarlo.}
+\begin{tabularx}{\linewidth}{@{}l L@{}}
+\toprule
+Tipo & Observación \\
+\midrule
+Acierto & La prueba se usa \textbf{una sola vez} y la normalización no usa información de validación ni de prueba. \\
+Acierto & Hay una línea base (MLP) antes de la CNN y puntos de control automáticos en cada bloque. \\
+Acierto & Reconoce que un resultado distinto del esperado debe anotarse y explicarse, no ocultarse. \\
+Límite & \textbf{Las comparaciones no son pareadas.} \texttt{preparar\_datos} crea el \texttt{DataLoader} con un único generador compartido; su estado avanza en cada corrida, así que
+          ``la misma semilla'' no repite el orden de los lotes. Con una corrida por configuración, una diferencia pequeña puede ser ruido. \\
+Límite & \textbf{El Paso 5 es poco informativo:} con $\eta=10^{-1}$ queda en $\approx10$\,\% (azar), pero solo se probaron 3 valores, 2 épocas y una semilla, y la CNN no lleva
+          \textit{BatchNorm}: no se sabe si el fallo es de la tasa o de la falta de normalización. \\
+Límite & \textbf{Solo 3 épocas:} la validación aún sube (98,58\,\% en la última), así que son cifras de un modelo sin converger. El MLP no se evalúa en prueba; la comparación MLP--CNN es solo en validación. \\
+Límite & Los rangos de exactitud del texto son orientativos: la nota inicial admite que se escribieron sin poder descargar MNIST y hay que contrastarlos con la propia ejecución. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Estos límites son los que se tuvieron en cuenta en el desarrollo propio (punto 4): cargador de datos por corrida, varias semillas, un barrido de $\eta$ más amplio con un control sin \textit{BatchNorm}
+y evaluación en prueba de todas las redes comparadas.
+
+\end{document}

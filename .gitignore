@@ -56,3 +56,6 @@ Thumbs.db
 *.bak
 *.tmp
 *.temp
+
+# Taller 3: datasets descargados por torchvision (se bajan solos)
+2.Talleres/3.Taller/desarrollo/datos/
