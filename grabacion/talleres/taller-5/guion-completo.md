@@ -63,18 +63,67 @@ Abre `bibliografia/propuesto/Taller6B_LogicaDifusa_Propuesto_Colab.ipynb` en el 
 
 ✅ ⌘⇧→
 
-### Paso 3 · Presentación del plan (~5 min)
-Abre `2.Talleres/5.Taller/presentacion/plan_taller5.pdf` en pantalla completa (en Vista previa: ⌘⇧F).
+### Paso 3 · Presentación del plan (~6 min)
+Abre `2.Talleres/5.Taller/presentacion/plan_taller5.pdf` en Firefox, pantalla completa (⌃⌘F). Avanza con →.
 
-🎙 Di, diapositiva por diapositiva (ideas, no lo leas):
-- **2 · ¿Qué pide el taller?** El objetivo y los seis TODO. Los puntos de control me dicen si voy bien. Solo hago Python y lo declaro.
-- **3 · Wine.** 178 vinos, 13 químicos, 3 clases; 124 para entrenar y 54 para probar. Con 54, un vino vale 1,85 puntos, así que no voy a sacar conclusiones de diferencias de un vino. La regla de oro: todo se aprende solo del entrenamiento.
-- **4 · La idea.** El flujo de izquierda a derecha: elegir 4 características, normalizar, poner etiquetas y sacar una regla por muestra. Para clasificar, gana la regla más fuerte.
-- **5 · Conceptos.** Los triángulos: un valor pertenece a dos etiquetas a la vez. La sigmoide del TODO 2. Las t-normas mínimo y producto. FCM y el ARI.
-- **6 · Plan por TODO.** Para cada TODO, qué hago y cómo lo verifico. Esto es lo que voy a ir tachando en el panel.
-- **7 · Lo que aprendí.** Alcance justo, entrega autocontenida, nombre correcto e IA declarada. Esta vez lo cuido desde el principio.
-- **8 · Mis hipótesis.** Léelas en voz alta. Al final del video las comparo con los resultados.
-- **9 · Orden del video.** Enunciado, plan, entorno, TODO y al final contrastar las hipótesis.
+**Truco para no leer:** cada diapositiva tiene una **idea en negrita**. Dila primero con tus palabras y después, si quieres, apóyate en el texto de abajo. Mira la diapositiva, no el MacBook: lo que está escrito en ella ya te sirve de guía.
+
+---
+**Diapositiva 1 · Portada**
+> **Antes de escribir una sola línea de código, voy a mostrar mi plan.**
+> Esta es la presentación de cómo voy a hacer el taller. Así, cuando programe, ya sé qué hago y por qué.
+
+---
+**Diapositiva 2 · ¿Qué pide el taller?**
+> **El objetivo es un clasificador difuso cuyas reglas salen de los datos.**
+> Es decir, no escribo las reglas a mano: el programa las aprende de los ejemplos. Después lo comparo con un árbol de decisión.
+> El cuaderno del profe tiene seis TODO (los leo en la tarjeta roja), y cada uno trae un punto de control que me dice OK o REVISAR. Así sé si voy bien.
+> Abajo está el alcance: hago la parte de Python. La de MATLAB no, porque no tengo MATLAB, y lo declaro.
+
+---
+**Diapositiva 3 · Los datos: Wine**
+> **Son 178 vinos de tres tipos, descritos por 13 medidas químicas.**
+> El 70 % es para entrenar y el 30 % para probar: 124 y 54 vinos. Es estratificado, o sea, cada tipo de vino queda en la misma proporción en las dos partes.
+> Un detalle importante: con 54 vinos de prueba, **cada vino vale casi 2 puntos** de exactitud. Si dos modelos se diferencian en un vino, eso no significa mucho.
+> Y la regla de oro, la tarjeta de la derecha: **todo se aprende solo con el entrenamiento**. Los vinos de prueba los miro una sola vez, al final. Si no, hago trampa sin darme cuenta.
+
+---
+**Diapositiva 4 · La idea**
+> **El flujo va de izquierda a derecha.** (Señala cada caja.)
+> De las 13 medidas me quedo con las 4 que mejor separan los tipos de vino. Las paso a una escala de 0 a 1. Pongo etiquetas como bajo, medio y alto. Y de cada vino de entrenamiento sale una regla.
+> **Extraer:** si un vino tiene alcohol medio y prolina alta, y es de clase 0, la regla dice "si alcohol es medio y prolina es alta, entonces clase 0". Si dos vinos dan la misma regla, me quedo con el que la cumple mejor.
+> **Clasificar:** para un vino nuevo, todas las reglas se activan un poco. **Gana la que más se activa.**
+
+---
+**Diapositiva 5 · Conceptos**
+> **En lógica difusa, un valor puede ser "medio" y "alto" a la vez.** (Señala la gráfica.)
+> Si un valor está en 0,7, es un poco medio y un poco alto, y esos dos grados suman 1. Esa es la diferencia con la lógica normal, donde algo es alto o no lo es.
+> La sigmoide es otra forma de función de pertenencia, una curva en S. Es el TODO 2.
+> **La t-norma es el "Y" difuso.** Una regla tiene varias condiciones. Con el mínimo, la regla vale lo que su condición más débil, como una cadena que se rompe por el eslabón más débil. Con el producto, se multiplican los grados.
+> Y Fuzzy C-Means agrupa los vinos sin mirar su tipo, y después comparo esos grupos con los tipos reales.
+
+---
+**Diapositiva 6 · Plan por TODO**
+> **Esta tabla es mi lista de trabajo: qué hago y cómo sé que quedó bien.**
+> No hace falta leerla toda. Lo importante es que para cada TODO ya sé cómo voy a verificarlo. Por ejemplo, en el 2 la sigmoide tiene que dar 0,5 justo en el centro, y en el 4 la matriz de confusión tiene que sumar los 54 vinos de prueba.
+> Y hago un commit en la mitad y otro al final, para que se vea el avance en git.
+
+---
+**Diapositiva 7 · Lo que aprendí**
+> **En las entregas anteriores el profe me hizo cuatro observaciones, y esta vez las cuido desde el principio.**
+> Hago solo lo que pide el cuaderno, sin experimentos extra. Entrego todo lo necesario para que el cuaderno corra solo. Lo nombro como Taller 5. Y declaro la IA: uso a Claude como tutor, para planear y para que me proponga código que yo escribo, ejecuto y explico.
+
+---
+**Diapositiva 8 · Mis hipótesis**
+> **Antes de ejecutar nada, apuesto qué va a pasar.** Al final del video lo comparo.
+> (Lee cada pregunta y di tu respuesta con tus palabras; ya están escritas en azul.)
+
+---
+**Diapositiva 9 · Orden del video**
+> **Ya leí el enunciado y mostré el plan. Ahora sigue el entorno, después los seis TODO y al final comparo mis hipótesis con los resultados.**
+> El informe lo hago después, con lo que salga hoy.
+
+(Diapositiva 10, el cierre: no hace falta mostrarla. Sal de la pantalla completa con Esc.)
 
 ✅ ⌘⇧→
 
