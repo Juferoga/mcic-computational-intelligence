@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""Maneja tareas.md desde la terminal (el overlay de OBS lo relee cada segundo).
+
+  tarea | tarea ver     lista con progreso; ▶ marca la actual
+  tarea ok [N]         marca como hechas las N siguientes (1 por defecto)
+  tarea undo           desmarca la última hecha
+  tarea add "texto"    agrega una tarea pendiente a la sección actual
+  tarea ir N           salta a la tarea N (1..N-1 hechas, N.. pendientes)
+
+TAREAS_MD=/ruta/otro.md cambia el archivo (para pruebas).
+"""
+import os
+import re
+import sys
+from pathlib import Path
+
+ARCHIVO = Path(os.environ.get("TAREAS_MD") or Path(__file__).resolve().parent / "tareas.md")
+TAREA = re.compile(r"^(\s*[-*]\s+\[)([ xX])(\]\s+)(.+)$")
+SECCION = re.compile(r"^##\s+(.+)")
+
+
+def leer():
+    texto = ARCHIVO.read_text(encoding="utf-8")
+    return texto.split("\n")  # conserva el salto final como "" al final
+
+
+def guardar(lineas):
+    tmp = ARCHIVO.with_name(ARCHIVO.name + ".tmp")
+    tmp.write_text("\n".join(lineas), encoding="utf-8")
+    os.replace(tmp, ARCHIVO)
+
+
+def tareas(lineas):
+    """[(indice de línea, hecha, texto, sección)]"""
+    out, seccion = [], ""
+    for i, l in enumerate(lineas):
+        if m := SECCION.match(l):
+            seccion = m.group(1).strip()
+        elif m := TAREA.match(l):
+            out.append((i, m.group(2) in "xX", m.group(4).strip(), seccion))
+    return out
+
+
+def poner(lineas, i, hecha):
+    lineas[i] = TAREA.sub(lambda m: m.group(1) + ("x" if hecha else " ") + m.group(3) + m.group(4), lineas[i], 1)
+
+
+def progreso(lineas):
+    ts = tareas(lineas)
+    hechas = sum(t[1] for t in ts)
+    return f"{hechas}/{len(ts)}"
+
+
+def ver(lineas):
+    ts = tareas(lineas)
+    actual = next((n for n, t in enumerate(ts) if not t[1]), None)
+    titulo = next((l[2:].strip() for l in lineas if l.startswith("# ")), ARCHIVO.name)
+    print(f"{titulo}  [{progreso(lineas)}]")
+    seccion = None
+    for n, (_, hecha, texto, sec) in enumerate(ts):
+        if sec != seccion:
+            seccion = sec
+            print(f"  {sec}")
+        marca = "x" if hecha else ("▶" if n == actual else " ")
+        print(f"   {marca} {n + 1:>2}. {texto}")
+
+
+def ok(lineas, n=1):
+    pendientes = [t for t in tareas(lineas) if not t[1]][:n]
+    if not pendientes:
+        return "No quedan tareas pendientes."
+    for t in pendientes:
+        poner(lineas, t[0], True)
+    guardar(lineas)
+    nombres = "; ".join(t[2] for t in pendientes)
+    return f"Hecha: {nombres}  [{progreso(lineas)}]"
+
+
+def undo(lineas):
+    hechas = [t for t in tareas(lineas) if t[1]]
+    if not hechas:
+        return "No hay tareas hechas."
+    t = hechas[-1]
+    poner(lineas, t[0], False)
+    guardar(lineas)
+    return f"Desmarcada: {t[2]}  [{progreso(lineas)}]"
+
+
+def add(lineas, texto):
+    ts = tareas(lineas)
+    pendiente = next((t for t in ts if not t[1]), None)
+    titulos = [i for i, l in enumerate(lineas) if SECCION.match(l)]
+    # sección de destino: la de la primera pendiente; si no hay, la última
+    if pendiente:
+        inicio = max((i for i in titulos if i < pendiente[0]), default=0)
+    else:
+        inicio = titulos[-1] if titulos else 0
+    fin = next((i for i in range(inicio + 1, len(lineas)) if lineas[i].startswith("#")), len(lineas))
+    # se inserta tras la última tarea de la sección (o tras su título si no tiene)
+    previa = max((i for i in range(inicio, fin) if TAREA.match(lineas[i])), default=inicio)
+    m = TAREA.match(lineas[previa])
+    prefijo = m.group(1)[:-1] if m else "- "
+    lineas.insert(previa + 1, f"{prefijo}[ ] {texto}")
+    guardar(lineas)
+    sec = SECCION.match(lineas[inicio]).group(1).strip() if SECCION.match(lineas[inicio]) else ""
+    return f"Agregada a «{sec}»: {texto}  [{progreso(lineas)}]"
+
+
+def ir(lineas, n):
+    ts = tareas(lineas)
+    if not 1 <= n <= len(ts):
+        return f"N debe estar entre 1 y {len(ts)}."
+    for k, t in enumerate(ts):
+        poner(lineas, t[0], k < n - 1)
+    guardar(lineas)
+    return f"Ahora: {n}. {ts[n - 1][2]}  [{progreso(lineas)}]"
+
+
+def main(args):
+    if not ARCHIVO.exists():
+        sys.exit(f"No encuentro {ARCHIVO}")
+    lineas = leer()
+    cmd = args[0] if args else "ver"
+    try:
+        if cmd == "ver":
+            ver(lineas)
+            return
+        if cmd == "ok":
+            print(ok(lineas, int(args[1]) if len(args) > 1 else 1))
+        elif cmd == "undo":
+            print(undo(lineas))
+        elif cmd == "add" and len(args) > 1:
+            print(add(lineas, " ".join(args[1:]).strip()))
+        elif cmd == "ir" and len(args) > 1:
+            print(ir(lineas, int(args[1])))
+        else:
+            sys.exit(__doc__.strip())
+    except ValueError:
+        sys.exit("N debe ser un número.")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

@@ -1,0 +1,271 @@
+/* Overlay del code with me. Paleta y tipografía del manual de marca UD (design.md). */
+:root {
+  --azur: #1291C0;
+  --azur-claro: #1291C0;
+  --oro: #B49739;
+  --oro-claro: #B49739;
+  --sinople: #00A859;
+  --gules: #ED3237;
+  --plata: #98999A;
+  --sable: #373435;
+  --fondo: #2a2829;
+  --texto: #FFFFFF;
+  --tenue: #E4E4E4;
+  --vidrio: rgba(31,29,30, 0.58);
+  --borde: rgba(18, 145, 192, 0.28);
+  --serif: Cambria, "Times New Roman", Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;
+  color: var(--texto);
+  font-family: var(--serif);
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+#fondo { position: absolute; inset: 0; }
+
+.card {
+  position: absolute;
+  background: var(--vidrio);
+  border: 1px solid var(--borde);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+}
+
+.kicker {
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--azur-claro);
+}
+
+/* ---------------------------------------------------------- cámara */
+.chip-camara {
+  position: absolute;
+  left: 1594px;
+  top: 162px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  background: rgba(31,29,30, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 16px;
+  color: var(--texto);
+}
+.chip-camara i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--sinople);
+  box-shadow: 0 0 0 0 rgba(0, 168, 89, 0.7);
+  animation: latido 2s infinite;
+}
+
+/* ---------------------------------------------------------- tareas */
+#tareas {
+  left: 1584px; top: 224px; width: 312px; height: 664px;
+  padding: 22px 22px 18px;
+  transition: height .6s cubic-bezier(.2, .8, .2, 1);
+  display: flex; flex-direction: column;
+}
+#tareas header { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.anillo { position: relative; width: 78px; height: 78px; flex: none; }
+.anillo svg { width: 78px; height: 78px; transform: rotate(-90deg); }
+.anillo .pista { stroke: rgba(255, 255, 255, 0.08); }
+.anillo .avance {
+  stroke: url(#grad-anillo);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s cubic-bezier(.2, .8, .2, 1);
+}
+.anillo span {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-size: 21px; font-weight: bold;
+}
+.conteo { font-size: 30px; line-height: 1.1; margin-top: 4px; }
+.conteo b { color: var(--oro-claro); }
+.conteo small { font-size: 19px; color: var(--tenue); }
+
+#bloques { flex: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+.bloque {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 19px;
+  color: var(--tenue);
+}
+.bloque .n { margin-left: auto; font-size: 16px; color: var(--plata); }
+.bloque.hecho { color: var(--plata); }
+.bloque.hecho .nombre { text-decoration: line-through; text-decoration-color: rgba(152, 153, 154, 0.5); }
+.bloque.actual {
+  flex-direction: column; align-items: stretch;
+  background: linear-gradient(180deg, rgba(18, 145, 192, 0.16), rgba(18, 145, 192, 0.04));
+  border: 1px solid rgba(18, 145, 192, 0.35);
+  color: var(--texto);
+  padding: 12px 14px 10px;
+}
+.bloque.actual .cabeza { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 20px; }
+.bloque.actual ul { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
+.bloque.actual li { display: flex; gap: 10px; align-items: flex-start; font-size: 18.5px; line-height: 1.25; color: var(--tenue); }
+.bloque.actual li.hecha { color: var(--plata); }
+.bloque.actual li.ahora { color: var(--texto); }
+.bloque.actual li.recien { animation: destello 1.6s ease-out; }
+
+.ico { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+.ico circle { fill: none; stroke: var(--plata); stroke-width: 1.6; }
+.ico.ok circle { fill: var(--sinople); stroke: var(--sinople); }
+.ico.ok path { stroke: #fff; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 20; stroke-dashoffset: 0; }
+.recien .ico.ok path { animation: trazo .7s .2s ease-out both; }
+.ico.ahora circle { stroke: var(--azur-claro); stroke-width: 2; }
+.ico.ahora .nucleo { fill: var(--azur-claro); stroke: none; animation: respirar 1.6s ease-in-out infinite; transform-origin: center; }
+
+/* ---------------------------------------------------------- claude */
+#claude {
+  position: absolute; left: 1584px; top: 810px; width: 312px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: linear-gradient(120deg, rgba(180, 151, 57, 0.28), rgba(31,29,30, 0.92));
+  border: 1px solid rgba(180,151,57, 0.55);
+  box-shadow: 0 0 24px rgba(180, 151, 57, 0.25);
+  transform: translateY(30px); opacity: 0;
+  transition: all .6s cubic-bezier(.2, .8, .2, 1);
+}
+#claude.activo { transform: translateY(0); opacity: 1; animation: flotar 3.2s ease-in-out infinite; }
+#claude svg { width: 34px; height: 34px; flex: none; animation: girar 9s linear infinite; }
+#claude .t1 { font-size: 18px; font-weight: bold; color: var(--oro-claro); }
+#claude .t2 { font-size: 15px; color: var(--tenue); }
+
+/* ---------------------------------------------------------- barra */
+#barra {
+  left: 24px; top: 912px; width: 1872px; height: 144px;
+  display: flex; align-items: center;
+  padding: 0 24px 0 14px;
+  overflow: hidden;
+}
+#barra::before {
+  content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 4px; border-radius: 4px;
+  background: linear-gradient(var(--azur), var(--oro));
+}
+#emblema { width: 150px; height: 82px; flex: none; margin-right: 14px; }
+.textos { flex: 1; min-width: 0; }
+#titulo { font-size: 31px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ahora { font-size: 21px; color: var(--tenue); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ahora b { color: var(--azur-claro); font-weight: normal; }
+#logo-ud { height: 62px; margin: 0 30px; opacity: 0.95; }
+.reloj { text-align: right; min-width: 250px; }
+#hora { font-size: 34px; font-weight: bold; letter-spacing: 0.02em; }
+#fecha { font-size: 16px; color: var(--tenue); }
+#rec {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-left: 22px; padding: 8px 14px; border-radius: 999px;
+  font-size: 19px; font-weight: bold;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--plata);
+}
+#rec i { width: 11px; height: 11px; border-radius: 50%; background: var(--plata); }
+#rec.on { color: #fff; background: rgba(237, 50, 55, 0.18); border-color: rgba(237, 50, 55, 0.6); }
+#rec.on i { background: var(--gules); animation: latido-rojo 1.4s infinite; }
+
+/* ---------------------------------------------------------- pausa / inicio */
+#escenario {
+  left: 24px; top: 24px; width: 1536px; height: 864px;
+  overflow: hidden;
+}
+#escenario canvas { position: absolute; inset: 0; }
+.letrero {
+  position: absolute; left: 64px; top: 56px; max-width: 760px;
+}
+.letrero h1 { font-size: 84px; line-height: 1; }
+.letrero p { font-size: 26px; color: var(--tenue); margin-top: 16px; line-height: 1.35; }
+.letrero .tarjeta-mcic {
+  display: inline-block; margin-top: 34px; padding: 14px 18px; border-radius: 12px; background: #fff;
+}
+.letrero .tarjeta-mcic img { height: 74px; display: block; }
+#marcador {
+  position: absolute; right: 40px; bottom: 34px;
+  font-size: 22px; color: var(--tenue); text-align: right; line-height: 1.5;
+}
+#marcador b { color: var(--texto); }
+
+/* ---------------------------------------------------------- animaciones */
+@keyframes latido { 0% { box-shadow: 0 0 0 0 rgba(0, 168, 89, .7); } 70% { box-shadow: 0 0 0 9px rgba(0, 168, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 168, 89, 0); } }
+@keyframes latido-rojo { 0% { box-shadow: 0 0 0 0 rgba(237, 50, 55, .8); } 70% { box-shadow: 0 0 0 10px rgba(237, 50, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(237, 50, 55, 0); } }
+@keyframes respirar { 0%, 100% { transform: scale(.55); opacity: .7; } 50% { transform: scale(1); opacity: 1; } }
+@keyframes trazo { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+@keyframes destello { 0% { background: rgba(180,151,57, .35); } 100% { background: transparent; } }
+@keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes girar { to { transform: rotate(360deg); } }
+@keyframes senal { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+
+/* ---------------------------------------------------------- añadidos de app.js */
+.senal { animation: senal 9s linear infinite; }
+.ico.ahora .nucleo { transform-box: fill-box; }
+.bloque .nombre { min-width: 0; }
+.bloque.actual .cabeza .n { margin-left: auto; font-weight: normal; }
+.bloque.actual li span { min-width: 0; }
+.bloque.hecho .ico circle, .bloque.actual .ico.ok circle { opacity: .9; }
+.bloque.hecho.recien { animation: destello 1.6s ease-out; }
+.bloque.actual li { padding: 1px 4px; margin: 0 -4px; border-radius: 6px; }
+
+/* Con la píldora de Claude visible, la tarjeta de tareas se acorta para no quedar debajo. */
+body.con-claude #tareas { height: 568px; }
+
+/* Ajuste automático cuando la lista no cabe. */
+#tareas.compacto header { margin-bottom: 12px; }
+#tareas.compacto #bloques { gap: 3px; }
+#tareas.compacto .bloque { padding: 6px 12px; }
+#tareas.compacto .bloque.actual { padding: 10px 12px 8px; }
+#tareas.compacto .bloque.actual ul { gap: 4px; margin-top: 6px; }
+#tareas.muy-compacto { padding-top: 16px; padding-bottom: 12px; }
+#tareas.muy-compacto header { margin-bottom: 8px; }
+#tareas.muy-compacto .bloque { padding: 4px 10px; font-size: 18px; }
+#tareas.muy-compacto .bloque.actual li { font-size: 17px; line-height: 1.2; }
+
+.anillo.pulso svg { animation: anillo-pulso 1.4s ease-out; }
+@keyframes anillo-pulso {
+  0% { filter: drop-shadow(0 0 0 rgba(180,151,57, 0)); }
+  25% { filter: drop-shadow(0 0 10px rgba(180,151,57, .9)); }
+  100% { filter: drop-shadow(0 0 0 rgba(180,151,57, 0)); }
+}
+
+#claude .icono { display: block; width: 34px; height: 34px; flex: none; }
+#escenario canvas { width: 1536px; height: 864px; }
+.letrero .kicker { margin-bottom: 14px; }
+#marcador .kicker { font-size: 14px; margin-bottom: 4px; }
+#marcador #m-pesos { font-size: 20px; color: var(--tenue); }
+#marcador .convergio { color: #00A859; }
+#marcador .convergio b { color: #00A859; }
+.bloque.oculto { display: none; }
+.bloque.resumen { font-style: italic; }
+#marcador .regla { font-size: 20px; color: var(--azur-claro); font-style: italic; }
+#rec { min-width: 176px; justify-content: center; }
+
+/* Subtareas: sangría con guía vertical para separarlas del bloque */
+.bloque.actual ul { margin: 8px 0 2px 9px; padding-left: 18px; border-left: 2px solid rgba(18, 145, 192, 0.45); }
+.bloque.actual li { font-size: 17px; }
+.bloque.actual .ico { width: 17px; height: 17px; }
+#tareas.muy-compacto .bloque.actual li { font-size: 16px; }
+
+/* Diseño 16:9 (monitor externo): columna derecha más angosta y barra inferior más alta */
+#tareas { padding: 18px 16px 14px; }
+.chip-camara { font-size: 14px; padding: 4px 10px 4px 8px; }
+#claude { padding: 10px 12px; gap: 10px; }
+#claude .t1 { font-size: 16px; }
+#claude .t2 { font-size: 14px; }
+#emblema { width: 200px; height: 110px; }
+#titulo { font-size: 36px; }
+#ahora { font-size: 24px; margin-top: 6px; }
+#logo-ud { height: 78px; }
+#hora { font-size: 42px; }
+#fecha { font-size: 18px; }
+#rec { font-size: 21px; padding: 10px 16px; }
