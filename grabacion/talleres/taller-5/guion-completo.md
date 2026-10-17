@@ -31,7 +31,13 @@ Fecha límite: **20 de octubre, 11:59 p.m.** Alcance: **solo la parte Python** (
    👀 Debe salir solo `bibliografia`.
 3. Ventanas en el **Samsung**: navegador a la izquierda, terminal con Claude a la derecha, zoom ⌘+ en ambas.
 4. En el **MacBook**: este guion.
-5. OBS → **Iniciar grabación** → ⌃⌥0 (Inicio) mientras arrancas, luego ⌃⌥1 (Código). Mira que el **REC esté en rojo**.
+5. **Tus hipótesis en la presentación** (diapositiva 8). Abre `2.Talleres/5.Taller/presentacion/plan_taller5.tex`, busca `Creo que: \ldots` y escribe **tu** respuesta en cada una de las 4. Luego compila:
+   ```bash
+   cd ~/repos/ud/maestria/mcic/semestre-2/mcic-computational-intelligence/2.Talleres/5.Taller/presentacion
+   tectonic -Z search-path=$HOME/repos/ud/maestria/mcic/.UniversidadDistrital-manual-marca/plantillas-latex plan_taller5.tex
+   ```
+   Son tus predicciones: escríbelas tú, aunque no estés seguro. Equivocarse en una hipótesis y explicar por qué es lo que más se aprende.
+6. OBS → **Iniciar grabación** → ⌃⌥0 (Inicio) mientras arrancas, luego ⌃⌥1 (Código). Mira que el **REC esté en rojo**.
 
 ---
 
@@ -57,13 +63,28 @@ Abre `bibliografia/propuesto/Taller6B_LogicaDifusa_Propuesto_Colab.ipynb` en el 
 
 ✅ ⌘⇧→
 
+### Paso 3 · Presentación del plan (~5 min)
+Abre `2.Talleres/5.Taller/presentacion/plan_taller5.pdf` en pantalla completa (en Vista previa: ⌘⇧F).
+
+🎙 Di, diapositiva por diapositiva (ideas, no lo leas):
+- **2 · ¿Qué pide el taller?** El objetivo y los seis TODO. Los puntos de control me dicen si voy bien. Solo hago Python y lo declaro.
+- **3 · Wine.** 178 vinos, 13 químicos, 3 clases; 124 para entrenar y 54 para probar. Con 54, un vino vale 1,85 puntos, así que no voy a sacar conclusiones de diferencias de un vino. La regla de oro: todo se aprende solo del entrenamiento.
+- **4 · La idea.** El flujo de izquierda a derecha: elegir 4 características, normalizar, poner etiquetas y sacar una regla por muestra. Para clasificar, gana la regla más fuerte.
+- **5 · Conceptos.** Los triángulos: un valor pertenece a dos etiquetas a la vez. La sigmoide del TODO 2. Las t-normas mínimo y producto. FCM y el ARI.
+- **6 · Plan por TODO.** Para cada TODO, qué hago y cómo lo verifico. Esto es lo que voy a ir tachando en el panel.
+- **7 · Lo que aprendí.** Alcance justo, entrega autocontenida, nombre correcto e IA declarada. Esta vez lo cuido desde el principio.
+- **8 · Mis hipótesis.** Léelas en voz alta. Al final del video las comparo con los resultados.
+- **9 · Orden del video.** Enunciado, plan, entorno, TODO y al final contrastar las hipótesis.
+
+✅ ⌘⇧→
+
 ---
 
 ## Entorno
 
 Abre una **pestaña nueva** en la terminal (⌘T).
 
-### Paso 3 · Copiar el cuaderno y commit inicial
+### Paso 4 · Copiar el cuaderno y commit inicial
 ⌨️ Escribe:
 ```bash
 cd ~/repos/ud/maestria/mcic/semestre-2/mcic-computational-intelligence/2.Talleres/5.Taller
@@ -76,7 +97,7 @@ git commit -m "taller 5: cuaderno propuesto sin resolver"
 
 ✅ ⌘⇧→
 
-### Paso 4 · Entorno con uv
+### Paso 5 · Entorno con uv
 ⌨️ Escribe:
 ```bash
 uv venv --python 3.12
@@ -86,7 +107,7 @@ source .venv/bin/activate
 
 ✅ ⌘⇧→
 
-### Paso 5 · Instalar librerías
+### Paso 6 · Instalar librerías
 ⌨️ Escribe:
 ```bash
 uv pip install numpy matplotlib scikit-learn scikit-fuzzy networkx jupyterlab
@@ -97,7 +118,7 @@ uv pip freeze > requirements.txt
 
 ✅ ⌘⇧→
 
-### Paso 6 · Abrir Jupyter
+### Paso 7 · Abrir Jupyter
 ⌨️ Escribe:
 ```bash
 jupyter lab
@@ -113,7 +134,7 @@ Abre `taller5_logica_difusa.ipynb`. Arriba de todo, inserta una celda **Markdown
 
 ## Paso 0 del cuaderno (código del profe)
 
-### Paso 7 · Preparación del entorno
+### Paso 8 · Preparación del entorno
 ▶️ Ejecuta la celda `Preparación del entorno`.
 
 👀 Debe salir: `NumPy 2.x | scikit-fuzzy 0.5.0`
@@ -123,7 +144,7 @@ Abre `taller5_logica_difusa.ipynb`. Arriba de todo, inserta una celda **Markdown
 
 ✅ ⌘⇧→
 
-### Paso 8 · Funciones de pertenencia y Fuzzy C-Means
+### Paso 9 · Funciones de pertenencia y Fuzzy C-Means
 ▶️ Ejecuta las celdas `Funciones de pertenencia` y `Fuzzy C-Means propio`.
 
 🎙 Di (señala cada función):
@@ -133,7 +154,7 @@ Abre `taller5_logica_difusa.ipynb`. Arriba de todo, inserta una celda **Markdown
 
 ✅ ⌘⇧→
 
-### Paso 9 · El clasificador con reglas de los datos
+### Paso 10 · El clasificador con reglas de los datos
 ▶️ Ejecuta la celda `Clasificador difuso con reglas extraídas de los datos`.
 
 🎙 Di:
@@ -141,7 +162,7 @@ Abre `taller5_logica_difusa.ipynb`. Arriba de todo, inserta una celda **Markdown
 
 ✅ ⌘⇧→
 
-### Paso 10 · Cargar Wine
+### Paso 11 · Cargar Wine
 ▶️ Ejecuta las dos celdas de datos.
 
 👀 Debe salir:
@@ -157,7 +178,7 @@ wine | entrenamiento: (124, 13) | prueba: (54, 13) | clases: ['class_0', 'class_
 
 ## TODO 1 a 4
 
-### Paso 11 · TODO 1: elegir 4 características
+### Paso 12 · TODO 1: elegir 4 características
 ⌨️ En la celda del TODO 1, reemplaza la línea `idx = None ...` por:
 ```python
 selector = SelectKBest(f_classif, k=4).fit(d["Xtr"], d["ytr"])
@@ -180,7 +201,7 @@ Características elegidas: ['alcohol', 'flavanoids', 'od280/od315_of_diluted_win
 
 ✅ ⌘⇧→
 
-### Paso 12 · TODO 2: función sigmoidal
+### Paso 13 · TODO 2: función sigmoidal
 ⌨️ En la celda `def sigmf`, reemplaza `return None` por:
 ```python
     x = np.asarray(x, dtype=float)
@@ -195,7 +216,7 @@ Características elegidas: ['alcohol', 'flavanoids', 'od280/od315_of_diluted_win
 
 ✅ ⌘⇧→
 
-### Paso 13 · TODO 3: fuerza de las reglas
+### Paso 14 · TODO 3: fuerza de las reglas
 ▶️ Primero ejecuta la celda tal como está para ver: `Reglas extraídas: 31`.
 
 ⌨️ En `fuerza_reglas`, reemplaza `return None` por:
@@ -219,7 +240,7 @@ Exactitud en prueba con t-norma min: 0.926
 
 ✅ ⌘⇧→
 
-### Paso 14 · TODO 4: evaluación y par más confundido
+### Paso 15 · TODO 4: evaluación y par más confundido
 ⌨️ En la celda del TODO 4, reemplaza `pred = None; exactitud = None; cm = None; par = None` por:
 ```python
 pred = clases_r[f.argmax(axis=1)]
@@ -249,7 +270,7 @@ Par más confundido (real, predicha): (1, 2)
 
 ✅ ⌘⇧→
 
-### Paso 15 · Commit de TODO 1 a 4
+### Paso 16 · Commit de TODO 1 a 4
 ⌨️ En la terminal:
 ```bash
 git add taller5_logica_difusa.ipynb requirements.txt
@@ -261,8 +282,8 @@ git commit -m "taller 5: TODO 1 a 4 (selección, sigmf, t-normas, evaluación)"
 
 ## TODO 5 y 6
 
-### Paso 16 · TODO 5: escribe tu predicción ANTES de ejecutar
-El cuaderno lo pide. Encima de la celda del TODO 5, inserta una celda **Markdown** y escribe **con tus palabras** qué crees que va a pasar. Ideas para guiarte (no las copies, responde tú):
+### Paso 17 · TODO 5: escribe tu predicción ANTES de ejecutar
+El cuaderno lo pide. Encima de la celda del TODO 5, inserta una celda **Markdown** y copia **las hipótesis de tu diapositiva 8** (las escribiste antes de grabar). Si las quieres ampliar, estas son las preguntas:
 - ¿Más etiquetas = más reglas? ¿cuántas como máximo con 4 características? (n⁴: 16, 81, 256)
 - ¿Más etiquetas = mejor exactitud siempre, o puede empeorar?
 - ¿El árbol de decisión con las mismas hojas le gana al difuso o no?
@@ -271,7 +292,7 @@ El cuaderno lo pide. Encima de la celda del TODO 5, inserta una celda **Markdown
 
 ✅ ⌘⇧→
 
-### Paso 17 · TODO 5: experimento
+### Paso 18 · TODO 5: experimento
 ⌨️ En la celda del TODO 5, reemplaza `pass` por:
 ```python
     Rn, cn, gn = extraer_reglas(Xtr, d["ytr"], n)
@@ -297,7 +318,7 @@ y tres `[OK]`.
 
 ✅ ⌘⇧→
 
-### Paso 18 · Figura para el informe
+### Paso 19 · Figura para el informe
 Inserta una celda de código **debajo** de la tabla del TODO 5:
 ```python
 import os
@@ -317,7 +338,7 @@ plt.show()
 
 ✅ ⌘⇧→
 
-### Paso 19 · TODO 5: tus 5 líneas
+### Paso 20 · TODO 5: tus 5 líneas
 En la celda **"Redacte aquí (5 líneas)"**, responde **con tus palabras** las 5 preguntas. Los datos que tienes:
 1. ¿Qué n_mf? → 3 (92.6 %, 31 reglas).
 2. ¿Cómo cambian las reglas? → 10, 31, 43; muy lejos de n⁴ = 16, 81, 256.
@@ -325,11 +346,11 @@ En la celda **"Redacte aquí (5 líneas)"**, responde **con tus palabras** las 5
 4. ¿Interpretabilidad? → 31 reglas leíbles en palabras ("si alcohol es medio..."), frente a un árbol de 13 hojas con umbrales numéricos.
 5. ¿Fiabilidad? → la prueba tiene 54 vinos: **una muestra vale 1.85 puntos**. 92.6 contra 88.9 son 2 vinos; con otra partición podría cambiar el orden.
 
-Compara con lo que predijiste en el paso 16: ¿acertaste?
+Compara con lo que predijiste en el paso 17 y en la diapositiva 8: ¿acertaste? Dilo en voz alta, hipótesis por hipótesis.
 
 ✅ ⌘⇧→
 
-### Paso 20 · TODO 6: Fuzzy C-Means y ARI
+### Paso 21 · TODO 6: Fuzzy C-Means y ARI
 ⌨️ En la celda del TODO 6, reemplaza `ari = None` por:
 ```python
 grupo = U.argmax(axis=0)                  # grupo de mayor pertenencia de cada muestra
@@ -344,7 +365,7 @@ ari = adjusted_rand_score(y_all, grupo)
 
 ✅ ⌘⇧→
 
-### Paso 21 · Commit de TODO 5 y 6
+### Paso 22 · Commit de TODO 5 y 6
 ⌨️ En la terminal:
 ```bash
 git add taller5_logica_difusa.ipynb figuras wine_4car_train.csv wine_4car_test.csv
@@ -356,7 +377,7 @@ git commit -m "taller 5: TODO 5 y 6 (etiquetas vs árbol, FCM), figura y CSV"
 
 ## Cierre
 
-### Paso 22 · Conclusiones y declaración de IA en el cuaderno
+### Paso 23 · Conclusiones y declaración de IA en el cuaderno
 Al final del cuaderno, una celda **Markdown**. Las conclusiones **con tus palabras**, una línea por hallazgo:
 1. Selección sin fuga: alcohol, flavonoides, OD280/OD315 y prolina.
 2. Wang-Mendel con 3 etiquetas: 31 reglas y 92.6 % en prueba; mínimo y producto dan lo mismo aquí.
@@ -371,7 +392,7 @@ Usé Claude (Anthropic). Preparó la guía de pasos y propuso el código de los 
 ```
 ✅ ⌘⇧→
 
-### Paso 23 · Cierre del video (~1 min)
+### Paso 24 · Cierre del video (~1 min)
 🎙 Di:
 > Eso es todo el Taller 5: los seis TODO resueltos con sus puntos de control en verde, la comparación de etiquetas contra el árbol y el agrupamiento con Fuzzy C-Means. El informe lo hago aparte con estos resultados. Gracias.
 
@@ -399,8 +420,8 @@ Va en `2.Talleres/5.Taller/informe/` con la plantilla UD, como el Taller 1. Cort
    - ARI = 0.79.
    Cada tabla y figura citada en el texto.
 5. **Análisis**: por qué 3 etiquetas es el punto medio (pocas = grueso, muchas = reglas sin soporte); por qué las reglas son muchas menos que n⁴; por qué el árbol no cambia (13 hojas puras); por qué min y producto coinciden; tamaño de la prueba (1 vino = 1.85 puntos); qué significa el ARI.
-6. **Conclusiones**: las 5 del paso 22.
-7. **Declaración de uso de IA**: la del paso 22, más el enlace al video y que el informe se redactó con ayuda de Claude si es así.
+6. **Conclusiones**: las 5 del paso 23.
+7. **Declaración de uso de IA**: la del paso 23, más el enlace al video y que el informe se redactó con ayuda de Claude si es así.
 
 ### Entrega (`2.Talleres/5.Taller/entrega/`)
 - `juan-rodriguez-20261595004-taller-5.pdf` (informe)

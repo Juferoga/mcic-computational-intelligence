@@ -1,0 +1,182 @@
+% Taller 5 -- Plan de trabajo (se muestra en el video antes de programar; no hace parte de la entrega).
+% Compilar:
+% tectonic -Z search-path=$HOME/repos/ud/maestria/mcic/.UniversidadDistrital-manual-marca/plantillas-latex plan_taller5.tex
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[spanish,es-noshorthands]{babel}
+\usetheme{UD}
+\usepackage{booktabs}
+
+\begin{document}
+
+\UDportada{Taller 5: lógica difusa\\Plan de trabajo}
+          {Clasificador difuso con reglas extraídas de datos}
+          {Juan Felipe Rodríguez Galindo\\{\fontsize{6.4pt}{7.4pt}\selectfont\mdseries\color{UDSilver}20261595004}}
+          {Maestría en Ciencias de la Información y las Comunicaciones}
+          {Inteligencia Computacional Aplicada · 2026}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{¿Qué pide el taller?}{Cuaderno corregido del profesor: \texttt{Taller6B\_LogicaDifusa\_Propuesto\_Colab.ipynb}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{El objetivo}{\small Construir un \textbf{clasificador difuso} cuyas reglas \textit{si\ldots\ entonces} salen de los datos, medir qué tan bien clasifica y compararlo con un árbol de decisión.}}
+      \vspace{0.15cm}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Cómo se califica el avance}{\small Cada TODO tiene un \textbf{punto de control} que imprime \texttt{[OK]} o \texttt{[REVISAR]}.}}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Seis TODO}{\small
+        \begin{enumerate}\setlength{\itemsep}{1pt}
+          \item Elegir 4 características sin fuga
+          \item Función de pertenencia sigmoidal
+          \item Fuerza de las reglas: mín y producto
+          \item Matriz de confusión y error principal
+          \item 2, 3 y 4 etiquetas contra un árbol
+          \item Fuzzy C-Means sin etiquetas
+        \end{enumerate}}}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+  {\footnotesize\color{UDSilver} Alcance: la parte en Python. La parte en MATLAB (\texttt{.mlx}) no la hago porque no tengo MATLAB; el cuaderno deja los CSV listos para ella.}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Los datos: Wine}{Conjunto clásico de la UCI, incluido en scikit-learn}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{178 vinos} de tres cultivares (3 clases).
+        \item \textbf{13 características químicas}: alcohol, ácido málico, flavonoides, prolina\ldots
+        \item Partición \textbf{70/30 estratificada}, semilla 42: 124 para entrenar y 54 para probar.
+        \item Con 54 vinos de prueba, \textbf{un vino vale 1,85 puntos} de exactitud.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \UDCard{UDLightGray}{UDBorder}{\cardtitle{UDSable}{Regla de oro}{\small Todo lo que se \emph{aprende} (qué características elegir, mínimos y máximos para normalizar, las reglas) sale \textbf{solo del entrenamiento}. La prueba se mira una vez, al final.}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{La idea: reglas que salen de los datos}{Wang-Mendel simplificado}
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.28cm]
+    \node[paso] (a) {\textbf{13 químicos}\\de cada vino};
+    \node[paso, right=of a] (b) {\textbf{4 mejores}\\F de ANOVA};
+    \node[paso, right=of b] (c) {\textbf{Normalizar}\\a $[0,1]$};
+    \node[paso, right=of c] (d) {\textbf{Etiquetas}\\bajo, medio, alto};
+    \node[paso, right=of d, fill=UDRed!8, draw=UDRed] (e) {\textbf{Una regla}\\por muestra};
+    \draw[flecha] (a) -- (b); \draw[flecha] (b) -- (c); \draw[flecha] (c) -- (d); \draw[flecha] (d) -- (e);
+  \end{tikzpicture}
+  \end{center}
+  \vspace{0.1cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Extraer}{\small Cada muestra de entrenamiento da una regla: en cada característica, la etiqueta con mayor grado es la condición, y su clase es la conclusión. Si dos reglas tienen las mismas condiciones, gana la de mayor grado.}}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Clasificar}{\small Para un vino nuevo, cada regla se “dispara” con cierta fuerza. \textbf{Gana la regla más fuerte} y su clase es la predicción.}\par\vspace{2pt}
+      {\footnotesize\itshape SI alcohol es medio Y prolina es alta \ldots\ ENTONCES clase 0}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Conceptos que voy a usar}{Pertenencia, t-normas y agrupamiento difuso}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.5\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[x=4.4cm, y=1.5cm]
+        \draw[UDBorder] (0,0) -- (1,0);
+        \draw[UDBlue, thick] (0,1) -- (0,1) -- (0.5,0);
+        \draw[UDGold, thick] (0,0) -- (0.5,1) -- (1,0);
+        \draw[UDGreen, thick] (0.5,0) -- (1,1);
+        \node[font=\tiny, UDBlue, anchor=south west] at (0,1) {bajo};
+        \node[font=\tiny, UDGold, anchor=south] at (0.5,1) {medio};
+        \node[font=\tiny, UDGreen, anchor=south east] at (1,1) {alto};
+        \node[font=\tiny, below] at (0,0) {0}; \node[font=\tiny, below] at (0.5,0) {0,5}; \node[font=\tiny, below] at (1,0) {1};
+        \node[font=\tiny, rotate=90, anchor=south] at (-0.02,0.5) {grado $\mu$};
+      \end{tikzpicture}
+      \end{center}
+      {\small Con 3 etiquetas, cada valor normalizado pertenece \textbf{a la vez} a dos etiquetas vecinas, con grados que suman 1.}
+      \vspace{0.15cm}
+
+      {\small\textbf{Sigmoidal} (TODO 2): $\ \mathrm{sigmf}(x;a,c)=\dfrac{1}{1+e^{-a(x-c)}}$}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{t-norma: el “Y” difuso}{\small Mínimo: la regla vale lo que su condición más débil.\\ Producto: se multiplican los grados.\\ En $[0,1]$, siempre producto $\le$ mínimo.}}
+      \vspace{0.15cm}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Fuzzy C-Means}{\small Como k-medias, pero cada vino pertenece a los 3 grupos con grados que suman 1. Se compara con las clases reales con el \textbf{ARI} (0 = azar, 1 = igual).}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Plan por TODO}{Qué hago y cómo sé que está bien}
+  \small
+  \begin{tabular}{@{}p{0.6cm}p{5.0cm}p{5.6cm}@{}}
+    \toprule
+    & \textbf{Qué hago} & \textbf{Cómo lo verifico} \\
+    \midrule
+    1 & \texttt{SelectKBest(f\_classif, k=4)} ajustado con entrenamiento & Coincide con los 4 mayores F de entrenamiento \\
+    2 & Implemento \texttt{sigmf} & Vale 0,5 en $x=c$, es creciente y coincide con scikit-fuzzy \\
+    3 & Combino las condiciones con mín o producto & Forma correcta, cálculo manual y mín $\ge$ producto \\
+    4 & Predicción, exactitud, matriz de confusión, par más confundido & La matriz suma 54 y exactitud $>$ 80\,\% \\
+    5 & 2, 3 y 4 etiquetas contra un árbol con las mismas hojas & Las reglas no bajan y nunca superan $n^4$ \\
+    6 & FCM con 3 grupos y ARI; exporto los CSV & Los grados suman 1 y ARI $>$ 0,3 \\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.2cm}
+
+  {\footnotesize\color{UDSilver} Un commit después del TODO 4 y otro después del TODO 6: el historial de git muestra el avance.}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Lo que aprendí de las entregas anteriores}{Y que esta vez cuido desde el principio}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Alcance justo}{\small Hago lo que pide el cuaderno, sin validaciones extra ni experimentos que nadie pidió.}}
+      \vspace{0.15cm}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Entrega autocontenida}{\small El cuaderno ejecutado, \texttt{requirements.txt}, la figura y los CSV. Nada que dependa de archivos que no se entregan.}}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Nombre correcto}{\small Todo rotulado como \textbf{Taller 5}.}}
+      \vspace{0.15cm}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{IA declarada}{\small Uso Claude como tutor: me ayudó a planear y me propone código que yo escribo, ejecuto y explico. Todo queda grabado y declarado.}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Mis hipótesis, antes de ejecutar}{Las comparo con los resultados al final del video}
+  \begin{enumerate}\setlength{\itemsep}{8pt}
+    \item \textbf{¿Más etiquetas, más reglas?} Con 4 características el máximo es $n^4$: 16, 81 y 256 reglas.\\
+      {\color{UDBlue}Creo que: \ldots}
+    \item \textbf{¿Más etiquetas, mejor exactitud siempre?}\\
+      {\color{UDBlue}Creo que: \ldots}
+    \item \textbf{¿Mínimo o producto cambia la clasificación?}\\
+      {\color{UDBlue}Creo que: \ldots}
+    \item \textbf{¿Le gana el difuso al árbol con las mismas hojas?}\\
+      {\color{UDBlue}Creo que: \ldots}
+  \end{enumerate}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Orden del video}{Planear, programar, contrastar}
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.3cm]
+    \node[paso] (a) {\textbf{1}\\Enunciado};
+    \node[paso, right=of a] (b) {\textbf{2}\\Este plan};
+    \node[paso, right=of b] (c) {\textbf{3}\\Entorno};
+    \node[paso, right=of c] (d) {\textbf{4}\\TODO 1 a 6};
+    \node[paso, right=of d, fill=UDRed!8, draw=UDRed] (e) {\textbf{5}\\Hipótesis vs. resultados};
+    \draw[flecha] (a) -- (b); \draw[flecha] (b) -- (c); \draw[flecha] (c) -- (d); \draw[flecha] (d) -- (e);
+  \end{tikzpicture}
+  \end{center}
+  \vspace{0.3cm}
+  \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Después del video}{\small El informe con la plantilla UD: resultados en tablas y una figura, análisis, 5 conclusiones con mis números y la declaración de uso de IA con el enlace al video.}}
+\end{frame}
+
+\UDcierre{Juan Felipe Rodríguez Galindo}
+         {Maestría en Ciencias de la Información\\y las Comunicaciones}
+         {Inteligencia Computacional Aplicada}
+
+\end{document}

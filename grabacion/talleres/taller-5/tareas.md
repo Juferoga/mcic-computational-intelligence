@@ -3,6 +3,7 @@
 ## Arranque
 - [ ] Presentación
 - [ ] Leer el enunciado
+- [ ] Presentación del plan
 
 ## Entorno
 - [ ] Copiar el cuaderno y commit inicial
