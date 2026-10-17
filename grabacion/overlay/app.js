@@ -65,8 +65,34 @@
     '<path d="M27.5 3.5C27.8 5.6 28.4 6.2 30.5 6.5C28.4 6.8 27.8 7.4 27.5 9.5C27.2 7.4 26.6 6.8 24.5 6.5C26.6 6.2 27.2 5.6 27.5 3.5Z" fill="#1291C0"/>' +
     '<circle cx="17" cy="17" r="2.6" fill="#2a2829"/></svg>';
 
-  // Mini perceptrón animado (x1..x3 -> Σ -> escalón -> y), pulsos SMIL en bucle.
   function emblemaSVG() {
+    return TALLER.demo === "difuso" ? emblemaDifuso() : emblemaPerceptron();
+  }
+
+  // Tres funciones de pertenencia (Baja, Media, Alta) y una entrada que las recorre.
+  function emblemaDifuso() {
+    const BASE = 70, TOPE = 14;
+    const conjuntos = [
+      ["#1291C0", `M6 ${TOPE}L34 ${TOPE}L62 ${BASE}`, `M6 ${BASE}L6 ${TOPE}L34 ${TOPE}L62 ${BASE}Z`],
+      ["#B49739", `M34 ${BASE}L75 ${TOPE}L116 ${BASE}`, `M34 ${BASE}L75 ${TOPE}L116 ${BASE}Z`],
+      ["#00A859", `M88 ${BASE}L116 ${TOPE}L144 ${TOPE}`, `M88 ${BASE}L116 ${TOPE}L144 ${TOPE}L144 ${BASE}Z`],
+    ];
+    let s = '<svg id="emblema" viewBox="0 0 150 82" aria-hidden="true">' +
+      `<line x1="4" y1="${BASE}" x2="146" y2="${BASE}" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>`;
+    conjuntos.forEach(([color, linea, area], i) => {
+      s += `<path d="${area}" fill="${color}" opacity=".14">` +
+        `<animate attributeName="opacity" values=".08;.3;.08" dur="6s" begin="${(i * 2).toFixed(1)}s" repeatCount="indefinite"/></path>` +
+        `<path d="${linea}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    });
+    s += `<line y1="8" y2="${BASE}" x1="20" x2="20" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round">` +
+      '<animate attributeName="x1" values="20;130;20" dur="6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/>' +
+      '<animate attributeName="x2" values="20;130;20" dur="6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/></line>' +
+      `<text x="75" y="80" text-anchor="middle" font-size="8.5" fill="#E4E4E4" font-family="Cambria, serif" font-style="italic">μ(x)</text>`;
+    return s + "</svg>";
+  }
+
+  // Mini perceptrón animado (x1..x3 -> Σ -> escalón -> y), pulsos SMIL en bucle.
+  function emblemaPerceptron() {
     const ys = [14, 41, 68], pesos = [2.6, 1.3, 2.0];
     let s = '<svg id="emblema" viewBox="0 0 150 82" aria-hidden="true"><defs>' +
       '<radialGradient id="grad-pulso"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#B49739"/><stop offset="1" stop-color="#B49739" stop-opacity="0"/></radialGradient>' +
