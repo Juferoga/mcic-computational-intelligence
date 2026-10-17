@@ -59,3 +59,7 @@ Thumbs.db
 
 # Taller 3: datasets descargados por torchvision (se bajan solos)
 2.Talleres/3.Taller/desarrollo/datos/
+
+# Estado en vivo del overlay de OBS (lo reescribe el script Lua cada segundo)
+grabacion/overlay/estado.json
+grabacion/overlay/estado.json.tmp
