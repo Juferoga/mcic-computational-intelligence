@@ -12,6 +12,19 @@ Escena de OBS para grabar los talleres hechos a mano.
 | `registro_claude.csv` | Se crea solo: cada intervalo con Claude al frente (inicio, fin, duración, fuente app/web). |
 | `acelerar.sh` | Versión acelerada del video: `./acelerar.sh archivo.mov 8` |
 
+## Cambiar de taller
+
+Cada taller tiene su carpeta en `talleres/taller-N/` con `tareas.md`, `taller.json` y, al terminar, el guion y `registro_claude.csv` de esa grabación. Para preparar una grabación nueva:
+
+```bash
+N=5
+cp talleres/taller-$N/tareas.md tareas.md                # título de la barra y lista de tareas
+cp talleres/taller-$N/taller.json overlay/taller.json    # animación de pausa/inicio
+printf 'inicio,fin,duracion_s,fuente\n' > registro_claude.csv
+```
+
+`taller.json` elige la animación (`"demo": "perceptron"` o `"difuso"`) y puede cambiar sus textos con `kicker`, `formula` y `pausa`. Al terminar, se copian `tareas.md` y `registro_claude.csv` a la carpeta del taller.
+
 ## Escenas
 0. **Inicio**: portada con la cámara.
 1. **Código**: pantalla (Jupyter a la izquierda, Claude a la derecha) + cámara + overlay.

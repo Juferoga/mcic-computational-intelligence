@@ -1,7 +1,8 @@
 /* Overlay del code with me: lógica compartida por overlay.html, pausa.html e inicio.html.
    Lee body[data-modo] = "trabajo" | "pausa" | "inicio".
-   Datos: ../tareas.md y estado.json (cada segundo), layout.json (una vez). Sin librerías. */
-(function () {
+   Datos: ../tareas.md y estado.json (cada segundo), layout.json y taller.json (una vez). Sin librerías.
+   taller.json elige la animación de pausa/inicio de cada taller ("perceptron" o "difuso") y sus textos. */
+(async function () {
   "use strict";
 
   const MODO = document.body.dataset.modo || "trabajo";
@@ -12,6 +13,15 @@
     pantalla: { x: 24, y: 24, w: 1536, h: 864, r: 18 },
     camara: { x: 1584, y: 24, w: 312, h: 176, r: 18 },
   };
+
+  // animación y textos de pausa/inicio según el taller (taller.json puede cambiar cualquier campo)
+  const DEMOS = {
+    perceptron: { kicker: "Perceptrón en vivo", formula: "ΔW = α(d − Y)X",
+      pausa: "Pausa corta. Mientras tanto, el perceptrón sigue entrenando." },
+    difuso: { kicker: "Lógica difusa en vivo", formula: "Mamdani · mín–máx · centroide",
+      pausa: "Pausa corta. Mientras tanto, el sistema difuso sigue infiriendo." },
+  };
+  let TALLER = Object.assign({ demo: "perceptron" }, DEMOS.perceptron);
 
   // ------------------------------------------------------------ utilidades
   const $ = (sel) => document.querySelector(sel);
@@ -95,9 +105,10 @@
         '<div class="letrero">' +
         `<div class="kicker">${pausa ? "Pausa" : "Code with me · MCIC"}</div>` +
         `<h1>${pausa ? "Ya vuelvo" : "Arrancamos en un momento"}</h1>` +
-        `<p id="letrero-p">${pausa ? "Pausa corta. Mientras tanto, el perceptrón sigue entrenando." : ""}</p>` +
+        `<p id="letrero-p">${pausa ? esc(TALLER.pausa) : ""}</p>` +
         '<div class="tarjeta-mcic"><img src="img/mcic.png" alt="MCIC"></div></div>' +
-        '<div id="marcador"><div class="kicker">Perceptrón en vivo</div><div class="regla">ΔW = α(d − Y)X</div><div id="m-epoca"></div><div id="m-pesos"></div></div>' +
+        `<div id="marcador"><div class="kicker">${esc(TALLER.kicker)}</div><div class="regla">${esc(TALLER.formula)}</div>` +
+        '<div id="m-epoca"></div><div id="m-pesos"></div></div>' +
         "</section>";
     }
 
@@ -417,7 +428,7 @@
   }
 
   // ------------------------------------------------------------ demo: perceptrón entrenando (pausa / inicio)
-  function demo() {
+  function demoPerceptron() {
     const cv = $("#escenario canvas");
     if (!cv) return;
     const ctx = cv.getContext("2d");
@@ -577,14 +588,163 @@
     requestAnimationFrame(bucle);
   }
 
+  // ------------------------------------------------------------ demo: sistema difuso infiriendo (pausa / inicio)
+  // Una entrada (temperatura) y una salida (velocidad del ventilador), tres reglas:
+  // SI temperatura es Baja/Media/Alta ENTONCES velocidad es Baja/Media/Alta.
+  function demoDifuso() {
+    const cv = $("#escenario canvas");
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    const CW = cv.width, CH = cv.height;
+    const COLORES = ["#1291C0", "#B49739", "#00A859"];
+    const NOMBRES = ["Baja", "Media", "Alta"];
+    const trap = (a, b, c, d) => (x) => Math.max(0, Math.min((x - a) / (b - a || 1e-9), 1, (d - x) / (d - c || 1e-9)));
+    const ENTRADA = { nombre: "Temperatura", unidad: "°C", min: 0, max: 40,
+      mf: [trap(-1, 0, 10, 20), trap(10, 20, 20, 30), trap(20, 30, 40, 41)] };
+    const SALIDA = { nombre: "Velocidad del ventilador", unidad: "%", min: 0, max: 100,
+      mf: [trap(-1, 0, 20, 45), trap(25, 50, 50, 75), trap(55, 80, 100, 101)] };
+    const cajaEntrada = { x: 960, y: 70, w: 520, h: 250 };
+    const cajaSalida = { x: 960, y: 400, w: 520, h: 250 };
+    const cajaReglas = { x: 64, y: 590, w: 820, h: 220 };
+
+    let xVista = 20, cVista = 50;
+
+    function inferir(x) {
+      const mu = ENTRADA.mf.map((f) => f(x));
+      const N = 240, agregada = [];
+      let num = 0, den = 0;
+      for (let i = 0; i <= N; i++) {
+        const y = SALIDA.min + (SALIDA.max - SALIDA.min) * i / N;
+        const v = Math.max(...SALIDA.mf.map((f, k) => Math.min(mu[k], f(y))));
+        agregada.push(v); num += v * y; den += v;
+      }
+      return { mu, agregada, centroide: den ? num / den : (SALIDA.min + SALIDA.max) / 2 };
+    }
+
+    function ejes(caja, v, titulo) {
+      const px = (x) => caja.x + (x - v.min) / (v.max - v.min) * caja.w;
+      const py = (m) => caja.y + caja.h - m * (caja.h - 30);
+      ctx.strokeStyle = "rgba(255,255,255,0.28)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(caja.x, caja.y + caja.h); ctx.lineTo(caja.x + caja.w, caja.y + caja.h); ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "16px Cambria, serif"; ctx.textAlign = "center";
+      for (let k = 0; k <= 4; k++) {
+        const x = v.min + (v.max - v.min) * k / 4;
+        ctx.fillText(String(Math.round(x)), px(x), caja.y + caja.h + 22);
+      }
+      ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 20px Cambria, serif";
+      ctx.fillText(titulo, caja.x, caja.y - 14);
+      return { px, py };
+    }
+
+    function curva(v, f, px, py, color, techo, rellenar) {
+      const N = 200;
+      const trazar = (cerrar) => {
+        ctx.beginPath();
+        if (cerrar) ctx.moveTo(px(v.min), py(0));
+        for (let i = 0; i <= N; i++) {
+          const x = v.min + (v.max - v.min) * i / N, X = px(x), Y = py(Math.min(techo, f(x)));
+          if (i || cerrar) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+        }
+        if (cerrar) ctx.lineTo(px(v.max), py(0));
+      };
+      if (rellenar) { trazar(true); ctx.fillStyle = rellenar; ctx.fill(); }
+      trazar(false); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    function lineaVertical(x, y0, y1, color) {
+      ctx.save(); ctx.shadowColor = color; ctx.shadowBlur = 18;
+      ctx.strokeStyle = "rgba(255,255,255,0.92)"; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke(); ctx.restore();
+    }
+
+    let mPrevio = "";
+    function marcador(x, r) {
+      const ep = `${ENTRADA.nombre} <b>${x.toFixed(1)} ${ENTRADA.unidad}</b> → velocidad <b>${r.centroide.toFixed(0)} ${SALIDA.unidad}</b>`;
+      const ps = "μ = [" + r.mu.map((m) => m.toFixed(2)).join(", ") + "]";
+      if (ep + ps === mPrevio) return;
+      mPrevio = ep + ps;
+      $("#m-epoca").innerHTML = ep;
+      $("#m-pesos").textContent = ps;
+    }
+
+    function dibujar(t) {
+      // la entrada recorre el rango despacio, con un vaivén que no se repite exacto
+      const x = 20 + 16 * Math.sin(t / 5200) + 3.5 * Math.sin(t / 1700);
+      xVista += (x - xVista) * 0.2;
+      const r = inferir(xVista);
+      cVista += (r.centroide - cVista) * 0.2;
+      ctx.clearRect(0, 0, CW, CH);
+
+      // velo oscuro detrás del letrero
+      const g = ctx.createRadialGradient(260, 200, 40, 260, 200, 900);
+      g.addColorStop(0, "rgba(31,29,30,0.92)"); g.addColorStop(0.55, "rgba(31,29,30,0.6)"); g.addColorStop(1, "rgba(31,29,30,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+
+      // entrada: funciones de pertenencia y grado de cada una
+      const e = ejes(cajaEntrada, ENTRADA, `Entrada · ${ENTRADA.nombre} (${ENTRADA.unidad})`);
+      ENTRADA.mf.forEach((f, k) => curva(ENTRADA, f, e.px, e.py, COLORES[k], 1, null));
+      lineaVertical(e.px(xVista), cajaEntrada.y + 10, cajaEntrada.y + cajaEntrada.h, "rgba(18,145,192,0.9)");
+      r.mu.forEach((m, k) => {
+        if (m <= 0.001) return;
+        ctx.fillStyle = COLORES[k];
+        ctx.beginPath(); ctx.arc(e.px(xVista), e.py(m), 7, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.6)"; ctx.lineWidth = 1; ctx.stroke();
+      });
+
+      // salida: consecuentes recortados (mín) y agregados (máx)
+      const s = ejes(cajaSalida, SALIDA, `Salida · ${SALIDA.nombre} (${SALIDA.unidad})`);
+      SALIDA.mf.forEach((f, k) => {
+        curva(SALIDA, f, s.px, s.py, "rgba(255,255,255,0.18)", 1, null);
+        if (r.mu[k] > 0.001) curva(SALIDA, f, s.px, s.py, COLORES[k], r.mu[k], COLORES[k] + "40");
+      });
+      ctx.beginPath();
+      r.agregada.forEach((v, i) => {
+        const X = s.px(SALIDA.min + (SALIDA.max - SALIDA.min) * i / (r.agregada.length - 1)), Y = s.py(v);
+        if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.lineWidth = 1.6; ctx.stroke();
+      lineaVertical(s.px(cVista), cajaSalida.y + 10, cajaSalida.y + cajaSalida.h, "rgba(180,151,57,0.95)");
+      ctx.fillStyle = "#B49739"; ctx.font = "600 18px Cambria, serif"; ctx.textAlign = "center";
+      ctx.fillText("centroide", s.px(cVista), cajaSalida.y + 2);
+
+      // reglas con su grado de activación
+      ctx.textAlign = "left";
+      NOMBRES.forEach((n, k) => {
+        const y = cajaReglas.y + 30 + k * 64, m = r.mu[k];
+        ctx.font = "22px Cambria, serif";
+        ctx.fillStyle = m > 0.001 ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.4)";
+        ctx.fillText(`SI temperatura es ${n} ENTONCES velocidad es ${n}`, cajaReglas.x, y);
+        ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(cajaReglas.x, y + 12, 520, 10);
+        ctx.fillStyle = COLORES[k]; ctx.fillRect(cajaReglas.x, y + 12, 520 * m, 10);
+        ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "18px Cambria, serif";
+        ctx.fillText(m.toFixed(2), cajaReglas.x + 534, y + 22);
+      });
+      marcador(xVista, r);
+    }
+
+    let tPrevio = 0;
+    function bucle(t) {
+      if (t - tPrevio > 30) { tPrevio = t; dibujar(t); }
+      requestAnimationFrame(bucle);
+    }
+    requestAnimationFrame(bucle);
+  }
+
   // ------------------------------------------------------------ arranque
+  async function cargarTaller() {
+    try {
+      const cfg = await traer("taller.json", "json");
+      TALLER = Object.assign({ demo: "perceptron" }, DEMOS[cfg.demo] || DEMOS.perceptron, cfg);
+    } catch (e) { /* sin taller.json: perceptrón */ }
+  }
+  await cargarTaller();
   construir();
   traer("layout.json", "json").catch(() => LAYOUT_POR_DEFECTO).then((l) => fondo(Object.assign({}, LAYOUT_POR_DEFECTO, l)));
   reloj(); setInterval(reloj, 250);
   sondearTareas(); setInterval(sondearTareas, 1000);
   sondearEstado(); setInterval(sondearEstado, 1000);
   setInterval(pintarEstado, 250);
-  demo();
+  (TALLER.demo === "difuso" ? demoDifuso : demoPerceptron)();
   if (window.ResizeObserver) new ResizeObserver(pedirAjuste).observe($("#tareas"));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(pedirAjuste);
 })();
