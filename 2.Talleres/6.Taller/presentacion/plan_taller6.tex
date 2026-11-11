@@ -1,0 +1,178 @@
+% Taller 6 -- Plan de trabajo (se muestra en el video antes de programar; no hace parte de la entrega).
+% Compilar:
+% tectonic -Z search-path=$HOME/repos/ud/maestria/mcic/.UniversidadDistrital-manual-marca/plantillas-latex plan_taller6.tex
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[spanish,es-noshorthands]{babel}
+\usetheme{UD}
+\usepackage{booktabs}
+
+\begin{document}
+
+\UDportada{Taller 6: series de tiempo\\Plan de trabajo}
+          {Modelo clásico frente a una red NARX sobre una serie real}
+          {Juan Felipe Rodríguez Galindo\\{\fontsize{6.4pt}{7.4pt}\selectfont\mdseries\color{UDSilver}20261595004}}
+          {Maestría en Ciencias de la Información y las Comunicaciones}
+          {Inteligencia Computacional Aplicada · 2026}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{¿Qué pide el taller?}{Plantilla del profesor: \texttt{TallerST\_Plantilla.ipynb}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{El objetivo}{\small Comparar un \textbf{modelo estadístico clásico} con una \textbf{red NARX} pronosticando una serie real, y decidir con evidencia estadística si la red gana.}}
+      \vspace{0.15cm}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Lo que ya viene hecho}{\small Carga, validación, diagnóstico, validación cruzada de origen móvil, métricas, Diebold-Mariano y exportación. \textbf{El motor de evaluación no se toca.}}}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Tres TODO-EQUIPO}{\small
+        \begin{enumerate}\setlength{\itemsep}{2pt}
+          \item \texttt{modelo\_clasico}: SARIMAX justificado
+          \item \texttt{modelo\_neuronal}: NARX, escalado solo con entrenamiento
+          \item \texttt{REJILLAS}: 2 hiperparámetros $\times$ 3 niveles, 3 semillas
+        \end{enumerate}}}
+      \vspace{0.15cm}
+      \UDCard{UDLightGray}{UDBorder}{\cardtitle{UDSable}{Regla de oro}{\small La \textbf{prueba externa se ejecuta una sola vez}, al final, con los hiperparámetros ya elegidos.}}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+  {\footnotesize\color{UDSilver} Alcance: la plantilla en Python. La versión MATLAB (\texttt{.m}) es equivalente y no la uso porque no tengo MATLAB.}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Los datos: calidad del aire en Beijing}{UCI Machine Learning Repository, estación Aotizhongxin}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{Objetivo}: PM2.5, partículas finas en $\mu$g/m$^3$.
+        \item \textbf{Exógenas} (clima): temperatura, punto de rocío, presión y velocidad del viento.
+        \item Datos horarios de mar.\ 2013 a feb.\ 2017, promediados por día: \textbf{1461 días}, periodo estacional $s = 7$.
+        \item \textbf{Desarrollo}: 1168 días (80\,\%). \textbf{Prueba externa}: 293 días (20\,\%).
+        \item Cumple los criterios C1 a C6 de la plantilla; 15 días sin dato se interpolan.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{¿Por qué Beijing?}{\small Probé los tres conjuntos. Beijing es diario y corre rápido en CPU, y el clima tiene una relación física con la contaminación: \textbf{el viento la dispersa}. Es el caso en que una NARX debería aportar.}}
+      \vspace{0.15cm}
+      \UDCard{UDLightGray}{UDBorder}{\cardtitle{UDSable}{Supuesto}{\small Como en el Taller 1, el clima futuro se toma como \textbf{conocido}. En la realidad vendría de un pronóstico con error.}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Cómo se evalúa: origen móvil}{Nunca se baraja el tiempo}
+  \begin{center}
+  \begin{tikzpicture}[x=0.82cm, y=0.42cm]
+    \foreach \k/\o in {1/6.0, 2/6.9, 3/7.8, 4/8.7, 5/9.6} {
+      \fill[UDBlue!25] (0,-\k) rectangle (\o,-\k+0.7);
+      \fill[UDRed!70] (\o,-\k) rectangle (\o+0.8,-\k+0.7);
+      \node[font=\tiny, anchor=east] at (-0.1,-\k+0.35) {Pliegue \k};
+    }
+    \fill[UDGold!60] (10.4,-5) rectangle (12.6,0.7-1);
+    \node[font=\tiny, align=center] at (11.5,-2.6) {Prueba\\externa};
+    \draw[UDBorder] (0,-5.6) -- (12.6,-5.6);
+    \node[font=\tiny, anchor=north] at (0,-5.6) {mar.\ 2013};
+    \node[font=\tiny, anchor=north] at (10.4,-5.6) {may.\ 2016};
+    \node[font=\tiny, anchor=north] at (12.6,-5.6) {feb.\ 2017};
+    \fill[UDBlue!25] (0.2,-6.9) rectangle (0.6,-6.5); \node[font=\tiny, anchor=west] at (0.65,-6.7) {entrena};
+    \fill[UDRed!70] (2.2,-6.9) rectangle (2.6,-6.5); \node[font=\tiny, anchor=west] at (2.65,-6.7) {pronostica $H = 24$ días};
+  \end{tikzpicture}
+  \end{center}
+  \vspace{0.1cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      {\small Cada pliegue entrena con todo lo anterior a su origen (\textbf{ventana expandible}) y pronostica los 24 días siguientes. Así se eligen los hiperparámetros.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      {\small Métricas: RMSE, MAE y \textbf{MASE} (MASE $< 1$ = mejor que el ingenuo estacional). Al final, \textbf{Diebold-Mariano} dice si la diferencia entre dos modelos es significativa.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Los modelos que comparo}{Todos cumplen el mismo contrato: \texttt{pronosticar(y\_hist, X\_hist, X\_fut, H, **hp)}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.31\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDSable}{Ingenuo estacional}{\small Repite la última semana: $\hat y_t = y_{t-7}$. Es la referencia que hay que superar.}}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Clásico: SARIMAX}{\small Sobre $\log(1+y)$, con el clima como regresor \textbf{lineal}. El orden $(p,d,q)(P,D,Q)_7$ lo elijo con el diagnóstico, AIC y BIC, y reviso los residuos con Ljung-Box.}}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \UDCard{white}{UDRed!60}{\cardtitle{UDRed}{Neuronal: NARX}{\small Una capa oculta \texttt{tanh}. Entra la historia $y_{t-1}\ldots y_{t-d_y}$ y el clima $x_t\ldots x_{t-2}$. Se entrena en \textbf{lazo abierto} y pronostica en \textbf{lazo cerrado}.}}
+    \end{column}
+  \end{columns}
+  \vspace{0.25cm}
+  \UDCard{UDLightGray}{UDBorder}{\cardtitle{UDSable}{Sin fuga}{\small Dentro de cada llamada se ajusta todo lo que depende de los datos: el escalado sale solo de \texttt{y\_hist} y \texttt{X\_hist}, y la parada temprana usa el 15\,\% final de \texttt{y\_hist}. También corro la misma red \textbf{sin clima (NAR)} para ver cuánto aporta.}}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Plan de trabajo}{Qué hago y cómo sé que está bien}
+  \small
+  \begin{tabular}{@{}p{0.3cm}p{5.0cm}p{5.9cm}@{}}
+    \toprule
+    & \textbf{Qué hago} & \textbf{Cómo lo verifico} \\
+    \midrule
+    0 & Corro la plantilla sin cambios & Pasa la validación y sale la tabla del ingenuo \\
+    1 & Logaritmo y AIC/BIC para el clásico & La asimetría baja; coeficientes y Ljung-Box \\
+    2 & \texttt{modelo\_clasico} y \texttt{modelo\_neuronal} & Devuelven 24 valores; MASE $< 1$ en validación \\
+    3 & Rejillas: clásico $3 \times 3$; red $3 \times 3 \times 3$ semillas & Media y desviación del RMSE; mapa de calor \\
+    4 & Elijo con la validación y corro la prueba una vez & Tabla final, RMSE por horizonte \\
+    5 & Residuos y Diebold-Mariano & $p$-valores de cada par de modelos \\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.2cm}
+
+  {\footnotesize\color{UDSilver} La rejilla de la red son 135 entrenamientos (unos 10 minutos en CPU). Hago un commit después de cada bloque para que git muestre el avance.}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Lo que aprendí de las entregas anteriores}{Y que esta vez cuido desde el principio}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Alcance justo}{\small Lo que pide la plantilla y nada más: los dos modelos, las rejillas y la prueba final. La NAR es la misma función sin clima.}}
+      \vspace{0.15cm}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Entrega autocontenida}{\small El cuaderno ejecutado con sus salidas, la carpeta \texttt{resultados/} y \texttt{requirements.txt}. Los datos los descarga el propio cuaderno.}}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{Nombre correcto}{\small Todo rotulado como \textbf{Taller 6}.}}
+      \vspace{0.15cm}
+      \UDCard{UDLightGray}{UDRed!60}{\cardtitle{UDRed}{IA declarada}{\small Uso Claude como tutor: me ayudó a planear y me propone código que yo escribo, ejecuto y explico. Todo queda grabado y declarado.}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Mis hipótesis, antes de ejecutar}{Las comparo con los resultados al final del video}
+  \begin{enumerate}\setlength{\itemsep}{8pt}
+    \item \textbf{¿La NARX le gana al SARIMAX en la prueba externa?}\\
+      {\color{UDBlue}Creo que: \ldots}
+    \item \textbf{¿El clima ayuda? (NARX frente a la NAR sin clima)}\\
+      {\color{UDBlue}Creo que: \ldots}
+    \item \textbf{¿Qué mueve más el error de la red: los retardos $d_y$ o las neuronas?}\\
+      {\color{UDBlue}Creo que: \ldots}
+    \item \textbf{¿La diferencia entre los dos modelos será significativa con Diebold-Mariano?}\\
+      {\color{UDBlue}Creo que: \ldots}
+  \end{enumerate}
+\end{frame}
+
+%% -------------------------------------------------------------------------------------------
+\begin{frame}{Orden del video}{Planear, programar, contrastar}
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.22cm, scale=0.9, transform shape]
+    \node[paso] (a) {\textbf{1}\\Enunciado};
+    \node[paso, right=of a] (b) {\textbf{2}\\Este plan};
+    \node[paso, right=of b] (c) {\textbf{3}\\Entorno y\\plantilla};
+    \node[paso, right=of c] (d) {\textbf{4}\\Modelos y\\rejillas};
+    \node[paso, right=of d] (e) {\textbf{5}\\Prueba\\externa};
+    \node[paso, right=of e, fill=UDRed!8, draw=UDRed] (f) {\textbf{6}\\Hipótesis vs.\\resultados};
+    \draw[flecha] (a) -- (b); \draw[flecha] (b) -- (c); \draw[flecha] (c) -- (d); \draw[flecha] (d) -- (e); \draw[flecha] (e) -- (f);
+  \end{tikzpicture}
+  \end{center}
+  \vspace{0.3cm}
+  \UDCard{white}{UDBorder}{\cardtitle{UDBlue}{Después del video}{\small El informe con la plantilla UD (6 a 8 páginas): metodología con la tabla de validación, resultados, sensibilidad, Diebold-Mariano, conclusiones con mis números y la declaración de uso de IA con el enlace al video.}}
+\end{frame}
+
+\UDcierre{Juan Felipe Rodríguez Galindo}
+         {Maestría en Ciencias de la Información\\y las Comunicaciones}
+         {Inteligencia Computacional Aplicada}
+
+\end{document}
