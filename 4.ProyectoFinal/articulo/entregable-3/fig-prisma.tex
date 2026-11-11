@@ -1,0 +1,27 @@
+% Fig. 2: diagrama de flujo tipo PRISMA 2020. Todos los números son macros de generado/conteos.tex.
+\begin{tikzpicture}[node distance=2.6mm and 2.4mm]
+  % Identificación
+  \node[caja=3.75cm] (bases) {\textbf{Bases de datos} (2019--2026)\\
+     arXiv: Q1 \nArxivQuno{} $+$ Q2 \nArxivQdos{} $=$ \nArxivTotal\\
+     OpenAlex: Q1 \nOaQuno{} $+$ Q2 \nOaQdos{} $=$ \nOaTotal};
+  \node[caja=2.45cm,right=of bases] (otros) {\textbf{Otras fuentes}\\ clásicos, citas y
+     búsqueda dirigida: \nOtros};
+  % Tamizaje
+  \node[caja=3.75cm,below=4mm of bases] (tam) {\textbf{Tamizaje por título y resumen}\\
+     \nTamizados{} registros (sin \nDup{} duplicados)};
+  \node[excl,right=of tam] (extam) {Excluidos (E1--E5): \nExclTitulo};
+  \node[caja=3.75cm,below=of tam] (tc) {\textbf{Evaluados en elegibilidad}: \nPasan};
+  \node[excl,right=of tc] (extc) {Excluidos tras leer: \nExclTexto};
+  \node[caja=3.75cm,below=of tc,fill=udazul!10] (inc) {\textbf{Incluidos: \nTotalIncluidos}
+     (\nIncluidosBases{} de bases $+$ \nOtros{} de otras fuentes)\\ \nRecientes{} desde 2021;
+     \nMatriz{} en la Tabla~\ref{tab:matriz}};
+  \draw[flecha] (bases) -- (tam);
+  \draw[flecha] (tam) -- (tc);
+  \draw[flecha] (tc) -- (inc);
+  \draw[flecha] (otros.east) -- ++(1.6mm,0) |- (inc.east);
+  \draw[flecha,udplata] (tam.east) -- (extam.west);
+  \draw[flecha,udplata] (tc.east) -- (extc.west);
+  % Etiquetas de fase
+  \foreach \n/\t in {bases/Ident., tam/Tamiz., inc/Incl.}
+    \node[fase,rotate=90,anchor=south] at ([xshift=-1.2mm]\n.west) {\t};
+\end{tikzpicture}

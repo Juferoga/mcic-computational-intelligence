@@ -1,0 +1,47 @@
+[
+  {
+    "ventana": "2023",
+    "config": {
+      "n_reglas": 15
+    },
+    "semilla": 11,
+    "evolutivo": false,
+    "auc_pr": 0.12013179537996849,
+    "tiempo_s": 1.7683448791503906,
+    "n_reglas": 15,
+    "n_antecedentes": 29,
+    "n_parametros": 71,
+    "historia": [],
+    "n_entrenamiento": 300285
+  },
+  {
+    "ventana": "2024",
+    "config": {
+      "n_reglas": 15
+    },
+    "semilla": 11,
+    "evolutivo": false,
+    "auc_pr": 0.1180117314352011,
+    "tiempo_s": 1.8753609657287598,
+    "n_reglas": 15,
+    "n_antecedentes": 29,
+    "n_parametros": 74,
+    "historia": [],
+    "n_entrenamiento": 380343
+  },
+  {
+    "ventana": "2025",
+    "config": {
+      "n_reglas": 15
+    },
+    "semilla": 11,
+    "evolutivo": false,
+    "auc_pr": 0.12362094830880402,
+    "tiempo_s": 1.866971731185913,
+    "n_reglas": 15,
+    "n_antecedentes": 29,
+    "n_parametros": 71,
+    "historia": [],
+    "n_entrenamiento": 462363
+  }
+]

@@ -1,0 +1,25 @@
+% Partición temporal: ventana creciente con hueco de 90 días. Escala: 1 año = 0,85 cm desde 2019.
+\begin{tikzpicture}[x=0.85cm,y=0.42cm,font=\scriptsize]
+  \def\h{0.25}  % hueco de 90 días ~ 0,25 años
+  \foreach \y/\lab/\ini in {3/V$_{2023}$/4, 2/V$_{2024}$/5, 1/V$_{2025}$/6}{
+    \fill[udazul!70] (0,\y-0.32) rectangle (\ini-\h,\y+0.32);
+    \fill[udplata!35] (\ini-\h,\y-0.32) rectangle (\ini,\y+0.32);
+    \fill[uddorado!85] (\ini,\y-0.32) rectangle (\ini+1,\y+0.32);
+    \node[left,udsable] at (0,\y) {\lab};
+  }
+  \fill[udazul!70] (0,-0.32) rectangle (7-\h,0.32);
+  \fill[udplata!35] (7-\h,-0.32) rectangle (7,0.32);
+  \fill[udrojo!80] (7,-0.32) rectangle (7+7/12,0.32);
+  \node[left,udsable] at (0,0) {Prueba};
+  \draw[udsable] (0,-0.75) -- (8,-0.75);
+  \foreach \x/\t in {0/2019,1/2020,2/2021,3/2022,4/2023,5/2024,6/2025,7/2026}
+    \draw[udsable] (\x,-0.75) -- ++(0,-0.12) node[below] {\t};
+  \node[anchor=west,fill=udazul!70,minimum width=3mm,minimum height=2mm,inner sep=0] (a) at (0,4.2) {};
+  \node[anchor=west] at (a.east) {entrenamiento};
+  \node[anchor=west,fill=udplata!35,minimum width=3mm,minimum height=2mm,inner sep=0] (b) at (2.2,4.2) {};
+  \node[anchor=west] at (b.east) {hueco 90 d};
+  \node[anchor=west,fill=uddorado!85,minimum width=3mm,minimum height=2mm,inner sep=0] (c) at (4.1,4.2) {};
+  \node[anchor=west] at (c.east) {validación};
+  \node[anchor=west,fill=udrojo!80,minimum width=3mm,minimum height=2mm,inner sep=0] (d) at (5.9,4.2) {};
+  \node[anchor=west] at (d.east) {prueba};
+\end{tikzpicture}

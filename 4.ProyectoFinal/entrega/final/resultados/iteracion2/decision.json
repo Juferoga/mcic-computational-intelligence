@@ -1,0 +1,16 @@
+{
+  "fecha": "2026-11-08T00:41:16",
+  "elegido": {
+    "ventana": "creciente",
+    "variables_difuso": "originales_10",
+    "razon": 0.941246048641451
+  },
+  "criterio_razon": "razón de medias AUC-PR_FE / AUC-PR_GB en las 3 ventanas, la misma forma con que se fijó el umbral 0,1495 / 0,1578",
+  "elegido_con_media_de_razones": {
+    "ventana": "creciente",
+    "variables_difuso": "originales_10"
+  },
+  "razon_iteracion_1": 0.9474017743979721,
+  "adoptada": false,
+  "nota": "iteración 2 no adoptada; la prueba no se vuelve a usar"
+}

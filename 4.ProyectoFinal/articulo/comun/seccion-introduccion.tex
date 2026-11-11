@@ -1,0 +1,42 @@
+%=====================================================================
+\section{Introducción}
+
+Desde hace dos décadas, el riesgo de un commit se estima con métricas del propio cambio: cuánto toca, cuánto se difunde y la experiencia del autor \cite{Mockus2000,Kamei2013}. Es la predicción justo a tiempo (JIT): la alerta llega cuando el cambio aún está en revisión. El kernel de Linux cuenta con una ventaja clave: cuando un commit corrige un fallo previo, el trailer \texttt{Fixes:} identifica explícitamente al culpable sin recurrir a heurísticas como SZZ mediante \texttt{git blame} \cite{Sliwerski2005}. En estudios empíricos, el 81\,\% se confirmó como causa del bug; el resto es ambiguo o incorrecto \cite{Lyu2024}.
+
+En 2026 cambió quién escribe parte de estos cambios. La versión 7.0 pidió declarar con \texttt{Assisted-by:} la ayuda de asistentes de IA \cite{KernelAdd}, simplificada luego a \texttt{Assisted-by: LLM} \cite{KernelSimpl}. El 14 de octubre se retiró al constatar que solo cerca del 10\,\% de los commits la incluía, pese a un uso real mucho mayor \cite{KernelRemove}. Por ello, la <<era de la IA>> se define por frontera temporal (Fig.~\ref{fig:tiempo}) y no por la etiqueta, que queda solo como referencia complementaria.
+
+\begin{figure}[!t]
+\centering
+\input{fig-linea-tiempo}
+\caption{Diseño temporal propuesto frente a los hitos de \texttt{Assisted-by} \cite{KernelAdd,KernelSimpl,KernelRemove}. Los commits posteriores a julio de 2026 quedan censurados: no han tenido los 90 días para recibir un \texttt{Fixes:}.}
+\label{fig:tiempo}
+\end{figure}
+
+\subsection{Problema y pregunta de investigación}
+
+\textbf{Problema.} Clasificar cada commit del kernel como \emph{riesgoso} si un commit posterior lo cita con \texttt{Fixes:} en 90 días o menos, usando solo información disponible en el momento de integrarlo, y con un modelo que un mantenedor pueda leer.
+
+\textbf{Pregunta.} ¿Un clasificador de a lo sumo 15 reglas difusas, cuyas funciones de pertenencia y reglas se ajustan con un algoritmo evolutivo, alcanza en los commits de 2026 un AUC-PR de al menos el 90\,\% del mejor modelo de referencia (regresión logística o \emph{gradient boosting}), y pierde menos AUC-PR que ese modelo al pasar de la validación (ventanas anuales 2023, 2024 y 2025, entrenando desde 2019) a la prueba (enero--julio de 2026)?
+
+\subsection{Criterio de éxito (etapa 1 de CRISP-ML(Q) \cite{Studer2021})}
+
+Sea $\mathrm{AP}_m^{V}$ el AUC-PR medio del modelo $m$ en las ventanas de validación y $\mathrm{AP}_m^{T}$ su AUC-PR en la prueba de 2026, ambos con intervalo de confianza del 95\,\% por \emph{bootstrap}. Sean $\Delta_m=(\mathrm{AP}_m^{V}-\mathrm{AP}_m^{T})/\mathrm{AP}_m^{V}$ la caída relativa, $\pi^{T}$ la prevalencia de positivos en la prueba (el AUC-PR de la clase mayoritaria), FE el modelo propuesto y $R$ la mejor referencia clásica en validación. El proyecto se declara exitoso si se cumplen las tres condiciones de la Tabla~\ref{tab:criterio}. Si no se cumplen, se reporta así, sin volver a ajustar nada con la prueba.
+
+\begin{table}[!t]
+\caption{Criterio de éxito, fijado antes de ver los datos}
+\label{tab:criterio}
+\centering\footnotesize
+\begin{tabularx}{\columnwidth}{@{}l Y@{}}
+\toprule
+\cabecera & \textbf{Condición}\\
+\midrule
+C1 Desempeño & $\mathrm{AP}_{FE}^{T}\ge 0{,}90\,\mathrm{AP}_{R}^{T}$\\
+C2 Robustez & $\Delta_{FE}<\Delta_{R}$ (diferencia observada, con IC 95\,\%)\\
+C3 Piso & El IC 95\,\% de $\mathrm{AP}_{FE}^{T}$ excluye $\pi^{T}$; McNemar contra cada referencia con $\alpha=0{,}05$\\
+Restricción & $\le$15 reglas y $\le$3 antecedentes por regla\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Datos y consideraciones éticas}
+Los datos son públicos: el historial oficial de \texttt{torvalds/linux} (GPL-2.0), minado directamente para un registro continuo de 2014 a 2026. Para contrastar la etiqueta se recurre además al dataset de Maes Bermejo \emph{et al.} en Zenodo \cite{MaesBermejo2024}. Por ser fuentes enteramente abiertas no se requiere aprobación de un comité de ética; por privacidad, los nombres y correos de los autores se sustituyen por identificadores anónimos.

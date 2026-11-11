@@ -1,0 +1,32 @@
+% Tabla II: matriz reducida del estado del arte. Cifras tomadas de revision/fichas/*.json
+% (cada una con su URL verificada); la matriz completa está en revision/resultados/matriz_completa.csv.
+\begin{table*}[!t]
+\caption{Matriz del estado del arte (\nMatriz{} de los \nTotalIncluidos{} incluidos; la matriz completa va en el anexo). Enfoques: A métricas y aprendizaje clásico, B profundo y LLM, C interpretable, difuso o evolutivo, D evaluación realista y deriva, E etiqueta. $^\dagger$Solo nivel de módulo. $^\ddagger$Preprint.}
+\label{tab:matriz}
+\centering
+\fontsize{5.6}{6.6}\selectfont
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}L{1.05cm}L{2.45cm}L{2.3cm}L{1.75cm}L{1.75cm}L{2.55cm}L{1.95cm}Y@{}}
+\toprule
+\cabecera \textbf{Referencia} & \textbf{Problema y datos} & \textbf{Paradigma y modelo} & \textbf{Referencias comparadas} & \textbf{Validación} & \textbf{Métrica y resultado} & \textbf{Limitaciones} & \textbf{Relevancia para el proyecto}\\
+\midrule
+\enf{A} Kamei \cite{Kamei2013} (2013) & 11 proyectos (6 libres, 5 comerciales), $>$250 mil cambios; SZZ & Reg. logística, 14 métricas de cambio & Azar & VC aleatoria 10 pliegues & Precisión 34\,\%, sensib. 64\,\%; AUC 0,73 (comerciales) & VC mezcla pasado y futuro & Variables base y referencia logística\\
+\enf{B} Zeng \cite{Zeng2021} (2021) & 310 mil commits, 6 proyectos (Qt, OpenStack, Go\ldots) & Réplica de DeepJIT y CC2Vec; LApredict (RL con una variable) & DeepJIT, CC2Vec, DBN-JIT, LR-JIT & Cronológica 80/20; recorta la cola & AUC media: LApredict 0,725; DeepJIT 0,707 & Una corrida; solo AUC & Lo simple iguala a lo profundo con partición temporal\\
+\enf{B} Ni \cite{Ni2022} (2022) & JIT-Defects4J: 27\,319 commits Java, 8,5\,\% positivos & JIT-Fine: CodeBERT + 14 métricas & LApredict, DeepJIT, CC2Vec, JITLine & Temporal 80/20 por proyecto & F1 0,431; AUC 0,881 (JITLine 0,261/0,802) & Solo Java; costo no reportado & Cota alta de AUC; modelo opaco\\
+\enf{B} Liu \cite{Liu2026} (2026) & Diffs de Meta; cambios que causaron caídas ($\approx$2 por mil) & LLM (Diff Risk Score) + atención por bloque & Ninguna cuantitativa & No descrita & Top-2 bloques cubren 53,9\,\% de líneas causantes & Una empresa; 48 de 55 opiniones negativas & Explicación post hoc frente a reglas intrínsecas\\
+\enf{C} JITLine \cite{JITLine2021} (2021) & Qt y OpenStack, 37\,524 commits & RF + tokens; SMOTE ajustado por evolución diferencial; LIME & EALR, DeepJIT, CC2Vec & Una partición temporal & AUC 0,83/0,82; F1 0,33/0,24 & Una partición, sin pruebas estadísticas & Usa evolución y explica, pero sobre caja negra\\
+\enf{C} PyExplainer \cite{PyExplainer2021} (2021) & Qt y OpenStack, 40\,798 commits & Reglas locales (RuleFit) sobre RF y RL & LIME & Temporal 70/30 & RF: AUC 0,75/0,74; reglas 18--38\,\% más fieles que LIME & Dos proyectos; vecinos aleatorios & Reglas post hoc, no un modelo de reglas\\
+\enf{C} Aftab \cite{Aftab2023} (2023)$^\dagger$ & NASA, 5 conjuntos, 3\,579 módulos & Inferencia difusa (8 reglas) que combina NB, RNA y AD & NB, RNA, AD & Aleatoria 70/30 & Exactitud 91,05\,\%; sensib. 0,33 & Reglas a mano; exactitud con desbalance & Muestra por qué no usar exactitud\\
+\enf{C} Dey \cite{Dey2025} (2025)$^\dagger$ & NASA: JM1, KC1, PC1, KC2, CM1 & Selección multiobjetivo (estrella de mar) + integral difusa de Choquet & 7 clasificadores; MOGA, MOGWO & VC aleatoria 10 pliegues & Exactitud 0,85--0,96; sin AUC & Nivel módulo; F1 y sensib. casi perfectas con 7--20\,\% positivos & Lo difuso-evolutivo reciente no llega al commit\\
+\enf{D} McIntosh \cite{McIntosh2018} (2018) & Qt y OpenStack, 37\,524 cambios (8 y 13\,\%) & RL no lineal con splines & Periodo corto frente a largo & Longitudinal en el tiempo & AUC cae 11--34 puntos en un año; reentrenar recupera 6--24 & Dos sistemas; filtros de SZZ & Evidencia de deriva; diseño a replicar\\
+\enf{D} Cabral \cite{Cabral2019} (2019) & 10 proyectos GitHub, 2003--2018 & En línea: ORB (árboles de Hoeffding) & OOB, UOB, ventana deslizante & Precuencial con espera de 90 días & G-mean de JIT fijo hasta 97,2\,\% menor que OOB & G-mean, sin AUC-PR & Sustenta la ventana de 90 días\\
+\enf{D} Olewicki \cite{Olewicki2024} (2024) & Ubisoft: 4 proyectos de riesgo, 50--82 mil commits & MLP con aprendizaje continuo & XGBoost reentrenado, ingenuo & Secuencial en el tiempo & F1 +9 a +31\,\% en 6 de 8 proyectos & Una empresa; sin latencia & Deriva industrial en riesgo de commits\\
+\enf{D} Nguyen \cite{Nguyen2025} (2025) & Linux (993\,704 commits) y FFmpeg; Linux con \texttt{Fixes:} & 8 técnicas JIT de vulnerabilidades (RL, DeepJIT, JIT-Fine\ldots) & Escenario idealizado frente a realista & Temporal 75/5/20 & PR-AUC en Linux 0,805 $\rightarrow$ 0,016 ($-$98\,\%) & Vulnerabilidades, no defectos & El más cercano: Linux, \texttt{Fixes:}, AUC-PR\\
+\enf{D} Mazloomzadeh \cite{Mazloomzadeh2026} (2026)$^\ddagger$ & AIDev: 489 repos. Python, 9\,428 PR de agentes & Estudio longitudinal (GLMM, SZZ) & PR humanos & Por trimestres & Sin diferencia relevante en inducción de bugs ($V=0{,}068$) & SZZ con P=0,39 & La era IA cambia las covariables\\
+\enf{E} Lyu \cite{Lyu2024} (2024) & KFC: 76\,046 commits con \texttt{Fixes:}, Linux 2013--2022 & 6 variantes de SZZ + TC-SZZ & Rosa et al. & Contra \texttt{Fixes:} como verdad & R-SZZ F1 0,51; 81\,\% de \texttt{Fixes:} confirmados & \texttt{Fixes:} es opcional & Valida la etiqueta del proyecto\\
+\enf{E} Herbold \cite{Herbold2022} (2022) & 398 versiones, 38 proyectos Apache & Calidad de datos; NB entre proyectos & SZZ a 6 meses frente a etiqueta validada & Entre proyectos; Friedman + Nemenyi & Cerca de la mitad de las correcciones de SZZ no lo son & Solo Apache & Ruido de SZZ; preferir \texttt{Fixes:}\\
+\enf{E} Falessi \cite{Falessi2022} (2022) & 19 proyectos Apache, $>$4\,000 defectos & 15 clasificadores de Weka & Con y sin defectos latentes & Por versiones, 66/33 & Pérdida mediana de sensib. $\approx$90\,\% por defectos latentes & Nivel de clase & Censura: recortar la cola reciente\\
+\bottomrule
+\end{tabularx}
+\end{table*}

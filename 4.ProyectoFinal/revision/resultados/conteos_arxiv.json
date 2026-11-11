@@ -1,0 +1,19 @@
+{
+  "consultado": "2026-11-06T18:47",
+  "rango": [
+    2019,
+    2026
+  ],
+  "ecuaciones": {
+    "Q1": "(all:\"commit\" OR all:\"commits\" OR all:\"code change\" OR all:\"code changes\" OR all:\"software change\" OR all:\"software changes\" OR all:\"patch\" OR all:\"patches\" OR all:\"pull request\" OR all:\"pull requests\" OR all:\"Linux kernel\") AND (all:\"defect prediction\" OR all:\"bug prediction\" OR all:\"bug-introducing\" OR all:\"bug-inducing\" OR all:\"fix-inducing\" OR all:\"just-in-time\" OR all:\"change risk\" OR all:\"risk prediction\" OR all:\"defect-prone\" OR all:\"buggy\") AND (all:fuzzy OR all:\"rule-based\" OR all:evolutionary OR all:\"genetic algorithm\" OR all:\"genetic programming\" OR all:\"search-based\" OR all:interpretable OR all:interpretability OR all:explainable OR all:explainability)",
+    "Q2": "(all:\"commit\" OR all:\"commits\" OR all:\"code change\" OR all:\"code changes\" OR all:\"software change\" OR all:\"software changes\" OR all:\"patch\" OR all:\"patches\" OR all:\"pull request\" OR all:\"pull requests\" OR all:\"Linux kernel\") AND (all:\"defect prediction\" OR all:\"bug prediction\" OR all:\"bug-introducing\" OR all:\"bug-inducing\" OR all:\"fix-inducing\" OR all:\"just-in-time\" OR all:\"change risk\" OR all:\"risk prediction\" OR all:\"defect-prone\" OR all:\"buggy\") AND (all:\"concept drift\" OR all:drift OR all:\"temporal validation\" OR all:\"time-aware\" OR all:\"realistic evaluation\" OR all:\"data shift\" OR all:\"distribution shift\" OR all:\"time travel\")"
+  },
+  "Q1": {
+    "total_sin_filtro_anio": 38,
+    "en_rango": 35
+  },
+  "Q2": {
+    "total_sin_filtro_anio": 3,
+    "en_rango": 3
+  }
+}

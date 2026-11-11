@@ -1,0 +1,28 @@
+%=====================================================================
+\section{Discusión y limitaciones}
+
+\textbf{El costo de la interpretabilidad es medible y moderado.} Con 3 a 6 reglas legibles y unos 27 parámetros, el modelo difuso conserva el \cifCuno{} del AUC-PR de un \emph{gradient boosting} con miles de nodos, y empata en rango medio con la regresión logística. La hipótesis de que la interpretabilidad intrínseca daría además robustez a la deriva no se sostiene: el difuso cae más que las referencias.
+
+Una explicación consistente con los errores es que las reglas apuestan casi todo al tamaño y a la difusión. Cuando la deriva cambia la mezcla de commits (más correcciones pequeñas, más revisión), un modelo con pocas reglas no tiene con qué compensar.
+
+\textbf{Amenazas a la validez.}
+\begin{itemize}
+\item \textbf{La prueba no estuvo intacta.} En la fase de factibilidad inicial se exploró 2026 con modelos simples. Ninguna decisión se basó en eso, pero la prueba no es virgen. La iteración 2 se decidió sin volver a evaluarla.
+\item \textbf{La etiqueta.} \texttt{Fixes:} es fiable en torno al 81\,\% \cite{Lyu2024}. La censura de 90 días ignora los errores que se descubren más tarde \cite{Falessi2022}.
+\item \textbf{El subgrupo \texttt{Assisted-by}} es una cota inferior: el 90\,\% de los commits asistidos no la declaraba \cite{KernelRemove}.
+\item \textbf{Validez externa.} Se usó un solo proyecto.
+\item \textbf{La búsqueda.} El mejor punto quedó en el extremo del espacio (población y generaciones máximas), así que podría haber margen.
+\item \textbf{La iteración 2} comparó la semilla 11 contra un umbral calculado con 5 semillas. Aun con la semilla 11, ningún candidato superó a la iteración 1, así que la decisión no depende de esa asimetría.
+\item \textbf{McNemar} compara aciertos con un umbral fijo y, con este desbalance, castiga a quien marca más. Por eso se complementa con el AUC-PR y sus intervalos.
+\end{itemize}
+
+%=====================================================================
+\section{Conclusiones}
+
+\begin{enumerate}
+\item El clasificador difuso-evolutivo alcanzó la meta de desempeño de C1 al lograr en 2026 \cifTestFE{} de AUC-PR (\cifCuno{} del \emph{gradient boosting}, superando la meta del 90\,\%), aunque cayó \cifCaidaFE{} desde validación frente a \cifCaidaGB{} de la referencia.
+\item Aun así, supera con amplio margen al azar (IC \cifTestFEic{} frente a una prevalencia de \cifPrevPrueba{}). Lo hace con \cifNReglasRef{} reglas que un mantenedor puede leer, frente a miles de parámetros.
+\item La evolución es lo que hace útil al modelo: \cifAporteEvolPrueba{} más de AUC-PR que la variante sin evolución y, a la vez, de 15 a 3--6 reglas.
+\item La debilidad práctica es el umbral. Con pocas reglas el puntaje es escalonado, y un corte fijado en 2025 no se transfiere a 2026. Recalibrarlo con datos recientes es el siguiente paso natural, junto con aptitudes que premien la estabilidad temporal.
+\item Ninguno de los modelos predice bien los commits declarados como asistidos por IA (AUC-PR \cifAssistedFE{}--\cifAssistedLR{}), una pregunta abierta para cuando haya una etiqueta fiable.
+\end{enumerate}

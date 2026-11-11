@@ -1,0 +1,51 @@
+\documentclass[conference,letterpaper]{IEEEtran}
+\IEEEoverridecommandlockouts
+\input{estilo-mcic}
+\input{generado/conteos}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+\newcommand{\pendiente}[1]{\textcolor{udrojo}{\textbf{[#1]}}}
+\newcommand{\emojiSmile}{\tikz[baseline=-0.6ex]{%
+  \draw[fill=yellow!95!orange,draw=orange!90!black,line width=0.5pt] (0,0) circle (1.05ex);%
+  \fill[black] (-0.35ex,0.23ex) circle (0.14ex);%
+  \fill[black] (0.35ex,0.23ex) circle (0.14ex);%
+  \draw[line width=0.55pt,black,line cap=round] (-0.48ex,-0.11ex) arc[start angle=200,end angle=340,radius=0.51ex];%
+}}
+\raggedbottom
+
+\begin{document}
+
+\title{Riesgo de los commits del kernel de Linux bajo deriva temporal: propuesta de un clasificador difuso-evolutivo interpretable y estado del arte}
+
+\author{\IEEEauthorblockN{Juan Felipe Rodríguez Galindo}
+\IEEEauthorblockA{Maestría en Ciencias de la Información y las Comunicaciones\\
+Universidad Distrital Francisco José de Caldas, Bogotá, Colombia\\
+Código 20261595004 \textperiodcentered{} Inteligencia Computacional \textperiodcentered{} Entregable 1}}
+
+\maketitle
+
+\begin{abstract}
+Predecir si un commit del kernel de Linux requerirá corrección permite priorizar la revisión de código aprovechando el trailer \texttt{Fixes:}. Este trabajo formaliza el problema, la pregunta y el criterio de éxito del proyecto, y aporta una revisión estructurada tipo PRISMA (\nTotalIncluidos{} estudios incluidos, 31 citados aquí; la matriz completa va en el anexo). Se evidencia la falta de clasificadores de reglas difusas optimizados evolutivamente a nivel de commit bajo validación temporal y evaluados con AUC-PR, así como el estudio de su degradación ante la deriva en 2026.
+\end{abstract}
+
+\begingroup\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+Predicting Linux kernel commit risk via \texttt{Fixes:} trailers focuses code review. We define the problem, question, and success criteria, backed by a PRISMA review (\nTotalIncluidos{} included studies, 31 cited here; the full matrix is in the appendix). No prior study evaluates an evolutionarily tuned fuzzy rule classifier at commit level using temporal validation, AUC-PR, and drift analysis in 2026.
+\end{abstract}\endgroup
+
+\begin{IEEEkeywords}
+predicción de defectos justo a tiempo, kernel de Linux, deriva temporal, sistemas difusos, computación evolutiva, AUC-PR.
+\end{IEEEkeywords}
+
+\input{../comun/seccion-introduccion}
+
+\input{../comun/seccion-estado-del-arte}
+
+%=====================================================================
+\section*{Anexos}
+La matriz completa de los 58 trabajos incluidos se adjunta en Classroom como archivo de Excel. Mientras creo el repositorio con el código y los datos, los anexos se entregan por ese medio.
+
+\input{../comun/declaracion-ia}
+
+\input{generado/referencias}
+
+\end{document}

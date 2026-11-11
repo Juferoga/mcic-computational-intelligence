@@ -1,0 +1,45 @@
+%=====================================================================
+\section{Estado del arte}
+
+\subsection{Método de búsqueda}
+La búsqueda sigue las directrices de PRISMA 2020 \cite{Page2021} en versión sintetizada. El problema se descompone en tres componentes temáticos esenciales, unidos con OR por dentro y AND entre ellos:
+
+\noindent\fbox{\parbox{\dimexpr\columnwidth-2\fboxsep-2\fboxrule}{\footnotesize\raggedright
+\etiqueta{udazulosc}{A} \bloqueA{(commit* OR ``code change*'' OR ``software change*'' OR patch* OR ``pull request*'' OR ``Linux kernel'')} AND\\
+\etiqueta{uddorado}{B} \bloqueB{(``defect prediction'' OR ``bug prediction'' OR ``bug-introducing'' OR ``bug-inducing'' OR ``fix-inducing'' OR ``just-in-time'' OR ``change risk'' OR ``risk prediction'' OR ``defect-prone'' OR buggy)} AND\\
+\etiqueta{udverde}{C} \bloqueC{(fuzzy OR ``rule-based'' OR evolutionary OR ``genetic algorithm'' OR ``genetic programming'' OR ``search-based'' OR interpretab* OR explainab*)}}}
+
+\smallskip
+La ecuación Q1 combina los tres bloques. La Q2 cambia el bloque C por deriva temporal (``concept drift'', drift, ``temporal validation'', ``time-aware'', ``realistic evaluation'', ``data shift'', ``distribution shift'', ``time travel''). Ambas consultas se ejecutaron sobre 2019--2026 vía APIs públicas en arXiv y OpenAlex (título y resumen) para garantizar reproducibilidad. OpenAlex indexa IEEE, ACM, Springer y Elsevier, supliendo la falta de acceso institucional a Scopus o IEEE Xplore. Clásicos previos a 2019 o hallados por citas entran como ``otras fuentes''.
+
+Los criterios se definieron antes del tamizaje. Se incluye si: (I1) predice el riesgo de un cambio o estudia la validez de esa evaluación (orden temporal, latencia, ruido), (I2) reporta métricas cuantitativas, y (I3) describe sus datos. Se excluye si: (E1) trata generación o reparación de código, (E2) evalúa solo a nivel de archivo o módulo (se admitieron propuestas difusas y evolutivas de módulo ante la ausencia a nivel de commit), (E3) es de otro dominio, (E4) es solo un dataset sin modelo, o (E5) no se puede verificar. De las bases se evaluaron \nPasan{} registros en elegibilidad (\nExclTexto{} excluidos y \nIncluidosBases{} incluidos); a estos se sumaron \nOtros{} de otras fuentes bajo los mismos criterios I y E, totalizando \nTotalIncluidos{} estudios incluidos (37 citados aquí; la matriz completa va en el anexo). De ellos, \nTextoCompleto{} se leyeron a texto completo y \nSoloResumen{} por resumen o fuentes secundarias debido a restricciones de acceso institucional. El flujo se resume en la Fig.~\ref{fig:prisma}.
+
+\begin{figure}[!t]
+\centering
+\input{fig-prisma}
+\caption{Flujo tipo PRISMA 2020 de la búsqueda. Conteos generados desde los registros de la búsqueda.}
+\label{fig:prisma}
+\end{figure}
+
+\input{matriz}
+
+\subsection{Síntesis por enfoques}
+
+\textbf{A. Métricas de cambio y aprendizaje clásico.} La línea fundacional usa métricas del commit con regresión logística \cite{Mockus2000,Kamei2013}. Sigue siendo un punto de referencia muy sólido: con partición cronológica estricta, una regresión logística de una sola variable (líneas añadidas) iguala o supera en AUC a arquitecturas profundas como DeepJIT y CC2Vec \cite{Zeng2021}.
+
+\textbf{B. Aprendizaje profundo y LLM.} Redes sobre el diff y modelos preentrenados con métricas \cite{Ni2022} alcanzan techos de AUC-ROC cercanos a 0,88 en JIT-Defects4J. Tienen tres limitaciones clave: son cajas negras opacas, se evalúan casi exclusivamente en Java y rara vez reportan AUC-PR. En la industria, aunque se han usado LLMs para puntuar diffs, sus mapas de atención generaron baja confianza en los desarrolladores \cite{Liu2026}.
+
+\textbf{C. Interpretabilidad, difuso y evolutivo.} Los profesionales piden explicaciones claras para cada alerta \cite{Jiarpakdee2021}. La respuesta habitual son explicadores \emph{post hoc}: LIME en JITLine \cite{JITLine2021}, reglas locales en PyExplainer \cite{PyExplainer2021} o commits afines en IRJIT \cite{Sahar2024}, los cuales carecen de garantías formales de consistencia \cite{Yu2024FoX}. A nivel de commit, lo evolutivo y difuso se reducen a tareas accesorias: evolución diferencial para SMOTE \cite{JITLine2021}, NSGA-II para calibrar parámetros logísticos \cite{Chen2018MULTI}, optimización de hiperparámetros \cite{Kang2021,Mostafa2025} o Fuzzy C-Means para modular capas de atención \cite{Chen2025}. A nivel de módulo existen modelos neuro-difusos sobre datos NASA con particiones aleatorias y exactitud como métrica \cite{Aftab2023,Dey2025} (donde una exactitud de 91\,\% enmascara una sensibilidad de apenas 0,33 \cite{Aftab2023}). No se identificó ningún clasificador de reglas difusas para riesgo de commits.
+
+\textbf{D. Evaluación realista, deriva y latencia.} Los modelos JIT se degradan sustancialmente en el tiempo. En Qt y OpenStack, el AUC cae entre 11 y 34 puntos en solo un año sin reentrenar \cite{McIntosh2018}. La validación cruzada infla los resultados: JITBoost cae de 0,891 a 0,863 de AUC al evaluar en partición temporal \cite{Shehab2023}. La deriva en JIT se aborda mediante detección continua \cite{Chitsazian2026}, reciclaje de modelos \cite{Patel2024}, actualización en línea continua \cite{Olewicki2024} o ventanas de espera \cite{Tian2026}. Sin embargo, casi todos reportan AUC-ROC y omiten AUC-PR. La etiqueta llega tarde (latencia de 15 a más de 400 días \cite{Cabral2019}), lo que distorsiona las métricas hasta un 25\,\% si no se depura la cola temporal \cite{Song2023}. En el kernel de Linux este efecto es drástico: al pasar de datos balanceados artificialmente a la prevalencia real, el AUC-PR de ocho métodos cae de 0,805 a 0,016 \cite{Nguyen2025}. Además, los commits de agentes no elevan la tasa de defectos, pero alteran el tamaño y estructura de los cambios \cite{Mazloomzadeh2026}, ubicando la deriva en las covariables.
+
+\textbf{E. Fiabilidad de la etiqueta.} SZZ sufre de alto ruido: casi la mitad de los commits que señala como correctores no lo son \cite{Herbold2022}, y el filtrado con LLM reduce 21\,\% los casos sospechosos en PostgreSQL \cite{Veras2025}. En Linux, variantes de SZZ alcanzan un F1 de apenas 0,49--0,51 frente a la verdad del trailer \texttt{Fixes:} \cite{Lyu2024}. Defectos latentes aún no descubiertos bajan la sensibilidad cerca de un 90\,\% si no se aplica una ventana prudencial de censura temporal \cite{Falessi2022}.
+
+\subsection{Brecha}
+Los enfoques anteriores dejan cuatro vacíos concretos:
+\begin{enumerate}
+\item Inexistencia de un clasificador de reglas difusas optimizado mediante algoritmos evolutivos para predecir riesgo a nivel de commit.
+\item Escasa medición de la deriva temporal con AUC-PR y prevalencia real en commits del kernel respaldados por trailers \texttt{Fixes:}.
+\item Falta de estudios sobre si la interpretabilidad intrínseca penaliza el desempeño o aporta robustez frente a la deriva.
+\item 2026 es el primer año en que el kernel pidió declarar la ayuda de IA \cite{KernelAdd}, aunque la etiqueta se retiró en octubre por su bajo uso \cite{KernelRemove}.
+\end{enumerate}

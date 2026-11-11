@@ -1,0 +1,32 @@
+% Fig. 1: ventanas de datos frente a los hitos del trailer Assisted-by.
+% Eje izquierdo esquemático (2019-2025); 2026 a escala por meses (0,58 cm por mes).
+\begin{tikzpicture}[x=1cm,y=1cm,font=\scriptsize]
+  \def\m{0.5}           % ancho de un mes de 2026
+  \def\xo{2.6}          % inicio de 2026 en el eje
+  % --- bandas de datos
+  \fill[udazul!18] (0,0) rectangle (\xo,0.42);
+  \node[udazulosc,align=center,font=\tiny\bfseries] at (\xo/2,0.21) {entrenamiento y validación\\ móvil (2019--2025)};
+  \fill[uddorado!30] (\xo,0) rectangle ({\xo+7*\m},0.42);
+  \node[uddorado!60!black,font=\tiny\bfseries] at ({\xo+3.5*\m},0.21) {prueba: ene--jul 2026};
+  \fill[udplata!25] ({\xo+7*\m},0) rectangle ({\xo+10.2*\m},0.42);
+  \node[udsable,align=center,font=\tiny] at ({\xo+8.6*\m},0.21) {censura\\ ($<$90 d)};
+  % --- eje
+  \draw[udsable,line width=0.5pt] (0,0) -- ({\xo+10.4*\m},0);
+  \draw[udsable,line width=0.5pt] (\xo-0.42,-0.08) -- (\xo-0.34,0.08);
+  \draw[udsable,line width=0.5pt] (\xo-0.34,-0.08) -- (\xo-0.26,0.08);
+  \foreach \x/\t in {0/2019, 1.9/2025} \node[below,udsable] at (\x,0) {\t};
+  \foreach \i/\t in {0/ene,2/mar,4/may,6/jul,8/sep,10/nov}
+    {\draw[udsable] ({\xo+\i*\m},0) -- ++(0,-0.06);
+     \node[below,udsable] at ({\xo+\i*\m},-0.02) {\t};}
+  \node[below=7pt,udsable,font=\tiny\bfseries] at ({\xo+5*\m},0) {2026};
+  % --- hitos del trailer (encima del eje)
+  \foreach \x/\t/\yy in {0.17/v7.0: se pide \texttt{Assisted-by}/0.95,
+                          7.07/v7.3: solo ``\texttt{LLM}''/1.35,
+                          9.45/v7.4: se elimina/0.95}{
+    \draw[udrojo,line width=0.6pt] ({\xo+\x*\m},0.42) -- ({\xo+\x*\m},\yy-0.08);
+    \fill[udrojo] ({\xo+\x*\m},\yy-0.08) circle (1.1pt);
+    \node[udrojo,above,font=\tiny,inner sep=1pt] at ({\xo+\x*\m},\yy-0.06) {\t};}
+  % --- corte de observación
+  \draw[udsable,dashed] ({\xo+10.2*\m},-0.05) -- ({\xo+10.2*\m},0.6)
+     node[above,font=\tiny,udsable,inner sep=1pt] {corte};
+\end{tikzpicture}

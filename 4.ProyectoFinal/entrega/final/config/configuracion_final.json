@@ -1,0 +1,67 @@
+{
+  "congelada_en": "2026-11-07T23:41:00",
+  "difuso_evolutivo": {
+    "config": {
+      "generaciones": 140,
+      "lambda_complejidad": 0.0005,
+      "n_reglas": 15,
+      "poblacion": 80,
+      "prob_cruce": 0.9,
+      "prob_mutacion": 0.05
+    },
+    "semillas": [
+      11,
+      23,
+      37,
+      41,
+      53
+    ],
+    "umbral_mcc_por_semilla": {
+      "11": 0.5389729767519064,
+      "23": 0.7679513198229324,
+      "37": 0.8078425756590831,
+      "41": 0.542489455019369,
+      "53": 0.811495551953093
+    },
+    "semilla_para_mcnemar": 11,
+    "criterio_semilla": "mediana del AUC-PR medio de validación"
+  },
+  "difuso_sin_evolucion": {
+    "config": {
+      "n_reglas": 15
+    },
+    "umbral_mcc": 0.3240095751976977
+  },
+  "referencias": {
+    "mayoritaria": {
+      "config": {},
+      "umbral_mcc": 1.0
+    },
+    "logistica": {
+      "config": {
+        "C": 0.01
+      },
+      "umbral_mcc": 0.08357242708285184
+    },
+    "gboosting": {
+      "config": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 15
+      },
+      "umbral_mcc": 0.10336941463793838
+    }
+  },
+  "mejor_referencia_clasica": "gboosting",
+  "entrenamiento_final": [
+    "2019-01-01",
+    "2026-01-01 menos 90 días"
+  ],
+  "prueba": {
+    "tramo": [
+      "2026-01-01",
+      "2026-08-01"
+    ],
+    "n": 54373,
+    "sha256": "11e7039f3cc279120025ccc8959a207990a4a75f6546ae4c330605c831a19b63"
+  }
+}

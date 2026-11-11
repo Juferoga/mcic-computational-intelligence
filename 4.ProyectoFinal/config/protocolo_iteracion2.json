@@ -1,0 +1,26 @@
+{
+  "fijado_en": "2026-11-08T00:30:00",
+  "motivo": "Iteración 1 (configuración congelada en E4) evaluada en 2026: C1 no cumple (0,911 frente a 0,95), C2 no cumple (caída 19,6 % frente a 16,3 % de gradient boosting), C3 cumple. Según el enunciado (p. 3), se vuelve a la preparación de datos y al modelado y se documenta la iteración.",
+  "criterio_de_exito": "Sin cambios: C1, C2 y C3 tal como se fijaron en la Entrega 1 (meta C1 = 0,95).",
+  "diagnostico_sin_usar_la_prueba": [
+    "Deriva de covariables en desarrollo (resultados/e2/deriva_covariables_por_anio.csv): n_reviewed medio 0,42 (2019) a 0,71 (2025); es_fix 14,5 % a 18,4 %; cc_stable 4,6 % a 6,1 %. La transformación por cuantiles y las reglas se ajustan con todo 2019-2025, dominado por años con otra distribución.",
+    "El difuso usa 10 variables y las referencias 22; parte de la brecha con gradient boosting puede venir de información que el difuso no ve."
+  ],
+  "candidatos": {
+    "ventana_entrenamiento": {
+      "creciente": "desde 2019-01-01 (iteración 1)",
+      "deslizante_3a": "solo los 3 años anteriores al inicio de la ventana de evaluación, con el mismo hueco de 90 días"
+    },
+    "variables_difuso": {
+      "originales_10": "VARIABLES_DIFUSO de la iteración 1",
+      "ampliadas": "las 10 originales más n_acked, n_tested, n_reported, n_link, n_codev, asunto_fix, len_asunto, n_binarios, dias_desde_primer_commit (se excluyen n_dirs_raiz por correlación 0,97 con n_subsistemas, y hora_utc y dia_semana por no ser interpretables como riesgo)"
+    },
+    "hiperparametros_ga": "los congelados en E4 (n_reglas 15, población 80, generaciones 140, prob_mutacion 0,05, prob_cruce 0,9, lambda 0,0005); no se vuelven a buscar",
+    "diseno": "factorial 2 x 2 = 4 candidatos, cada uno en las ventanas de validación 2023, 2024 y 2025 con la semilla 11"
+  },
+  "equidad": "La ventana de entrenamiento elegida se aplica a todos los modelos (mayoritaria, logística y gradient boosting con sus configuraciones de E3, sin volver a buscar), porque el enunciado exige el mismo pipeline y la misma partición para las referencias.",
+  "regla_de_seleccion": "Se elige el candidato con mayor razón media en validación AUC-PR_FE / AUC-PR_R, con R = gradient boosting entrenado con la misma ventana. Empates (diferencia < 0,005) se resuelven a favor del modelo más simple: ventana creciente antes que deslizante, 10 variables antes que ampliadas.",
+  "regla_de_adopcion": "La iteración 2 se evalúa en la prueba solo si su razón media en validación supera a la de la iteración 1 (0,1495 / 0,1578 = 0,947). Si no la supera, el artículo reporta la iteración 1 como resultado final y la iteración 2 como intento documentado, sin tocar la prueba.",
+  "despues_de_elegir": "5 semillas del candidato elegido en validación, umbral de MCC en 2025, configuración congelada en config/configuracion_final_iteracion2.json con la misma huella SHA-256 de la prueba, y una sola evaluación en 2026.",
+  "declaracion": "La partición de prueba ya se observó en la iteración 1 (y con modelos simples en la factibilidad). La evaluación de la iteración 2 no es independiente de esa observación; el artículo reporta ambas iteraciones con sus cifras y lo declara."
+}

@@ -1,0 +1,20 @@
+{
+  "consultado": "2026-11-07T10:57",
+  "rango": [
+    2019,
+    2026
+  ],
+  "campo": "title_and_abstract",
+  "ecuaciones": {
+    "Q1": "(\"commit\" OR \"commits\" OR \"code change\" OR \"code changes\" OR \"software change\" OR \"software changes\" OR \"patch\" OR \"patches\" OR \"pull request\" OR \"pull requests\" OR \"Linux kernel\") AND (\"defect prediction\" OR \"bug prediction\" OR \"bug-introducing\" OR \"bug-inducing\" OR \"fix-inducing\" OR \"just-in-time\" OR \"change risk\" OR \"risk prediction\" OR \"defect-prone\" OR \"buggy\") AND (fuzzy OR \"rule-based\" OR evolutionary OR \"genetic algorithm\" OR \"genetic programming\" OR \"search-based\" OR interpretable OR interpretability OR explainable OR explainability)",
+    "Q2": "(\"commit\" OR \"commits\" OR \"code change\" OR \"code changes\" OR \"software change\" OR \"software changes\" OR \"patch\" OR \"patches\" OR \"pull request\" OR \"pull requests\" OR \"Linux kernel\") AND (\"defect prediction\" OR \"bug prediction\" OR \"bug-introducing\" OR \"bug-inducing\" OR \"fix-inducing\" OR \"just-in-time\" OR \"change risk\" OR \"risk prediction\" OR \"defect-prone\" OR \"buggy\") AND (\"concept drift\" OR drift OR \"temporal validation\" OR \"time-aware\" OR \"realistic evaluation\" OR \"data shift\" OR \"distribution shift\" OR \"time travel\")"
+  },
+  "Q1": {
+    "en_rango": 162,
+    "descargados": 162
+  },
+  "Q2": {
+    "en_rango": 33,
+    "descargados": 33
+  }
+}

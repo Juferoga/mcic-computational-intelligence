@@ -1,0 +1,69 @@
+% Toque MCIC sobre IEEEtran: solo color y diagramas. No cambia márgenes,
+% fuentes, columnas ni tamaños de la plantilla IEEE.
+% tectonic compila con XeTeX: Times New Roman (la de IEEE y la secundaria del manual UD)
+% se lee de las fuentes del manual de marca; si no está, TeX Gyre Termes (clon de Times).
+\usepackage{amsmath,amssymb}
+\usepackage{newtxmath}
+\usepackage{fontspec}
+\providecommand{\UDmarca}{/Users/juferoga/repos/ud/maestria/mcic/.UniversidadDistrital-manual-marca}
+\IfFileExists{\UDmarca/fuentes/times.ttf}{%
+  \setmainfont{times.ttf}[Path=\UDmarca/fuentes/, BoldFont=timesbd.ttf,
+    ItalicFont=timesi.ttf, BoldItalicFont=timesbi.ttf]}{%
+  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+    ItalicFont=*-italic, BoldItalicFont=*-bolditalic]}
+\setmonofont{texgyrecursor}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, Scale=0.95]
+\usepackage[spanish,es-noshorthands,es-tabla,es-nolists]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,array,multirow}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{url}
+
+% Paleta del manual de marca UD (design.md)
+\definecolor{udazul}{HTML}{1291C0}
+\definecolor{udazulosc}{HTML}{0C6F96}
+\definecolor{uddorado}{HTML}{B49739}
+\definecolor{udverde}{HTML}{00A859}
+\definecolor{udplata}{HTML}{98999A}
+\definecolor{udsable}{HTML}{373435}
+\definecolor{udrojo}{HTML}{ED3237}
+
+\hypersetup{colorlinks=true,linkcolor=udazulosc,citecolor=udazulosc,urlcolor=udazulosc}
+
+% Bloques de la ecuación de búsqueda: el mismo color en ecuación, PRISMA y matriz.
+\newcommand{\bloqueA}[1]{\textcolor{udazulosc}{#1}}
+\newcommand{\bloqueB}[1]{\textcolor{uddorado!85!black}{#1}}
+\newcommand{\bloqueC}[1]{\textcolor{udverde!80!black}{#1}}
+\newcommand{\etiqueta}[2]{\tikz[baseline=(t.base)]\node[fill=#1,text=white,inner sep=1.6pt,
+  rounded corners=1pt,font=\bfseries\scriptsize](t){#2};}
+
+% Cabecera de tablas: filete azul y fila sombreada clara
+\newcommand{\cabecera}{\rowcolor{udazul!12}}
+\arrayrulecolor{udazulosc}
+
+% Columnas de la matriz
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\makeatletter
+\providecommand{\filas}[1]{\@@input #1 }
+\makeatother
+
+% Marca de enfoque en la matriz (A..E)
+\newcommand{\enf}[1]{\textcolor{udazulosc}{\bfseries #1}}
+
+% Cajas del PRISMA
+\tikzset{
+  caja/.style={draw=udazulosc,line width=0.5pt,rounded corners=1.5pt,align=center,
+    font=\scriptsize,inner sep=2.5pt,text width=#1},
+  caja/.default=3.6cm,
+  excl/.style={draw=udplata,line width=0.5pt,rounded corners=1.5pt,align=left,
+    font=\scriptsize,inner sep=2.5pt,fill=udplata!8,text width=#1},
+  excl/.default=2.75cm,
+  fase/.style={fill=udazul,text=white,font=\bfseries\tiny,minimum width=0.42cm,
+    rounded corners=1pt,inner sep=1pt},
+  flecha/.style={-{Latex[length=1.6mm]},udsable,line width=0.5pt},
+}

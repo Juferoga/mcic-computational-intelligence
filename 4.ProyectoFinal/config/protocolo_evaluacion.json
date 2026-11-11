@@ -1,0 +1,52 @@
+{
+  "metrica_principal": "AUC-PR (precisión promedio) de la clase riesgoso",
+  "metricas_secundarias": [
+    "MCC",
+    "AUC-ROC",
+    "sensibilidad",
+    "especificidad",
+    "AUC-PR / prevalencia"
+  ],
+  "umbral": "el que maximiza el MCC en la ventana de validación 2025, aplicado tal cual en prueba",
+  "incertidumbre": "IC 95 % por bootstrap (1000 remuestreos) en prueba; media ± DE en 5 semillas",
+  "pruebas": {
+    "McNemar": "difuso-evolutivo frente a cada referencia, sobre las mismas observaciones de prueba con el umbral fijado en validación (corrección de continuidad)",
+    "Friedman_Nemenyi": "rangos de AUC-PR de los modelos en las 3 ventanas de validación más la prueba (Demšar, 2006)",
+    "alfa": 0.05
+  },
+  "criterio_exito": {
+    "C1": "AP_FE(prueba) >= 0,95 * AP_R(prueba), R = mejor referencia clásica en validación",
+    "C2": "caída relativa (AP_val - AP_prueba)/AP_val del FE < la de R",
+    "C3": "IC 95 % de AP_FE(prueba) excluye la prevalencia; McNemar con alfa = 0,05",
+    "restriccion": "<=15 reglas y <=3 antecedentes por regla"
+  },
+  "particion": {
+    "inicio": "2019-01-01",
+    "hueco_dias": 90,
+    "validacion": {
+      "2023": [
+        "2023-01-01",
+        "2024-01-01"
+      ],
+      "2024": [
+        "2024-01-01",
+        "2025-01-01"
+      ],
+      "2025": [
+        "2025-01-01",
+        "2026-01-01"
+      ]
+    },
+    "prueba": [
+      "2026-01-01",
+      "2026-08-01"
+    ]
+  },
+  "semillas": [
+    11,
+    23,
+    37,
+    41,
+    53
+  ]
+}

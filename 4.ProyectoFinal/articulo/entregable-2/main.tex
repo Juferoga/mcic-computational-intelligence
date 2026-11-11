@@ -1,0 +1,44 @@
+\documentclass[conference,letterpaper]{IEEEtran}
+\IEEEoverridecommandlockouts
+\input{estilo-mcic}
+\input{generado/conteos}
+\input{../comun/cifras}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+\newcommand{\pendiente}[1]{\textcolor{udrojo}{\textbf{[#1]}}}
+\raggedbottom
+
+\begin{document}
+
+\title{Riesgo de los commits del kernel de Linux bajo deriva temporal: un clasificador difuso-evolutivo interpretable: estado del arte, datos y modelos}
+
+\author{\IEEEauthorblockN{Juan Felipe Rodríguez Galindo}
+\IEEEauthorblockA{Maestría en Ciencias de la Información y las Comunicaciones\\
+Universidad Distrital Francisco José de Caldas, Bogotá, Colombia\\
+Código 20261595004 \textperiodcentered{} Inteligencia Computacional \textperiodcentered{} Entregable 2}}
+
+\maketitle
+
+\begin{abstract}
+Predecir si un commit tendrá que corregirse después permite enfocar la revisión de código. En el kernel de Linux la etiqueta es explícita: el trailer \texttt{Fixes:} de un commit posterior señala al culpable. Se plantean el problema, la pregunta y el criterio de éxito del proyecto, y se presenta una revisión estructurada tipo PRISMA en arXiv y OpenAlex con \nTotalIncluidos{} estudios incluidos (37 citados aquí; la matriz completa va en el anexo, \nRecientes{} desde 2021). La predicción justo a tiempo (JIT) se valida casi siempre con un único corte o con validación cruzada aleatoria y se mide con AUC-ROC, F1 o exactitud. A nivel de commit, lo difuso y lo evolutivo solo aparecen como piezas auxiliares (agrupamiento o ajuste de parámetros); como clasificador, solo a nivel de módulo. Se construye además el dataset: \cifCommits{} commits de 2019--2026 minados del clon completo del kernel, con prevalencia de \cifPrevMin{}--\cifPrevMax{}, y se justifican los cinco modelos que se comparan. Ningún trabajo evalúa un clasificador de reglas difusas a nivel de commit con validación temporal y AUC-PR, ni su degradación en 2026, el año en que el kernel pidió y luego retiró la etiqueta \texttt{Assisted-by} para contribuciones asistidas por IA.
+\end{abstract}
+
+\begingroup\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+We frame a project on just-in-time risk prediction for Linux kernel commits, labelled by later \texttt{Fixes:} trailers, and report a PRISMA-style review (arXiv and OpenAlex, \nTotalIncluidos{} included studies, 37 cited here; the full matrix is in the appendix). No prior work evaluates an evolutionarily tuned fuzzy rule classifier at commit level with temporal validation and AUC-PR, nor its degradation on 2026 commits.
+\end{abstract}\endgroup
+
+\begin{IEEEkeywords}
+predicción de defectos justo a tiempo, kernel de Linux, deriva temporal, sistemas difusos, computación evolutiva, AUC-PR.
+\end{IEEEkeywords}
+
+\input{../comun/seccion-introduccion}
+
+\input{../comun/seccion-estado-del-arte}
+
+\input{seccion-metodologia-datos}
+
+\input{../comun/declaracion-ia}
+
+\input{generado/referencias}
+
+\end{document}

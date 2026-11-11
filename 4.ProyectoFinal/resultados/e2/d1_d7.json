@@ -1,0 +1,97 @@
+{
+  "D1_tamano": {
+    "commits_2019_2026": 612811,
+    "desarrollo_2019_2025": 558438,
+    "prueba_2026": 54373,
+    "minimo_curso_difusos": 300,
+    "cumple": true
+  },
+  "D2_objetivo": {
+    "definicion": "riesgoso = citado por un Fixes: de mainline en <=90 días",
+    "positivos_por_anio": {
+      "2019": 3265,
+      "2020": 3691,
+      "2021": 3558,
+      "2022": 3424,
+      "2023": 3295,
+      "2024": 3166,
+      "2025": 3336,
+      "2026": 1947
+    },
+    "prevalencia_por_anio": {
+      "2019": 0.04268364425502987,
+      "2020": 0.04412380007411747,
+      "2021": 0.04465865873404375,
+      "2022": 0.04323669057480554,
+      "2023": 0.038865298419438546,
+      "2024": 0.041385079933595637,
+      "2025": 0.04268714011516315,
+      "2026": 0.033946473716328134
+    }
+  },
+  "D3_calidad": {
+    "faltantes_objetivo": 0,
+    "faltantes_por_variable": {
+      "lineas_add": 0,
+      "lineas_del": 0,
+      "n_archivos": 0,
+      "n_binarios": 0,
+      "n_dirs_raiz": 0,
+      "n_subsistemas": 0,
+      "n_reviewed": 0,
+      "n_acked": 0,
+      "n_tested": 0,
+      "n_reported": 0,
+      "n_signed": 0,
+      "n_codev": 0,
+      "n_link": 0,
+      "cc_stable": 0,
+      "es_fix": 0,
+      "asunto_fix": 0,
+      "len_asunto": 0,
+      "exp_autor": 0,
+      "dias_desde_primer_commit": 0,
+      "exp_autor_subsistema": 0,
+      "hora_utc": 0,
+      "dia_semana": 0
+    },
+    "hashes_duplicados": 0,
+    "censurados_excluidos": 26133,
+    "nota": "Sin merges. Los backports de stable no están en mainline, así que no hay el mismo parche dos veces; las referencias Fixes: no resueltas (9,4 %) apuntan a commits anteriores a 2014 o a otros árboles."
+  },
+  "D4_estructura": {
+    "indice": "fecha del committer, ordenada",
+    "muestreo": "irregular (eventos)",
+    "horas_entre_commits_mediana": 0.0002777777777777778,
+    "grupos": {
+      "autores": 18127,
+      "subsistemas": 748
+    }
+  },
+  "D5_disponibilidad": "Todas las variables salen del propio commit (diff, trailers, fechas) o de commits anteriores del autor; ninguna usa información posterior a la integración.",
+  "D6_licencia_etica": "Código del kernel bajo GPL-2.0; metadatos de git públicos. Correos y nombres reemplazados por un hash con sal; no se publica el texto de los mensajes.",
+  "D7_documentacion": {
+    "lineas_add": "Líneas añadidas por el commit (numstat)",
+    "lineas_del": "Líneas borradas",
+    "n_archivos": "Archivos modificados",
+    "n_binarios": "Archivos binarios modificados",
+    "n_dirs_raiz": "Directorios de primer nivel tocados (p. ej. drivers, fs)",
+    "n_subsistemas": "Subsistemas tocados (dos primeros niveles de ruta)",
+    "n_reviewed": "Trailers Reviewed-by",
+    "n_acked": "Trailers Acked-by",
+    "n_tested": "Trailers Tested-by",
+    "n_reported": "Trailers Reported-by",
+    "n_signed": "Trailers Signed-off-by (cadena de integración)",
+    "n_codev": "Trailers Co-developed-by",
+    "n_link": "Trailers Link (hilo de la lista de correo)",
+    "cc_stable": "1 si el mensaje pide backport (Cc: stable)",
+    "es_fix": "1 si el commit trae su propio Fixes: (es una corrección)",
+    "asunto_fix": "1 si el asunto contiene 'fix'",
+    "len_asunto": "Longitud del asunto en caracteres",
+    "exp_autor": "Commits previos del mismo autor (desde 2014)",
+    "dias_desde_primer_commit": "Días desde el primer commit del autor (desde 2014)",
+    "exp_autor_subsistema": "Commits previos del autor en el mismo subsistema",
+    "hora_utc": "Hora UTC de la fecha de autor",
+    "dia_semana": "Día de la semana (0 = lunes)"
+  }
+}

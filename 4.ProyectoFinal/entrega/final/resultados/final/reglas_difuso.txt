@@ -1,0 +1,5 @@
+R1 (peso 0.62): SI lineas_add es alto (>= 16) ENTONCES riesgoso
+R2 (peso 0.29): SI lineas_add es alto (>= 16) Y n_archivos es alto (>= 2) ENTONCES riesgoso
+R3 (peso 0.21): SI n_subsistemas es medio (= 1) Y lineas_del es bajo (= 0) ENTONCES riesgoso
+R4 (peso 0.13): SI n_subsistemas es alto (>= 2) Y lineas_del es medio (entre 1 y 4) ENTONCES riesgoso
+R5 (peso 0.12): SI n_subsistemas es alto (>= 2) ENTONCES riesgoso
