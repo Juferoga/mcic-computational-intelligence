@@ -1,0 +1,19 @@
+Wine
+Fuzzy C-Means | FCM
+Wang-Mendel
+SelectKBest
+f_classif
+DecisionTreeClassifier
+trimf
+sigmf
+skfuzzy | skfuzzy.sigmf
+t-normas | t-norma
+ARI
+prolina | proline
+flavonoides | flavanoids
+OD280/OD315
+alcohol
+MATLAB
+Python
+Desarrollé
+Seguí

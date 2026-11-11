@@ -1,0 +1,37 @@
+En este taller construí un clasificador difuso cuyas reglas salen directamente de los datos y lo probé en el conjunto Wine (178 vinos, 13 características químicas, 3 cultivares); Seguí el cuaderno Taller6B_LogicaDifusa_Propuesto_Colab.ipynb y resolví sus seis TODO: selección de 4 características sin fuga de información, la función de pertenencia sigmoidal, la fuerza de las reglas con las t-normas mínimo y producto, la evaluación con matriz de confusión, el experimento del número de etiquetas contra un árbol de decisión y el agrupamiento con Fuzzy C-Means y Desarrollé solo la parte en Python; la parte en MATLAB (Taller_Propuesto.mlx) no la hice porque no tengo MATLAB, aunque el cuaderno deja exportados los dos CSV que esa parte usa.
+
+Entregables: el cuaderno taller5_logica_difusa.ipynb ejecutado, requirements.txt, los archivos wine_4car_train.csv y wine_4car_test.csv que genera el cuaderno y este informe; antes de programar presenté el plan y mis hipótesis; todo quedó grabado en video.
+
+Un conjunto difuso asigna a cada valor un grado entre 0 y 1 y la triangular trimf sube de 0 en a a 1 en b y baja a 0 en c y la sigmoidal tiene pendiente a y cruce c, vale 0,5 en x=c y es creciente si a>0, así que sirve para etiquetas abiertas como alto.
+
+Una regla tiene la forma SI x1 es A1 Y x4 es A4 ENTONCES clase k y el Y se calcula con una t-norma sobre los grados de las cuatro condiciones: el mínimo o el producto. Con grados en 0 y 1 siempre se cumple producto menor o igual que mínimo y la muestra se asigna a la clase de la regla con mayor grado de disparo.
+
+Para la extracción de reglas con Wang-Mendel simplificado, cada característica se divide en nmf triangulares uniformes y para cada muestra de entrenamiento se toma la etiqueta de mayor grado en cada característica y eso forma el antecedente; el consecuente es su clase. Si dos muestras producen el mismo antecedente se queda la de mayor grado; con 4 características el máximo posible es nmf elevado a 4 reglas.
+
+Fuzzy C-Means agrupa sin etiquetas: cada muestra pertenece a cada grupo con un grado, y los grados de una muestra suman 1 y con el exponente m=2 minimiza la distancia cuadrática ponderada y el índice de Rand ajustado (ARI) compara el agrupamiento con las clases reales: vale 1 si coinciden y cerca de 0 si el acuerdo es el del azar, y no depende de cómo se numeren los grupos.
+
+Entorno con Python 3.12 y uv: numpy, matplotlib, scikit-learn y scikit-fuzzy y las funciones de pertenencia, el clasificador y FCM son propios del cuaderno; scikit-fuzzy solo se usa para comprobar la sigmoidal. La semilla es 42 y el conjunto es Wine y cada TODO tiene un punto de control que imprime OK o REVISAR; los 16 quedaron en OK.
+
+Partición estratificada 70-30 con semilla 42: 124 vinos de entrenamiento (41, 50 y 33 por clase) y 54 de prueba (18, 21 y 15) y SelectKBest con f_classif se ajusta solo con el entrenamiento. Si se ajustara con todos los datos, los vinos de prueba influirían en qué características se eligen y la exactitud de prueba saldría optimista por fuga de información y las cuatro características se escalan al rango 0 a 1 con el mínimo y el máximo del entrenamiento; en la prueba se usan esos mismos valores y lo que se sale del rango se recorta.
+
+Con nmf=3 se extraen las reglas y se comparan las dos t-normas; con producto se evalúa la exactitud y la matriz de confusión; luego se repite con nmf=2, 3 y 4 y se compara con un DecisionTreeClassifier con hojas iguales al número de reglas, entrenado con las mismas cuatro características; finalmente, Fuzzy C-Means agrupa los 178 vinos en 3 grupos con m=2 y se calcula el ARI.
+
+La sigmoidal pasó los tres controles: vale 0,5 en x=c, es creciente con a>0 y coincide con skfuzzy.sigmf, que recibe los parámetros en el orden (x, c, a); con nmf=3 salieron 31 reglas de las 81 posibles (12 de la clase 0, 11 de la 1 y 8 de la 2).
+
+La matriz de confusión en prueba muestra 4 errores en 54 vinos; el par más confundido es clase 1 hacia clase 2, con 2 vinos.
+
+FCM convergió en 19 iteraciones y el ARI frente a las clases reales es 0,794. Al asignar cada vino a su grupo de mayor grado, cada grupo corresponde a una clase: la clase 2 cae entera en un grupo (48 de 48), la clase 0 en otro (57 de 59) y la clase 1 en el tercero (60 de 71); 10 vinos de la clase 1 quedan en el grupo de la clase 2 y el coeficiente de partición es 0,69 donde 1 sería una partición nítida y un tercio una totalmente borrosa.
+
+Con 2 etiquetas cada característica solo distingue bajo y alto, y 10 reglas no bastan para separar la clase 1, que queda en el medio de casi todas las características: la exactitud baja a 75,9% y con 4 etiquetas hay 43 reglas, pero muchas salen de un solo vino de entrenamiento y no se repiten en la prueba; incluso un vino de prueba no activa ninguna regla y la exactitud baja a 88,9%.
+
+Las reglas solo aparecen donde hay datos: con 3 etiquetas se usan 31 de 81 antecedentes y con 4, 43 de 256; las cuatro características están correlacionadas ya que los vinos con flavonoides altos también tienen OD280/OD315 alto, así que muchas combinaciones no ocurren nunca.
+
+Con 10 hojas el árbol llega a 87,0% y con 31 o 43 hojas permitidas usa solo 13, porque a esa altura todas las hojas son puras en el entrenamiento y ya no tiene nada que dividir y por eso su exactitud queda fija en 87,0% desde nmf=3: el límite de hojas deja de influir.
+
+El producto siempre da un grado menor o igual que el mínimo, pero la clasificación solo depende de qué regla gana y en los 54 vinos de prueba la regla ganadora es la misma con las dos t-normas, así que la exactitud es idéntica.
+
+Tres de los cuatro errores involucran a la clase 1, que en las cuatro características está entre las otras dos y FCM muestra lo mismo sin etiquetas: la clase 1 es la que se reparte entre dos grupos.
+
+Con 54 vinos, cada vino vale 1,85 puntos porcentuales y la diferencia entre 92,6% y 88,9% son 2 vinos y entre 92,6% y 87,0% son 3, así que con otra partición el orden podría cambiar.
+
+Las reglas difusas se leen directamente en términos del dominio (alcohol medio y prolina baja), y cada una dice con qué grado se cumple y el árbol también es legible, pero sus cortes son umbrales nítidos: un vino justo al lado de un umbral cambia de rama, mientras que en el difuso pertenece en parte a las dos etiquetas.
