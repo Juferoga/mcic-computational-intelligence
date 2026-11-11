@@ -1,7 +1,7 @@
 /* Overlay del code with me: lógica compartida por overlay.html, pausa.html e inicio.html.
    Lee body[data-modo] = "trabajo" | "pausa" | "inicio".
    Datos: ../tareas.md y estado.json (cada segundo), layout.json y taller.json (una vez). Sin librerías.
-   taller.json elige la animación de pausa/inicio de cada taller ("perceptron" o "difuso") y sus textos. */
+   taller.json elige la animación de pausa/inicio de cada taller ("perceptron", "difuso", "robot" o "series") y sus textos. */
 (async function () {
   "use strict";
 
@@ -20,6 +20,10 @@
       pausa: "Pausa corta. Mientras tanto, el perceptrón sigue entrenando." },
     difuso: { kicker: "Lógica difusa en vivo", formula: "Mamdani · mín–máx · centroide",
       pausa: "Pausa corta. Mientras tanto, el sistema difuso sigue infiriendo." },
+    robot: { kicker: "Taller 4 · Lógica difusa", formula: "SI frontal es cerca ENTONCES giro fuerte a la derecha",
+      pausa: "Pausa corta. Mientras tanto, el robot sigue la pared." },
+    series: { kicker: "Taller 6 · Series de tiempo", formula: "ŷₜ = f(yₜ₋₁…yₜ₋d , xₜ…xₜ₋d)",
+      pausa: "Pausa corta. Mientras tanto, la red sigue pronosticando." },
   };
   let TALLER = Object.assign({ demo: "perceptron" }, DEMOS.perceptron);
 
@@ -66,7 +70,53 @@
     '<circle cx="17" cy="17" r="2.6" fill="#2a2829"/></svg>';
 
   function emblemaSVG() {
+    if (TALLER.demo === "robot") return emblemaRobot();
+    if (TALLER.demo === "series") return emblemaSeries();
     return TALLER.demo === "difuso" ? emblemaDifuso() : emblemaPerceptron();
+  }
+
+  // Serie con ruido hasta el origen (línea dorada) y dos pronósticos punteados que se van trazando.
+  function emblemaSeries() {
+    const BASE = 70, OX = 92;
+    const hist = [44, 36, 46, 30, 38, 26, 40, 34, 22, 32, 28];
+    const pts = hist.map((y, i) => `${(6 + i * 8.6).toFixed(1)} ${y}`).join("L");
+    const yo = hist[hist.length - 1];
+    let s = '<svg id="emblema" viewBox="0 0 150 82" aria-hidden="true"><defs>' +
+      `<clipPath id="clip-pronostico"><rect x="${OX}" y="0" width="0" height="82">` +
+      '<animate attributeName="width" values="0;56;56;0" keyTimes="0;.45;.85;1" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;0 0 1 1;.45 0 .55 1"/></rect></clipPath></defs>' +
+      `<line x1="4" y1="${BASE}" x2="146" y2="${BASE}" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>` +
+      `<path d="M${pts}" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` +
+      `<line x1="${OX}" y1="8" x2="${OX}" y2="${BASE}" stroke="#B49739" stroke-width="1.6" stroke-dasharray="3 3"/>` +
+      '<g clip-path="url(#clip-pronostico)">' +
+      `<path d="M${OX} ${yo}L104 ${yo - 4}L116 ${yo - 2}L128 ${yo - 8}L144 ${yo - 6}" fill="none" stroke="#1291C0" stroke-width="2" stroke-dasharray="4 3" stroke-linecap="round"/>` +
+      `<path d="M${OX} ${yo}L104 ${yo + 6}L116 ${yo + 1}L128 ${yo + 10}L144 ${yo + 4}" fill="none" stroke="#ED3237" stroke-width="2" stroke-dasharray="4 3" stroke-linecap="round"/></g>` +
+      `<circle cx="${OX}" cy="${yo}" r="3" fill="#B49739"/>` +
+      `<text x="75" y="80" text-anchor="middle" font-size="8.5" fill="#E4E4E4" font-family="Cambria, serif" font-style="italic">ŷₜ₊ₕ</text>`;
+    return s + "</svg>";
+  }
+
+  // Robot visto desde arriba en una esquina: pared a la izquierda (arriba) y al frente, cuatro rayos que van midiendo.
+  function emblemaRobot() {
+    const cx = 70, cy = 44, r = 12;
+    const rayos = [ // frontal, izquierda, derecha, atrás: [x2, y2, color, opacidad]
+      [128, cy, "#B49739", 1], [cx, 13, "#1291C0", 1], [cx, 74, "#E4E4E4", .45], [12, cy, "#E4E4E4", .45],
+    ];
+    let s = '<svg id="emblema" viewBox="0 0 150 82" aria-hidden="true">' +
+      '<path d="M4 10H134V78" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M4 6H138V78" fill="none" stroke="rgba(18,145,192,.35)" stroke-width="1.2"/>' +
+      '<g><animateTransform attributeName="transform" type="translate" values="-8 0;4 0;-8 0" dur="6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/>';
+    rayos.forEach(([x2, y2, color, op], i) => {
+      const x1 = cx + Math.sign(x2 - cx) * r, y1 = cy + Math.sign(y2 - cy) * r;
+      const ini = (i * 0.5).toFixed(1) + "s";
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="1.4" stroke-dasharray="3 3" opacity="${op}">` +
+        `<animate attributeName="opacity" values="${op * .35};${op};${op * .35}" dur="2s" begin="${ini}" repeatCount="indefinite"/></line>` +
+        `<circle cx="${x2}" cy="${y2}" r="2.4" fill="${color}" opacity="${op}">` +
+        `<animate attributeName="r" values="1.6;3.4;1.6" dur="2s" begin="${ini}" repeatCount="indefinite"/></circle>`;
+    });
+    s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#2a2829" stroke="#FFFFFF" stroke-width="1.8"/>` +
+      `<path d="M${cx + 3} ${cy - 5}L${cx + 9} ${cy}L${cx + 3} ${cy + 5}" fill="none" stroke="#B49739" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` +
+      "</g></svg>";
+    return s;
   }
 
   // Tres funciones de pertenencia (Baja, Media, Alta) y una entrada que las recorre.
@@ -756,6 +806,513 @@
     requestAnimationFrame(bucle);
   }
 
+  // ------------------------------------------------------------ demo: robot que sigue la pared (pausa / inicio)
+  // Vista desde arriba de un cuarto irregular. El robot va en sentido horario con la pared a su izquierda;
+  // lo mueve la regla ganadora (producto) de las 9 reglas sobre los sensores frontal e izquierdo.
+  function demoRobot() {
+    const cv = $("#escenario canvas");
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    const COLORES = ["#1291C0", "#B49739", "#00A859"];
+    const trap = (a, b, c, d) => (x) => Math.max(0, Math.min(b > a ? (x - a) / (b - a) : 1, 1, d > c ? (d - x) / (d - c) : 1));
+    // funciones de pertenencia en metros
+    const FRONTAL = { nombres: ["cerca", "media", "lejos"],
+      mf: [trap(0, 0, 0.85, 0.95), trap(0.85, 0.95, 1.6, 2.0), trap(1.6, 2.0, 5, 5)] };
+    const IZQUIERDA = { nombres: ["cerca", "ideal", "lejos"],
+      mf: [trap(0, 0, 0.48, 0.52), trap(0.48, 0.52, 0.8, 0.95), trap(0.8, 0.95, 5, 5)] };
+    // acciones: velocidad lineal (m/s) y giro (rad/s, positivo = a la derecha en pantalla)
+    const ACCIONES = [
+      { nombre: "Avanzar", corto: "Avanzar", v: 0.55, w: 0 },
+      { nombre: "Giro suave a la derecha", corto: "Suave der.", v: 0.4, w: 0.3 },
+      { nombre: "Giro fuerte a la derecha", corto: "Fuerte der.", v: 0.12, w: 1.8 },
+      { nombre: "Giro suave a la izquierda", corto: "Suave izq.", v: 0.4, w: -0.5 },
+    ];
+    // regla [frontal][izquierda] -> acción: frontal cerca gira fuerte; si no, la izquierda decide
+    const REGLAS = [[2, 2, 2], [1, 0, 3], [1, 0, 3]];
+
+    // cuarto (metros, y hacia abajo), recorrido en sentido horario: esquinas convexas y dos entrantes
+    const SALA = [[0, 1.0], [1.0, 0], [4.0, 0], [4.0, 2.2], [6.2, 2.2], [6.2, 5.0], [4.8, 7.4], [1.6, 7.4], [1.6, 4.6], [0, 4.6]];
+    const ESC = 86, OX = 940, OY = 44; // px por metro y origen del cuarto en el lienzo
+    const px = (x) => OX + x * ESC, py = (y) => OY + y * ESC;
+    const RADIO = 0.17, VEL = 1.3, DT = 1 / 60; // VEL acelera la simulación respecto al reloj
+    const INICIO = { x: 2.0, y: 0.65, th: 0 };
+    const SENSORES = [ // ángulo relativo al rumbo, color, opacidad
+      { nombre: "frontal", da: 0, color: "#B49739", op: 1 },
+      { nombre: "izquierda", da: -Math.PI / 2, color: "#1291C0", op: 1 },
+      { nombre: "derecha", da: Math.PI / 2, color: "#E4E4E4", op: 0.45 },
+      { nombre: "atrás", da: Math.PI, color: "#E4E4E4", op: 0.45 },
+    ];
+    const cajaPanel = { x: 64, y: 604 };
+
+    // distancia desde (x, y) hasta la primera pared en la dirección a
+    function rayo(x, y, a) {
+      const dx = Math.cos(a), dy = Math.sin(a);
+      let mejor = Infinity;
+      for (let i = 0; i < SALA.length; i++) {
+        const [x1, y1] = SALA[i], [x2, y2] = SALA[(i + 1) % SALA.length];
+        const ex = x2 - x1, ey = y2 - y1, den = dx * ey - dy * ex;
+        if (Math.abs(den) < 1e-12) continue;
+        const t = ((x1 - x) * ey - (y1 - y) * ex) / den, u = ((x1 - x) * dy - (y1 - y) * dx) / den;
+        if (t > 0 && u >= 0 && u <= 1 && t < mejor) mejor = t;
+      }
+      return mejor;
+    }
+    function aPared(x, y) {
+      let m = Infinity;
+      for (let i = 0; i < SALA.length; i++) {
+        const [x1, y1] = SALA[i], [x2, y2] = SALA[(i + 1) % SALA.length];
+        const ex = x2 - x1, ey = y2 - y1, t = Math.max(0, Math.min(1, ((x - x1) * ex + (y - y1) * ey) / (ex * ex + ey * ey)));
+        m = Math.min(m, Math.hypot(x - x1 - t * ex, y - y1 - t * ey));
+      }
+      return m;
+    }
+
+    let r, rastro, control, revision, aparecer;
+    function reiniciar() {
+      r = { x: INICIO.x, y: INICIO.y, th: INICIO.th, v: 0, w: 0 };
+      rastro = []; revision = { t: tSim, x: r.x, y: r.y }; aparecer = 0;
+      control = inferir();
+    }
+
+    // sensores -> grados de pertenencia -> 9 reglas (producto) -> gana la más activada
+    function inferir() {
+      const d = SENSORES.map((s) => rayo(r.x, r.y, r.th + s.da) - RADIO);
+      const muF = FRONTAL.mf.map((f) => f(d[0])), muI = IZQUIERDA.mf.map((f) => f(d[1]));
+      let gana = { g: -1, i: 0, j: 0 };
+      const grados = muF.map((a, i) => muI.map((b, j) => {
+        const g = a * b;
+        if (g > gana.g) gana = { g, i, j };
+        return g;
+      }));
+      return { d, muF, muI, grados, gana, accion: REGLAS[gana.i][gana.j] };
+    }
+
+    let tSim = 0;
+    function paso() {
+      control = inferir();
+      const a = ACCIONES[control.accion], k = Math.min(1, DT * 3); // inercia de los motores
+      r.v += (a.v - r.v) * k; r.w += (a.w - r.w) * k;
+      r.th += r.w * DT;
+      r.x += r.v * Math.cos(r.th) * DT; r.y += r.v * Math.sin(r.th) * DT;
+      tSim += DT;
+      if (tSim - (rastro.length ? rastro[rastro.length - 1].t : -1) > 0.1) {
+        rastro.push({ x: r.x, y: r.y, t: tSim });
+        if (rastro.length > 380) rastro.shift();
+      }
+      // respaldo: si choca o lleva 8 s casi sin moverse, vuelve a empezar
+      if (tSim - revision.t > 8) {
+        if (Math.hypot(r.x - revision.x, r.y - revision.y) < 0.4) reiniciar();
+        revision = { t: tSim, x: r.x, y: r.y };
+      }
+      if (aPared(r.x, r.y) < RADIO * 0.9) reiniciar();
+    }
+
+    function sala() {
+      ctx.beginPath();
+      SALA.forEach(([x, y], i) => (i ? ctx.lineTo(px(x), py(y)) : ctx.moveTo(px(x), py(y))));
+      ctx.closePath();
+    }
+
+    function barra(x, y, nombre, mu, color) {
+      ctx.font = "17px Cambria, serif"; ctx.textAlign = "left";
+      ctx.fillStyle = mu > 0.001 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)";
+      ctx.fillText(nombre, x, y + 10);
+      ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(x + 62, y, 170, 10);
+      ctx.fillStyle = color; ctx.fillRect(x + 62, y, 170 * mu, 10);
+      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "16px Cambria, serif";
+      ctx.fillText(mu.toFixed(2), x + 242, y + 10);
+    }
+
+    let mPrevio = "";
+    function marcador(c) {
+      const ep = `Acción <b>${ACCIONES[c.accion].nombre}</b>`;
+      const ps = `frontal ${c.d[0].toFixed(2)} m · izquierda ${c.d[1].toFixed(2)} m · regla ${c.gana.i * 3 + c.gana.j + 1}`;
+      if (ep + ps === mPrevio) return;
+      mPrevio = ep + ps;
+      $("#m-epoca").innerHTML = ep;
+      $("#m-pesos").textContent = ps;
+    }
+
+    function dibujar(t) {
+      const CW = cv.width, CH = cv.height, c = control;
+      ctx.clearRect(0, 0, CW, CH);
+      aparecer = Math.min(1, aparecer + 0.04);
+
+      // velo oscuro detrás del letrero
+      const g = ctx.createRadialGradient(260, 200, 40, 260, 200, 900);
+      g.addColorStop(0, "rgba(31,29,30,0.92)"); g.addColorStop(0.55, "rgba(31,29,30,0.6)"); g.addColorStop(1, "rgba(31,29,30,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+
+      // piso con cuadrícula de 0,5 m y paredes
+      ctx.save();
+      sala(); ctx.fillStyle = "rgba(18,145,192,0.06)"; ctx.fill(); ctx.clip();
+      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = 0; x <= 6.5; x += 0.5) { ctx.moveTo(px(x), py(0)); ctx.lineTo(px(x), py(7.5)); }
+      for (let y = 0; y <= 7.5; y += 0.5) { ctx.moveTo(px(0), py(y)); ctx.lineTo(px(6.5), py(y)); }
+      ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.shadowColor = "rgba(18,145,192,0.9)"; ctx.shadowBlur = 16;
+      sala(); ctx.strokeStyle = "rgba(255,255,255,0.9)"; ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.stroke();
+      ctx.restore();
+
+      ctx.globalAlpha = aparecer;
+      // rastro del recorrido, más tenue cuanto más viejo
+      for (let i = 1; i < rastro.length; i++) {
+        ctx.strokeStyle = `rgba(18,145,192,${(0.55 * i / rastro.length).toFixed(3)})`; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(px(rastro[i - 1].x), py(rastro[i - 1].y)); ctx.lineTo(px(rastro[i].x), py(rastro[i].y)); ctx.stroke();
+      }
+
+      // rayos de los sensores con su distancia
+      SENSORES.forEach((s, k) => {
+        const a = r.th + s.da, d = c.d[k] + RADIO;
+        const x0 = px(r.x + Math.cos(a) * RADIO), y0 = py(r.y + Math.sin(a) * RADIO);
+        const x1 = px(r.x + Math.cos(a) * d), y1 = py(r.y + Math.sin(a) * d);
+        ctx.save();
+        ctx.globalAlpha = aparecer * s.op;
+        ctx.setLineDash([6, 6]); ctx.lineDashOffset = -t / 40;
+        ctx.strokeStyle = s.color; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.shadowColor = s.color; ctx.shadowBlur = 12; ctx.fillStyle = s.color;
+        ctx.beginPath(); ctx.arc(x1, y1, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        // etiqueta a medio rayo, corrida hacia un lado para no tapar la línea
+        const mx = (x0 + x1) / 2 - Math.sin(a) * 18, my = (y0 + y1) / 2 + Math.cos(a) * 18;
+        const txt = c.d[k].toFixed(2) + " m";
+        ctx.font = "15px Cambria, serif"; ctx.textAlign = "center";
+        const tw = ctx.measureText(txt).width + 12;
+        ctx.fillStyle = "rgba(31,29,30,0.8)"; ctx.fillRect(mx - tw / 2, my - 10, tw, 20);
+        ctx.fillStyle = k < 2 ? s.color : "rgba(255,255,255,0.9)";
+        ctx.fillText(txt, mx, my + 5);
+        ctx.restore();
+      });
+
+      // robot: cuerpo, rumbo y ruedas
+      const R = RADIO * ESC, X = px(r.x), Y = py(r.y);
+      ctx.save();
+      ctx.translate(X, Y); ctx.rotate(r.th);
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      ctx.fillRect(-R * 0.55, -R - 3, R * 1.1, 4); ctx.fillRect(-R * 0.55, R - 1, R * 1.1, 4);
+      ctx.shadowColor = "rgba(180,151,57,0.8)"; ctx.shadowBlur = 16;
+      ctx.fillStyle = "#2a2829"; ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "#B49739"; ctx.lineWidth = 2.6; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.beginPath(); ctx.moveTo(R * 0.05, -R * 0.45); ctx.lineTo(R * 0.6, 0); ctx.lineTo(R * 0.05, R * 0.45); ctx.stroke();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+
+      // panel: grados de pertenencia de cada sensor
+      const P = cajaPanel;
+      ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 20px Cambria, serif";
+      ctx.fillText(`Frontal · ${c.d[0].toFixed(2)} m`, P.x, P.y);
+      c.muF.forEach((m, k) => barra(P.x, P.y + 16 + k * 26, FRONTAL.nombres[k], m, COLORES[k]));
+      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 20px Cambria, serif";
+      ctx.fillText(`Izquierda · ${c.d[1].toFixed(2)} m`, P.x, P.y + 124);
+      c.muI.forEach((m, k) => barra(P.x, P.y + 140 + k * 26, IZQUIERDA.nombres[k], m, COLORES[k]));
+
+      // panel: las 9 reglas (filas: frontal, columnas: izquierda); se resalta la ganadora
+      const GX = P.x + 420, GY = P.y + 40, CWd = 118, CHt = 52;
+      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 20px Cambria, serif";
+      ctx.fillText("Reglas · ", GX - 92, P.y);
+      const ancho = ctx.measureText("Reglas · ").width;
+      ctx.fillStyle = "#B49739"; ctx.fillText(ACCIONES[c.accion].nombre, GX - 92 + ancho, P.y);
+      ctx.font = "15px Cambria, serif"; ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.textAlign = "center";
+      IZQUIERDA.nombres.forEach((n, j) => ctx.fillText("izq. " + n, GX + j * CWd + CWd / 2, GY - 8));
+      ctx.textAlign = "right";
+      FRONTAL.nombres.forEach((n, i) => ctx.fillText("fr. " + n, GX - 10, GY + i * CHt + CHt / 2 + 5));
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+        const x = GX + j * CWd, y = GY + i * CHt, gr = c.grados[i][j], gana = c.gana.i === i && c.gana.j === j;
+        ctx.fillStyle = `rgba(18,145,192,${(0.06 + 0.4 * gr).toFixed(3)})`;
+        ctx.fillRect(x + 2, y + 2, CWd - 4, CHt - 4);
+        ctx.save();
+        if (gana) { ctx.shadowColor = "rgba(180,151,57,0.9)"; ctx.shadowBlur = 14; }
+        ctx.strokeStyle = gana ? "#B49739" : "rgba(255,255,255,0.14)"; ctx.lineWidth = gana ? 2.4 : 1;
+        ctx.strokeRect(x + 2, y + 2, CWd - 4, CHt - 4);
+        ctx.restore();
+        ctx.textAlign = "center";
+        ctx.fillStyle = gana ? "#FFFFFF" : gr > 0.001 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.4)";
+        ctx.font = (gana ? "600 " : "") + "16px Cambria, serif";
+        ctx.fillText(ACCIONES[REGLAS[i][j]].corto, x + CWd / 2, y + 23);
+        ctx.font = "13px Cambria, serif"; ctx.fillStyle = gana ? "#B49739" : "rgba(255,255,255,0.45)";
+        ctx.fillText(`R${i * 3 + j + 1} · ${gr.toFixed(2)}`, x + CWd / 2, y + 41);
+      }
+      marcador(c);
+    }
+
+    reiniciar();
+    let tPrevio = 0, tReloj = null, acum = 0;
+    function bucle(t) {
+      if (tReloj === null) tReloj = t;
+      acum += Math.min(0.2, (t - tReloj) / 1000) * VEL; tReloj = t;
+      while (acum >= DT) { paso(); acum -= DT; } // paso fijo: el recorrido no depende de los fps
+      if (t - tPrevio > 30) { tPrevio = t; dibujar(t); }
+      requestAnimationFrame(bucle);
+    }
+    requestAnimationFrame(bucle);
+  }
+
+  // ------------------------------------------------------------ demo: pronóstico de una serie de tiempo (pausa / inicio)
+  // PM2.5 diario sintético (estacionalidad semanal y de ~46 días + ruido AR(1)). En cada origen, SARIMAX (azul, con
+  // intervalo) y una NARX en lazo cerrado (roja) pronostican 24 días; luego se revela lo real y se actualiza el RMSE.
+  function demoSeries() {
+    const cv = $("#escenario canvas");
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    const AZUL = "#1291C0", ROJO = "#ED3237", DORADO = "#B49739";
+    const rnd = aleatorio(20261104);
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(2 * Math.PI * rnd());
+    const N = 120, ORIG = 84, H = 24, YMAX = 250, PHI = 0.78, SIG = 20;
+    const G = { x0: 120, x1: 1480, y0: 520, y1: 672 }; // área de la gráfica (debajo del letrero de inicio, que ocupa dos líneas)
+    const P = { x: 980, y: 92 };                        // panel de RMSE
+    const FASES = [2200, 2600, 2600, 2400];             // desplazar, pronosticar, revelar, mostrar
+    const CICLO = FASES.reduce((a, b) => a + b, 0);
+
+    // serie: componente determinista + residuo AR(1), generada a medida que se necesita
+    const det = (i) => 95 + 30 * Math.sin(2 * Math.PI * i / 7 + 0.6) + 38 * Math.sin(2 * Math.PI * i / 46);
+    const res = [0], y = [];
+    function valor(i) {
+      while (y.length <= i) {
+        const k = y.length;
+        if (k) res.push(PHI * res[k - 1] + SIG * gauss());
+        y.push(Math.max(8, det(k) + res[k]));
+      }
+      return y[i];
+    }
+
+    // pronósticos desde el origen o (último dato observado), h = 0..H
+    function pronosticar(o) {
+      const detS = (i) => 95 + 30 * Math.sin(2 * Math.PI * i / 7 + 0.6) + 0.75 * 38 * Math.sin(2 * Math.PI * i / 46 - 0.25);
+      const eS = valor(o) - detS(o), eN = valor(o) - det(o);
+      const deriva = 1.5 * gauss(), fase = 6 * rnd();
+      const s = [], n = [], banda = [], real = [];
+      for (let h = 0; h <= H; h++) {
+        s.push(h ? detS(o + h) + eS * Math.pow(PHI, h) : valor(o));
+        n.push(h ? det(o + h) + eN * Math.pow(0.85, h) + deriva * h + 7 * Math.sin(h / 2.6 + fase) * Math.min(1, h / 6) : valor(o));
+        banda.push(1.28 * SIG * Math.sqrt((1 - Math.pow(PHI, 2 * h)) / (1 - PHI * PHI)));
+        real.push(valor(o + h));
+      }
+      let qs = 0, qn = 0;
+      for (let h = 1; h <= H; h++) { qs += (s[h] - real[h]) ** 2; qn += (n[h] - real[h]) ** 2; }
+      return { o, s, n, banda, real, qs, qn, rs: Math.sqrt(qs / H), rn: Math.sqrt(qn / H) };
+    }
+
+    const suave = (x) => (x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2);
+    const lim = (x) => Math.max(0, Math.min(1, x));
+    let vista = 0;
+    const px = (i) => G.x0 + (i - vista) / (N - 1) * (G.x1 - G.x0);
+    const py = (v) => G.y1 - Math.min(v, YMAX) / YMAX * (G.y1 - G.y0);
+
+    // traza f(h) para h = 0..hasta (fraccionario), empezando en el índice o
+    function trazar(o, f, hasta) {
+      ctx.beginPath();
+      ctx.moveTo(px(o), py(f[0]));
+      const k = Math.floor(hasta);
+      for (let h = 1; h <= k; h++) ctx.lineTo(px(o + h), py(f[h]));
+      if (k < hasta && k < f.length - 1) {
+        const r = hasta - k;
+        ctx.lineTo(px(o + k + r), py(f[k] + (f[k + 1] - f[k]) * r));
+      }
+    }
+
+    const O0 = 2 * N;
+    let ciclo = 0, actual = pronosticar(O0), anterior = null, historia = [];
+    let acumS = 0, acumN = 0, nAcum = 0, vistoS = null, vistoN = null;
+    valor(O0 + H + 1);
+
+    let mPrevio = "";
+    function marcador() {
+      const ep = `Origen <b>día ${actual.o}</b> · horizonte de ${H} días`;
+      const ps = vistoS === null ? "RMSE: esperando el primer horizonte" :
+        `RMSE SARIMAX ${vistoS.toFixed(1)} · NARX ${vistoN.toFixed(1)} µg/m³`;
+      if (ep + ps === mPrevio) return;
+      mPrevio = ep + ps;
+      $("#m-epoca").innerHTML = ep;
+      $("#m-pesos").textContent = ps;
+    }
+
+    function leyenda(x, yL, color, texto, punteada) {
+      ctx.font = "16px Cambria, serif";
+      const w = ctx.measureText(texto).width;
+      x -= w;
+      ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.textAlign = "left"; ctx.fillText(texto, x, yL + 5);
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = 2.4; if (punteada) ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(x - 34, yL); ctx.lineTo(x - 8, yL); ctx.stroke();
+      ctx.restore();
+      return x - 58;
+    }
+
+    function dibujar(tc) {
+      const CW = cv.width, CH = cv.height;
+      ctx.clearRect(0, 0, CW, CH);
+      const g = ctx.createRadialGradient(260, 200, 40, 260, 200, 900);
+      g.addColorStop(0, "rgba(31,29,30,0.92)"); g.addColorStop(0.55, "rgba(31,29,30,0.6)"); g.addColorStop(1, "rgba(31,29,30,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+
+      const o = actual.o;
+      const fDesp = suave(lim(tc / FASES[0]));
+      const fPron = suave(lim((tc - FASES[0]) / FASES[1]));
+      const fRev = suave(lim((tc - FASES[0] - FASES[1]) / FASES[2]));
+      const fMos = lim((tc - FASES[0] - FASES[1] - FASES[2]) / 900);
+      vista = (ciclo ? o - H - ORIG : o - ORIG) + (ciclo ? H * fDesp : 0);
+      const xo = px(o);
+
+      // título y leyenda
+      ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 20px Cambria, serif";
+      ctx.fillText("PM2.5 diario (µg/m³) · serie sintética de ejemplo", 64, G.y0 - 30);
+      let lx = G.x1;
+      lx = leyenda(lx, G.y0 - 36, DORADO, "Origen", true);
+      lx = leyenda(lx, G.y0 - 36, ROJO, "NARX · lazo cerrado", true);
+      lx = leyenda(lx, G.y0 - 36, AZUL, "SARIMAX · IC 80 %", true);
+      leyenda(lx, G.y0 - 36, "#FFFFFF", "Real", false);
+
+      // ejes y rejilla
+      ctx.font = "16px Cambria, serif"; ctx.textAlign = "right";
+      for (let v = 0; v <= YMAX; v += 50) {
+        ctx.strokeStyle = v ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.28)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(G.x0, py(v)); ctx.lineTo(G.x1, py(v)); ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.fillText(String(v), G.x0 - 12, py(v) + 5);
+      }
+      ctx.textAlign = "center";
+      for (let i = Math.ceil(vista / 14) * 14; i <= vista + N - 1; i += 14) {
+        const X = px(i);
+        if (X < G.x0 + 20 || X > G.x1 - 20) continue;
+        ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.fillText("día " + i, X, G.y1 + 24);
+      }
+
+      ctx.save();
+      ctx.beginPath(); ctx.rect(G.x0, G.y0 - 12, G.x1 - G.x0, G.y1 - G.y0 + 12); ctx.clip();
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+
+      // horizonte del origen actual
+      if (fPron > 0) {
+        ctx.fillStyle = `rgba(180,151,57,${(0.06 * fPron).toFixed(3)})`;
+        ctx.fillRect(xo, G.y0 - 12, px(o + H) - xo, G.y1 - G.y0 + 12);
+      }
+
+      // pronósticos del origen anterior, ya superados, en tenue
+      if (anterior) {
+        ctx.globalAlpha = 0.35 - 0.2 * fDesp;
+        ctx.setLineDash([6, 5]); ctx.lineWidth = 1.8;
+        trazar(anterior.o, anterior.s, H); ctx.strokeStyle = AZUL; ctx.stroke();
+        trazar(anterior.o, anterior.n, H); ctx.strokeStyle = ROJO; ctx.stroke();
+        ctx.setLineDash([]); ctx.globalAlpha = 1;
+      }
+
+      // serie observada hasta el origen (y lo que se va revelando)
+      const desde = Math.floor(vista) - 1;
+      const reales = [];
+      for (let i = desde; i <= o; i++) reales.push(valor(i));
+      ctx.save();
+      ctx.shadowColor = "rgba(255,255,255,0.35)"; ctx.shadowBlur = 8;
+      trazar(desde, reales, o - desde); ctx.strokeStyle = "rgba(255,255,255,0.92)"; ctx.lineWidth = 2.2; ctx.stroke();
+      ctx.restore();
+
+      // pronósticos: banda de SARIMAX y dos trayectorias que se abren desde el origen
+      if (fPron > 0) {
+        const hasta = H * fPron, k = Math.floor(hasta);
+        ctx.beginPath();
+        for (let h = 0; h <= k; h++) ctx.lineTo(px(o + h), py(actual.s[h] + actual.banda[h]));
+        for (let h = k; h >= 0; h--) ctx.lineTo(px(o + h), py(Math.max(0, actual.s[h] - actual.banda[h])));
+        ctx.closePath(); ctx.fillStyle = "rgba(18,145,192,0.13)"; ctx.fill();
+        ctx.setLineDash([8, 5]); ctx.lineWidth = 2.6;
+        ctx.save(); ctx.shadowColor = AZUL; ctx.shadowBlur = 10;
+        trazar(o, actual.s, hasta); ctx.strokeStyle = AZUL; ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.shadowColor = ROJO; ctx.shadowBlur = 10;
+        trazar(o, actual.n, hasta); ctx.strokeStyle = ROJO; ctx.stroke(); ctx.restore();
+        ctx.setLineDash([]);
+      }
+      // lo real del horizonte, revelado de izquierda a derecha
+      if (fRev > 0) {
+        const hasta = H * fRev;
+        ctx.save(); ctx.shadowColor = "rgba(255,255,255,0.35)"; ctx.shadowBlur = 8;
+        trazar(o, actual.real, hasta); ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 2.2; ctx.stroke(); ctx.restore();
+        ctx.fillStyle = "#FFFFFF";
+        for (let h = 1; h <= Math.floor(hasta); h++) { ctx.beginPath(); ctx.arc(px(o + h), py(actual.real[h]), 3, 0, Math.PI * 2); ctx.fill(); }
+      }
+      ctx.restore();
+
+      // línea del origen
+      ctx.save();
+      ctx.shadowColor = "rgba(180,151,57,0.9)"; ctx.shadowBlur = 14;
+      ctx.strokeStyle = DORADO; ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(xo, G.y0 - 8); ctx.lineTo(xo, G.y1); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = DORADO; ctx.beginPath(); ctx.arc(xo, py(valor(o)), 5, 0, Math.PI * 2); ctx.fill();
+      ctx.font = "600 16px Cambria, serif"; ctx.textAlign = "right";
+      ctx.fillText("origen · día " + o, xo - 10, G.y0 + 8);
+      if (fPron > 0) {
+        ctx.textAlign = "left"; ctx.fillStyle = `rgba(180,151,57,${(0.85 * fPron).toFixed(3)})`; ctx.font = "16px Cambria, serif";
+        ctx.fillText(`h = 1 … ${H} días`, xo + 10, G.y0 + 8);
+      }
+
+      // RMSE: se acerca al del origen actual cuando termina de revelarse
+      if (fMos > 0 && vistoS !== null) {
+        vistoS += (actual.rs - vistoS) * 0.12 * fMos; vistoN += (actual.rn - vistoN) * 0.12 * fMos;
+      }
+      panel(fMos);
+      marcador();
+    }
+
+    function panel(fMos) {
+      ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 20px Cambria, serif";
+      ctx.fillText(`RMSE del pronóstico a ${H} días (µg/m³)`, P.x, P.y);
+      ctx.font = "15px Cambria, serif"; ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.textAlign = "right";
+      ctx.fillText("último origen", 1360, P.y + 30); ctx.fillText("acumulado", 1480, P.y + 30);
+      [["SARIMAX", AZUL, vistoS, nAcum ? Math.sqrt(acumS / nAcum) : null],
+       ["NARX · lazo cerrado", ROJO, vistoN, nAcum ? Math.sqrt(acumN / nAcum) : null]].forEach(([nombre, color, v, acu], k) => {
+        const yR = P.y + 74 + k * 52;
+        ctx.save(); ctx.shadowColor = color; ctx.shadowBlur = 10; ctx.fillStyle = color;
+        ctx.fillRect(P.x, yR - 12, 6, 24); ctx.restore();
+        ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "20px Cambria, serif";
+        ctx.fillText(nombre, P.x + 18, yR + 7);
+        ctx.textAlign = "right"; ctx.fillStyle = "#FFFFFF"; ctx.font = "600 32px Cambria, serif";
+        ctx.fillText(v === null ? "—" : v.toFixed(1), 1360, yR + 11);
+        ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "20px Cambria, serif";
+        ctx.fillText(acu === null ? "—" : acu.toFixed(1), 1480, yR + 9);
+      });
+      // barras de los últimos orígenes
+      const BY = P.y + 290, BH = 110, maxV = Math.max(40, ...historia.map((r) => Math.max(r.rs, r.rn)));
+      ctx.strokeStyle = "rgba(255,255,255,0.28)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(P.x, BY); ctx.lineTo(1480, BY); ctx.stroke();
+      historia.forEach((r, i) => {
+        const x = P.x + 8 + i * 50, nuevo = contado && i === historia.length - 1; // recién entrada en este ciclo
+        const a = nuevo ? 0.35 + 0.65 * fMos : 0.6;
+        [[r.rs, AZUL], [r.rn, ROJO]].forEach(([v, color], j) => {
+          const h = v / maxV * BH * (nuevo ? fMos : 1);
+          ctx.globalAlpha = a; ctx.fillStyle = color;
+          ctx.fillRect(x + j * 18, BY - h, 15, h);
+        });
+        ctx.globalAlpha = 1;
+      });
+      ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "15px Cambria, serif";
+      ctx.fillText("RMSE de los últimos orígenes", P.x, BY + 22);
+    }
+
+    // reloj propio: si la pestaña se congela, no se salta fases
+    let tPrevio = 0, tReloj = null, tc = 0, contado = false;
+    function bucle(t) {
+      if (tReloj === null) tReloj = t;
+      tc += Math.min(100, t - tReloj); tReloj = t;
+      if (!contado && tc > CICLO - FASES[3]) { // se reveló todo: entra al RMSE
+        contado = true;
+        acumS += actual.qs; acumN += actual.qn; nAcum += H;
+        historia.push(actual); if (historia.length > 10) historia.shift();
+        if (vistoS === null) { vistoS = 0; vistoN = 0; }
+      }
+      if (tc >= CICLO) {
+        tc -= CICLO; ciclo++; contado = false;
+        anterior = actual; actual = pronosticar(anterior.o + H);
+      }
+      if (t - tPrevio > 30) { tPrevio = t; dibujar(tc); }
+      requestAnimationFrame(bucle);
+    }
+    requestAnimationFrame(bucle);
+  }
+
   // ------------------------------------------------------------ arranque
   async function cargarTaller() {
     try {
@@ -770,7 +1327,7 @@
   sondearTareas(); setInterval(sondearTareas, 1000);
   sondearEstado(); setInterval(sondearEstado, 1000);
   setInterval(pintarEstado, 250);
-  (TALLER.demo === "difuso" ? demoDifuso : demoPerceptron)();
+  ({ difuso: demoDifuso, robot: demoRobot, series: demoSeries }[TALLER.demo] || demoPerceptron)();
   if (window.ResizeObserver) new ResizeObserver(pedirAjuste).observe($("#tareas"));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(pedirAjuste);
 })();

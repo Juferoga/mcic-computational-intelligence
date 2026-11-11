@@ -68,8 +68,20 @@ end
 
 -- Claude --------------------------------------------------------------------
 
+local LINUX = jit ~= nil and jit.os == "Linux"
+
 -- Devuelve la fuente ("app" o "web") si Claude está al frente, o nil.
 local function claude_al_frente()
+  if LINUX then
+    -- X11: clase y título de la ventana activa
+    local id = leer_cmd("xprop -root _NET_ACTIVE_WINDOW"):match("(0x%x+)")
+    if id == nil then return nil end
+    local out = leer_cmd("xprop -id " .. id .. " WM_CLASS _NET_WM_NAME"):lower()
+    local clase = out:match('wm_class[^=]*= ([^\n]*)') or ""
+    if clase:find("claude", 1, true) then return "app" end
+    if out:find("claude", 1, true) then return "web" end
+    return nil
+  end
   local out = leer_cmd('lsappinfo info -only bundleid "$(lsappinfo front)"')
   local bundle = out:match('bundleID="([^"]+)"')
   if bundle == nil then return nil end
@@ -199,11 +211,14 @@ function script_update(s)
   cfg.estado = obs.obs_data_get_string(s, "estado")
 end
 
--- Pide el texto con un cuadro de diálogo de macOS y lo agrega con el CLI `tarea`
+-- Pide el texto con un cuadro de diálogo (macOS o zenity en Linux) y lo agrega con el CLI `tarea`
 -- (en segundo plano, para no bloquear OBS mientras se escribe).
 local function agregar()
   local cli = cfg.tareas:gsub("[^/]+$", "") .. "tarea"
   local dialogo = [[osascript -e 'activate' -e 'text returned of (display dialog "Nueva tarea para el bloque actual" default answer "" with title "Code with me")']]
+  if LINUX then
+    dialogo = [[zenity --entry --title "Code with me" --text "Nueva tarea para el bloque actual"]]
+  end
   os.execute(string.format([[(t=$(%s) && [ -n "$t" ] && TAREAS_MD='%s' '%s' add "$t") >/dev/null 2>&1 &]],
     dialogo, cfg.tareas, cli))
 end

@@ -1,4 +1,4 @@
-# Code with me #2 · Taller 5 — Lógica difusa
+# Code with me #4 · Taller 6 — Series de tiempo
 
 ## Arranque
 - [ ] Presentación
@@ -6,32 +6,41 @@
 - [ ] Presentación del plan
 
 ## Entorno
-- [ ] Copiar el cuaderno y commit inicial
+- [ ] Copiar la plantilla y commit inicial
 - [ ] Entorno con uv (Python 3.12)
 - [ ] Instalar librerías
 - [ ] Abrir Jupyter
 
-## Cuaderno del profe
-- [ ] Preparación del entorno
-- [ ] Pertenencia y Fuzzy C-Means
-- [ ] Reglas desde los datos
-- [ ] Cargar Wine
+## Plantilla sin cambios
+- [ ] Elegir DATASET = "beijing"
+- [ ] Ejecutar todo con el ingenuo
+- [ ] Validación y diagnóstico
+- [ ] Commit: plantilla ejecutada
 
-## TODO 1 a 4
-- [ ] TODO 1: 4 características sin fuga
-- [ ] TODO 2: función sigmoidal
-- [ ] TODO 3: t-normas mín y producto
-- [ ] TODO 4: confusión y par más confundido
-- [ ] Commit: TODO 1 a 4
+## Modelo clásico
+- [ ] Logaritmo de PM2.5
+- [ ] AIC, BIC y Ljung-Box
+- [ ] TODO: modelo_clasico
 
-## TODO 5 y 6
-- [ ] Mi predicción antes de ejecutar
-- [ ] TODO 5: etiquetas contra árbol
-- [ ] Figura de exactitud
-- [ ] Mis 5 líneas
-- [ ] TODO 6: Fuzzy C-Means y ARI
-- [ ] Commit: TODO 5 y 6
+## Red NARX
+- [ ] TODO: modelo_neuronal
+- [ ] Modelos e hiperparámetros iniciales
+- [ ] Validación cruzada
+- [ ] Commit: modelos
+
+## Sensibilidad
+- [ ] TODO: REJILLAS
+- [ ] Promedio de semillas y elección
+- [ ] Commit: sensibilidad
+
+## Prueba externa
+- [ ] Prueba externa (una sola vez)
+- [ ] Gráfica de pronósticos
+- [ ] Residuos y Diebold-Mariano
+- [ ] Exportar resultados/
+- [ ] Commit: prueba externa
 
 ## Cierre
+- [ ] Hipótesis contra resultados
 - [ ] Conclusiones y declaración de IA
 - [ ] Cierre del video

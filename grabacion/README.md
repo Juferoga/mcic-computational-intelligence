@@ -23,7 +23,7 @@ cp talleres/taller-$N/taller.json overlay/taller.json    # animación de pausa/i
 printf 'inicio,fin,duracion_s,fuente\n' > registro_claude.csv
 ```
 
-`taller.json` elige la animación (`"demo": "perceptron"` o `"difuso"`) y puede cambiar sus textos con `kicker`, `formula` y `pausa`. Al terminar, se copian `tareas.md` y `registro_claude.csv` a la carpeta del taller.
+`taller.json` elige la animación (`"demo": "perceptron"`, `"difuso"`, `"robot"` o `"series"`) y puede cambiar sus textos con `kicker`, `formula` y `pausa`. Al terminar, se copian `tareas.md` y `registro_claude.csv` a la carpeta del taller.
 
 ## Escenas
 0. **Inicio**: portada con la cámara.

@@ -1,36 +1,36 @@
 # Code with me #2 · Taller 5 — Lógica difusa
 
 ## Arranque
-- [ ] Presentación
-- [ ] Leer el enunciado
-- [ ] Presentación del plan
+- [x] Presentación
+- [x] Leer el enunciado
+- [x] Presentación del plan
 
 ## Entorno
-- [ ] Copiar el cuaderno y commit inicial
-- [ ] Entorno con uv (Python 3.12)
-- [ ] Instalar librerías
-- [ ] Abrir Jupyter
+- [x] Copiar el cuaderno y commit inicial
+- [x] Entorno con uv (Python 3.12)
+- [x] Instalar librerías
+- [x] Abrir Jupyter
 
 ## Cuaderno del profe
-- [ ] Preparación del entorno
-- [ ] Pertenencia y Fuzzy C-Means
-- [ ] Reglas desde los datos
-- [ ] Cargar Wine
+- [x] Preparación del entorno
+- [x] Pertenencia y Fuzzy C-Means
+- [x] Reglas desde los datos
+- [x] Cargar Wine
 
 ## TODO 1 a 4
-- [ ] TODO 1: 4 características sin fuga
-- [ ] TODO 2: función sigmoidal
-- [ ] TODO 3: t-normas mín y producto
-- [ ] TODO 4: confusión y par más confundido
-- [ ] Commit: TODO 1 a 4
+- [x] TODO 1: 4 características sin fuga
+- [x] TODO 2: función sigmoidal
+- [x] TODO 3: t-normas mín y producto
+- [x] TODO 4: confusión y par más confundido
+- [x] Commit: TODO 1 a 4
 
 ## TODO 5 y 6
-- [ ] Mi predicción antes de ejecutar
-- [ ] TODO 5: etiquetas contra árbol
-- [ ] Figura de exactitud
-- [ ] Mis 5 líneas
-- [ ] TODO 6: Fuzzy C-Means y ARI
-- [ ] Commit: TODO 5 y 6
+- [x] Mi predicción antes de ejecutar
+- [x] TODO 5: etiquetas contra árbol
+- [x] Figura de exactitud
+- [x] Mis 5 líneas
+- [x] TODO 6: Fuzzy C-Means y ARI
+- [x] Commit: TODO 5 y 6
 
 ## Cierre
 - [ ] Conclusiones y declaración de IA
