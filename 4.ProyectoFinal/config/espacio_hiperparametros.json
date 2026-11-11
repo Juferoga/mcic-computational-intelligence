@@ -1,0 +1,64 @@
+{
+  "busqueda": "aleatoria, 14 configuraciones, elegidas por AUC-PR medio en las 3 ventanas",
+  "n_reglas": [
+    5,
+    10,
+    15
+  ],
+  "poblacion": [
+    40,
+    60,
+    80
+  ],
+  "generaciones": [
+    60,
+    100,
+    140
+  ],
+  "prob_mutacion": [
+    0.05,
+    0.15,
+    0.3
+  ],
+  "prob_cruce": [
+    0.7,
+    0.9
+  ],
+  "lambda_complejidad": [
+    0.0,
+    0.0005
+  ],
+  "fijos": {
+    "terminos_por_variable": 3,
+    "max_antecedentes": 3,
+    "torneo": 3,
+    "elitismo": 2,
+    "muestra_aptitud": 80000,
+    "variables": [
+      "lineas_add",
+      "lineas_del",
+      "n_archivos",
+      "n_subsistemas",
+      "n_reviewed",
+      "n_signed",
+      "es_fix",
+      "cc_stable",
+      "exp_autor",
+      "exp_autor_subsistema"
+    ]
+  },
+  "sensibilidad": {
+    "n_reglas": [
+      5,
+      10,
+      15
+    ],
+    "prob_mutacion": [
+      0.05,
+      0.15,
+      0.3
+    ],
+    "resto": "en la mejor configuración de la búsqueda"
+  },
+  "presupuesto": "≈80-160 s por entrenamiento; 14x3 búsqueda + 9x3 sensibilidad + 5x3 semillas ≈ 84 entrenamientos ≈ 2-3 h en un núcleo; en paralelo (6 procesos) ≈ 30 min"
+}

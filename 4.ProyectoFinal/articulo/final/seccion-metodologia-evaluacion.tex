@@ -1,0 +1,67 @@
+\subsection{Pipeline sin fuga de información}
+
+Todo lo que se aprende de los datos se ajusta solo con el entrenamiento de cada ventana y se aplica sin cambios a la validación o a la prueba:
+\begin{itemize}
+\item la transformación $\log(1+x)$ y la estandarización de la regresión logística, dentro de un \texttt{Pipeline};
+\item la función de distribución empírica del modelo difuso;
+\item el umbral de decisión.
+\end{itemize}
+No se balancean las clases: el AUC-PR se mide con la prevalencia real, y los conjuntos balanceados de forma artificial inflan el desempeño de manera engañosa \cite{Nguyen2025}. Las variables solo usan información anterior a la integración del commit. La experiencia del autor se cuenta con los commits previos en orden temporal.
+
+\subsection{Partición temporal}
+
+Nunca se mezclan commits al azar (Fig.~\ref{fig:particion}). Para cada año de validación $V\in\{2023,2024,2025\}$ se entrena con $[\text{2019-01-01},\ \text{inicio}(V)-90\text{ d})$ y se valida con el año $V$ completo. El hueco de 90 días replica lo que ocurre en la práctica: al entrenar, las etiquetas de los últimos 90 días todavía no existen. El modelo final se entrena con $[\text{2019-01-01},\ \text{2025-10-03})$ y se evalúa una sola vez con los \cifNPrueba{} commits de enero a julio de 2026 (prevalencia \cifPrevPrueba{}).
+
+La partición de prueba quedó guardada con una huella SHA-256 de sus hashes y etiquetas. La evaluación final verifica de forma estricta que la huella no cambie. Se declara una salvedad: durante una fase preliminar de factibilidad, modelos simples se evaluaron una vez sobre 2026 para confirmar que había señal. Ninguna decisión posterior usó esas cifras.
+
+\begin{figure}[!t]
+\centering
+\input{fig-particion}
+\caption{Partición temporal con ventana creciente. Cada ventana de validación (2023, 2024 y 2025) se entrena con todo lo anterior menos un hueco de 90 días; la prueba (enero--julio de 2026) se evalúa una sola vez.}
+\label{fig:particion}
+\end{figure}
+
+\subsection{Métricas y pruebas estadísticas}
+
+\textbf{Métrica principal: AUC-PR} (precisión promedio de la clase riesgoso). Con una prevalencia cercana al 4\,\%, el AUC-ROC es engañosamente alto y el AUC-PR muestra la utilidad real de la lista de commits marcados \cite{Saito2015}. El AUC-PR de un clasificador sin información es igual a la prevalencia; por eso también se reporta el cociente AUC-PR/prevalencia.
+
+\textbf{Métricas secundarias:} MCC, AUC-ROC, sensibilidad y especificidad. Las métricas que dependen de un umbral usan el que maximiza el MCC en la ventana de validación 2025, aplicado tal cual en la prueba.
+
+\textbf{Costo:} tiempo de entrenamiento, tiempo de inferencia y número de parámetros.
+
+\textbf{Incertidumbre.} Se reportan intervalos de confianza del 95\,\% por \emph{bootstrap} (1000 remuestreos de la prueba) y media $\pm$ desviación en 5 semillas (11, 23, 37, 41 y 53) para los modelos estocásticos.
+
+\textbf{Pruebas.}
+\begin{itemize}
+\item McNemar con corrección de continuidad, entre el difuso-evolutivo y cada referencia, sobre las mismas predicciones de prueba \cite{Dietterich1998}.
+\item Friedman con \emph{post hoc} de Nemenyi sobre los rangos de AUC-PR de los cinco modelos en las tres ventanas de validación más la prueba \cite{Demsar2006}.
+\end{itemize}
+En ambos casos $\alpha=0{,}05$. Con solo 5 semillas no se usa Wilcoxon. Una diferencia sin prueba se reporta como ``diferencia observada''.
+
+\subsection{Resultados de validación de las referencias}
+
+Las referencias se ajustaron con el mismo pipeline y la misma partición que el modelo propuesto. Se probó una pequeña rejilla (\cifNConfigsRef{} configuraciones) y se eligió la de mayor AUC-PR medio en las tres ventanas.
+
+\textbf{Mejor referencia clásica:} el \emph{gradient boosting}, con AUC-PR medio de \cifValGB{} y alrededor de \cifParamGB{} parámetros (nodos de los árboles). Es la referencia $R$ del criterio de éxito.
+
+\textbf{Regresión logística:} da \cifValLogistica{} con \cifParamLR{} parámetros, y la regularización no cambia nada porque hay cientos de miles de ejemplos.
+
+\textbf{Clase mayoritaria:} queda en \cifValMayoritaria{}, la prevalencia. Ambas referencias clásicas la multiplican por cerca de cuatro.
+
+
+\subsection{Espacio de hiperparámetros del modelo propuesto}
+
+El espacio se declara antes de buscar (Tabla~\ref{tab:espacio}). La búsqueda es aleatoria, con 14 configuraciones de las 972 posibles. Cada configuración se evalúa en las tres ventanas con la semilla 11 y se elige por el AUC-PR medio. La sensibilidad se analiza sobre la rejilla de máximo de reglas $\times$ probabilidad de mutación, con el resto fijo en la mejor configuración. Después, la configuración elegida se entrena con las 5 semillas.
+
+\begin{table}[!t]
+\caption{Espacio de hiperparámetros del difuso-evolutivo}
+\label{tab:espacio}
+\centering\footnotesize
+\begin{tabularx}{\columnwidth}{@{}l Y@{}}
+\toprule
+\cabecera \textbf{Hiperparámetro} & \textbf{Valores}\\
+\midrule
+\filas{../comun/tabla_espacio.tex}
+\bottomrule
+\end{tabularx}
+\end{table}

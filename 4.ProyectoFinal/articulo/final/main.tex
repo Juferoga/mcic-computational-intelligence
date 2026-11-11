@@ -1,0 +1,122 @@
+\documentclass[conference,letterpaper]{IEEEtran}
+\IEEEoverridecommandlockouts
+\input{estilo-mcic}
+\input{generado/conteos}
+\input{../comun/cifras}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+\newcommand{\pendiente}[1]{\textcolor{udrojo}{\textbf{[#1]}}}
+\raggedbottom
+
+\begin{document}
+
+\title{¿Sobrevive un clasificador difuso-evolutivo interpretable a la deriva de 2026? Riesgo de los commits del kernel de Linux}
+
+\author{\IEEEauthorblockN{Juan Felipe Rodríguez Galindo}
+\IEEEauthorblockA{Maestría en Ciencias de la Información y las Comunicaciones\\
+Universidad Distrital Francisco José de Caldas, Bogotá, Colombia\\
+Código 20261595004 \textperiodcentered{} Inteligencia Computacional \textperiodcentered{} Artículo final}}
+
+\maketitle
+
+\begin{abstract}
+Predecir si un commit tendrá que corregirse permite enfocar la revisión de código. En el kernel de Linux la etiqueta es explícita: el trailer \texttt{Fixes:} de un commit posterior señala al culpable. Se construyó un dataset de \cifCommits{} commits de 2019--2026, minado del historial completo, y se comparó un clasificador de reglas difusas cuyas funciones de pertenencia y reglas ajusta un algoritmo genético con la clase mayoritaria, la regresión logística, el \emph{gradient boosting} y una variante sin evolución. Se usó validación temporal con hueco de 90 días, AUC-PR como métrica principal y una única evaluación en 2026, el año de la etiqueta \texttt{Assisted-by} para contribuciones asistidas por IA. El modelo propuesto no alcanzó el criterio de éxito fijado de antemano: obtuvo \cifTestFE{} de AUC-PR, el \cifCuno{} del \emph{gradient boosting} (meta: 90\,\%), y su caída desde validación (\cifCaidaFE{}) fue mayor que la de la referencia (\cifCaidaGB{}). Aun así, triplica la prevalencia con 3--6 reglas legibles frente a miles de parámetros, y la evolución aporta un \cifAporteEvolPrueba{} sobre la variante sin evolución. Una segunda iteración, decidida solo en validación, no mejoró el modelo.
+\end{abstract}
+
+\begingroup\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+We build a dataset of \cifCommits{} Linux kernel commits (2019--2026) labelled by later \texttt{Fixes:} trailers and compare a genetically tuned fuzzy rule classifier with majority, logistic regression, gradient boosting and a non-evolved variant, under temporal validation and a single 2026 test. The fuzzy model missed the pre-registered goal: its AUC-PR reached \cifCuno{} of gradient boosting (target 90\,\%) and degraded more under drift, while using only 3--6 readable rules; evolution improved AUC-PR by \cifAporteEvolPrueba{} over the non-evolved variant.
+\end{abstract}\endgroup
+
+\begin{IEEEkeywords}
+predicción de defectos justo a tiempo, kernel de Linux, deriva temporal, sistemas difusos, computación evolutiva, AUC-PR.
+\end{IEEEkeywords}
+
+%=====================================================================
+\section{Introducción}
+
+El riesgo de un cambio de software se estima desde hace dos décadas con métricas del propio cambio: cuánto toca, cuánto se difunde y cuánta experiencia tiene su autor \cite{Mockus2000,Kamei2013}. Es la predicción de defectos justo a tiempo (JIT): el aviso llega cuando el cambio aún está en revisión. El kernel de Linux recibe miles de commits por versión y tiene una etiqueta que pocos proyectos tienen: cuando un commit corrige otro, el trailer \texttt{Fixes:} nombra al culpable, sin tener que adivinarlo con \texttt{git blame} como hace SZZ \cite{Sliwerski2005}. En estudios empíricos sobre el trailer \texttt{Fixes:}, el 81\,\% se confirmó como causa del bug; el resto es ambiguo o incorrecto \cite{Lyu2024}.
+
+En 2026 cambió quién escribe parte de esos commits. La versión 7.0 pidió declarar con \texttt{Assisted-by:} la ayuda de asistentes de IA \cite{KernelAdd}. La 7.3 redujo la etiqueta a \texttt{Assisted-by: LLM} \cite{KernelSimpl}. El 14 de octubre se eliminó, porque solo cerca del 10\,\% de los 18\,533 commits de la 7.3 la llevaba, aunque el uso real de LLM es mucho mayor \cite{KernelRemove}. Esto tiene una consecuencia de diseño: la ``era IA'' no se puede definir con la etiqueta, porque que falte no quiere decir que no hubo IA. Se define por fecha, y la etiqueta queda solo para describir un subgrupo, como cota inferior.
+
+
+\subsection{Problema y pregunta de investigación}
+
+\textbf{Problema.} Clasificar cada commit del kernel como \emph{riesgoso} si un commit posterior lo cita con \texttt{Fixes:} en 90 días o menos, usando solo información disponible en el momento de integrarlo, y con un modelo que un mantenedor pueda leer.
+
+\textbf{Pregunta.} ¿Un clasificador de a lo sumo 15 reglas difusas, cuyas funciones de pertenencia y reglas se ajustan con un algoritmo evolutivo, alcanza en los commits de 2026 un AUC-PR de al menos el 90\,\% del mejor modelo de referencia (regresión logística o \emph{gradient boosting}), y pierde menos AUC-PR que ese modelo al pasar de la validación (ventanas anuales 2023, 2024 y 2025, entrenando desde 2019) a la prueba (enero--julio de 2026)?
+
+\subsection{Criterio de éxito (etapa 1 de CRISP-ML(Q) \cite{Studer2021})}
+
+Sea $\mathrm{AP}_m^{V}$ el AUC-PR medio del modelo $m$ en las ventanas de validación y $\mathrm{AP}_m^{T}$ su AUC-PR en la prueba de 2026, ambos con intervalo de confianza del 95\,\% por \emph{bootstrap}. Sean $\Delta_m=(\mathrm{AP}_m^{V}-\mathrm{AP}_m^{T})/\mathrm{AP}_m^{V}$ la caída relativa, $\pi^{T}$ la prevalencia de positivos en la prueba (el AUC-PR de la clase mayoritaria), FE el modelo propuesto y $R$ la mejor referencia clásica en validación. El proyecto se declara exitoso si se cumplen las tres condiciones de la Tabla~\ref{tab:criterio}. Si no se cumplen, se reporta así, sin volver a ajustar nada con la prueba.
+
+\begin{table}[!t]
+\caption{Criterio de éxito, fijado antes de ver los datos}
+\label{tab:criterio}
+\centering\footnotesize
+\begin{tabularx}{\columnwidth}{@{}l Y@{}}
+\toprule
+\cabecera & \textbf{Condición}\\
+\midrule
+C1 Desempeño & $\mathrm{AP}_{FE}^{T}\ge 0{,}90\,\mathrm{AP}_{R}^{T}$\\
+C2 Robustez & $\Delta_{FE}<\Delta_{R}$ (diferencia observada, con IC 95\,\%)\\
+C3 Piso & El IC 95\,\% de $\mathrm{AP}_{FE}^{T}$ excluye $\pi^{T}$; McNemar contra cada referencia con $\alpha=0{,}05$\\
+Restricción & $\le$15 reglas y $\le$3 antecedentes por regla\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Datos y aprobación}
+Los datos son públicos: el historial completo de \texttt{torvalds/linux} (GPL-2.0), minado directamente para tener una sola fuente de 2014 a 2026. El dataset de Zenodo de Maes Bermejo \emph{et al.} (más de 90\,000 pares commit corregido--commit que corrige, CC-BY-4.0) \cite{MaesBermejo2024} sirve para contrastar la etiqueta. Por eso no se requiere solicitud de aprobación. Los nombres y correos de los autores se reemplazan por identificadores.%=====================================================================
+\section{Estado del arte}
+
+\subsection{Método de búsqueda}
+La búsqueda sigue a PRISMA 2020 \cite{Page2021} en versión breve. El problema se descompone en tres bloques, unidos con OR por dentro y AND entre ellos:
+
+\noindent\fbox{\parbox{\dimexpr\columnwidth-2\fboxsep-2\fboxrule}{\footnotesize\raggedright
+\etiqueta{udazulosc}{A} \bloqueA{(commit* OR ``code change*'' OR ``software change*'' OR patch* OR ``pull request*'' OR ``Linux kernel'')} AND\\
+\etiqueta{uddorado}{B} \bloqueB{(``defect prediction'' OR ``bug prediction'' OR ``bug-introducing'' OR ``bug-inducing'' OR ``fix-inducing'' OR ``just-in-time'' OR ``change risk'' OR ``risk prediction'' OR ``defect-prone'' OR buggy)} AND\\
+\etiqueta{udverde}{C} \bloqueC{(fuzzy OR ``rule-based'' OR evolutionary OR ``genetic algorithm'' OR ``genetic programming'' OR ``search-based'' OR interpretab* OR explainab*)}}}
+
+\smallskip
+La ecuación Q1 usa los tres bloques. La Q2 cambia el bloque C por uno de deriva temporal (``concept drift'', drift, ``temporal validation'', ``time-aware'', ``realistic evaluation'', ``data shift'', ``distribution shift'', ``time travel''). Ambas se corrieron, limitadas a 2019--2026 y con los comodines expandidos a mano, en arXiv (\fechaConsulta) y en OpenAlex (\fechaConsultaOa, título y resumen), las dos por API pública para que la búsqueda se pueda repetir. OpenAlex, que indexa IEEE, ACM, Springer y Elsevier, reemplaza a Scopus o IEEE Xplore por falta de acceso institucional. Los clásicos anteriores a 2019 y los trabajos encontrados por citas entran como ``otras fuentes''.
+
+Los criterios se escribieron antes del tamizaje. Se incluye un trabajo si (I1) predice el riesgo de un cambio individual o estudia la validez de esa evaluación (orden temporal, latencia, ruido de la etiqueta), (I2) reporta métricas cuantitativas y (I3) describe sus datos. Se excluye si (E1) trata reparación o generación de código, (E2) trabaja solo a nivel de archivo o módulo (se admitieron clasificadores difusos y evolutivos de módulo, porque de commit no hay), (E3) es de otro dominio, (E4) es solo un dataset o (E5) no se puede verificar. Cada trabajo incluido se contrastó con su DOI, la editorial o arXiv: \nTextoCompleto{} se leyeron completos y \nSoloResumen{} solo por resumen o fuentes secundarias. De \nOaTotal{} registros de OpenAlex y \nArxivTotal{} de arXiv, \nPasan{} pasaron el tamizaje por título y resumen y \nIncluidosBases{} se incluyeron tras el texto completo, más \nOtros{} de otras fuentes. El flujo PRISMA y la matriz completa (\nTotalIncluidos{} filas, con la URL consultada) se adjuntan como anexo.
+
+
+
+\subsection{Síntesis por enfoques}
+
+\textbf{A. Métricas de cambio y aprendizaje clásico.} El enfoque fundacional usa métricas del cambio con regresión logística \cite{Mockus2000,Kamei2013}. Sigue siendo difícil de superar: con partición cronológica, una regresión logística de una sola variable (líneas añadidas) iguala o supera en AUC a DeepJIT y CC2Vec \cite{Zeng2021}.
+
+\textbf{B. Aprendizaje profundo y LLM.} Las redes sobre el diff y el mensaje y los modelos preentrenados con métricas expertas \cite{Ni2022} marcan la cota alta de AUC-ROC, cerca de 0,88 en JIT-Defects4J. Tienen tres costos para este proyecto: son opacos, se evalúan sobre todo en Java y casi nunca reportan AUC-PR. En la industria, un LLM ya puntúa el riesgo de cada diff, pero su explicación (pesos de atención) convenció a pocos desarrolladores \cite{Liu2026}.
+
+\textbf{C. Interpretabilidad, reglas, difuso y evolutivo.} Los profesionales piden saber por qué se marca un cambio \cite{Jiarpakdee2021}. La respuesta dominante es explicar después una caja negra: LIME en JITLine \cite{JITLine2021}, reglas locales en PyExplainer \cite{PyExplainer2021}, commits similares en IRJIT \cite{Sahar2024}. Esas explicaciones post hoc no son formalmente correctas ni estables, lo que llevó a explicadores con garantías formales \cite{Yu2024FoX}. A nivel de commit, lo evolutivo y lo difuso aparecen solo como piezas auxiliares: evolución diferencial para SMOTE \cite{JITLine2021}, NSGA-II para los coeficientes de una regresión logística \cite{Chen2018MULTI}, búsqueda armónica para hiperparámetros \cite{Kang2021}, un algoritmo genético que pondera variables \cite{Mostafa2025} y Fuzzy C-Means que pondera la atención de una red multitarea \cite{Chen2025}. Los sistemas difusos y neuro-difusos con metaheurísticas existen, pero a nivel de módulo, sobre datos NASA, con particiones aleatorias y exactitud como métrica \cite{Aftab2023,Dey2025}. En \cite{Aftab2023}, por ejemplo, una exactitud del 91\,\% esconde una sensibilidad de 0,33. No se encontró un clasificador de reglas difusas para riesgo de commits.
+
+\textbf{D. Evaluación realista, deriva y latencia.} Los modelos JIT se degradan con el tiempo. En Qt y OpenStack el AUC cae entre 11 y 34 puntos en un año, y reentrenar recupera parte \cite{McIntosh2018}. La validación cruzada es optimista: JITBoost baja de 0,891 a 0,863 de AUC al pasar a partición temporal \cite{Shehab2023}. Desde 2023 la deriva en JIT es una línea activa: detectarla a partir de la interpretación del modelo \cite{Chitsazian2026}, reciclar modelos antiguos \cite{Patel2024}, actualizar de forma continua, que en Ubisoft supera al reentrenamiento periódico \cite{Olewicki2024}, o aprender en línea con espera de la etiqueta \cite{Tian2026}. Ninguno de estos trabajos reporta AUC-PR. La etiqueta llega tarde: el retraso mediano hasta descubrir un defecto va de 15 a 416 días según el proyecto \cite{Cabral2019}, y la espera elegida cambia la medida de desempeño hasta en 25\,\% \cite{Song2023}. La evidencia más cercana a este proyecto viene del propio kernel: al pasar de un conjunto balanceado artificialmente a la prevalencia real, el PR-AUC de ocho técnicas JIT de vulnerabilidades cae de 0,805 a 0,016 \cite{Nguyen2025}. Sobre la era de la IA, los PR de agentes no inducen más bugs que los humanos en un grado relevante, aunque sí cambian el tamaño y el tipo de los cambios \cite{Mazloomzadeh2026}. Es decir, la deriva esperada está en las covariables más que en la tasa de defectos.
+
+\textbf{E. La etiqueta.} SZZ es ruidoso: cerca de la mitad de las correcciones que identifica no lo son \cite{Herbold2022}; filtrarlas con un LLM reduce 21\,\% los commits inductores en PostgreSQL y hace la tarea más difícil de lo reportado \cite{Veras2025}. Sus variantes alcanzan F1 de 0,49--0,51 contra la verdad de \texttt{Fixes:} en Linux \cite{Lyu2024}. Los defectos latentes que aún no se han descubierto bajan la sensibilidad cerca de 90\,\% si no se recorta la cola reciente \cite{Falessi2022}.
+\subsection{Brecha}
+Los enfoques anteriores dejan cuatro vacíos que este proyecto atiende a la vez:
+\begin{enumerate}
+\item No hay un clasificador de reglas difusas ajustado con evolución para riesgo a nivel de commit. A ese nivel, lo difuso y lo evolutivo son auxiliares; como clasificador, se quedaron en módulos con particiones aleatorias.
+\item La deriva en JIT está demostrada y se estudia activamente \cite{McIntosh2018,Chitsazian2026,Patel2024}, pero no se ha medido con AUC-PR y prevalencia real en commits del kernel etiquetados con \texttt{Fixes:}.
+\item Nadie ha medido si la interpretabilidad intrínseca (pocas reglas legibles) cuesta desempeño o, al contrario, da robustez frente a la deriva.
+\item 2026 es el primer año en que el kernel pidió declarar la ayuda de IA \cite{KernelAdd}, aunque la etiqueta se retiró en octubre por su bajo uso \cite{KernelRemove}.
+\end{enumerate}
+
+\input{seccion-metodologia-datos}
+\input{seccion-metodologia-evaluacion}
+\input{seccion-experimentacion}
+\input{seccion-resultados}
+\input{seccion-iteracion2}
+\input{seccion-discusion}
+
+%=====================================================================
+\input{../comun/declaracion-ia}
+
+\section*{Anexo: reproducibilidad}
+{\footnotesize Código, cuaderno ejecutado, registro de experimentos y configuración congelada se entregan con el artículo. Entorno: Python 3.13, pandas 3.1.1, scikit-learn 1.9.1, numpy 2.5.4, scipy 1.18.1. Semillas: 11, 23, 37, 41, 53 (modelos), 2026 (búsqueda), 1 y 2 (\emph{bootstrap}). El cuaderno de Colab parte de la tabla anonimizada, verifica la huella SHA-256 de la prueba (\texttt{\cifHuella}\ldots) y reproduce las cifras de la Tabla~\ref{tab:prueba}. \pendiente{Enlace público de la tabla de datos.}\par}
+
+\input{generado/referencias}
+
+\end{document}

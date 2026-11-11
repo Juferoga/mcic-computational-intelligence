@@ -1,0 +1,102 @@
+{
+  "zenodo": {
+    "url": "https://zenodo.org/records/10654193",
+    "doi": "10.5281/zenodo.10654193",
+    "concept_doi": "10.5281/zenodo.10278755",
+    "doi_citado_en_README_github": "10.5281/zenodo.10287486",
+    "titulo": "A dataset of Linux Kernel commits",
+    "autores": "Michel Maes Bermejo, Jesus M. Gonzalez-Barahona, Micael Gallego, Gregorio Robles (Universidad Rey Juan Carlos)",
+    "version": "v3 (publicada 2024-02-13; modificada 2024-09-16 según la página)",
+    "licencia": "CC-BY-4.0",
+    "archivos": [
+      {
+        "nombre": "bfc_bic.csv",
+        "bytes": 18085078,
+        "tamano": "18.1 MB"
+      },
+      {
+        "nombre": "linux-2023-11-12.tar.gz",
+        "bytes": 3307847282,
+        "tamano": "3.3 GB"
+      },
+      {
+        "nombre": "linux-commits-2023-11-12.json.gz",
+        "bytes": 590023180,
+        "tamano": "590.0 MB"
+      },
+      {
+        "nombre": "LinuxCommitsDataset.zip",
+        "bytes": 18818426,
+        "tamano": "18.8 MB"
+      }
+    ],
+    "periodo": "Descripción: 'desde 2005 hasta 2023', >1.200.000 commits. La instantánea del repositorio es del 2023-11-12 (nombre de archivo). Fecha exacta del último commit: no confirmado (no se descargó el json.gz de 590 MB).",
+    "pares_bfc_bic": "Descripción: 'más de 90.000'. Verificado descargando bfc_bic.csv: 90.760 filas, 90.760 BFC únicos, 60.176 BIC únicos (una fila por BFC).",
+    "columnas_bfc_bic_csv": [
+      "BFC_hash",
+      "BIC_hash",
+      "BFC_comment",
+      "BIC_comment",
+      "daysDistance",
+      "commitDistance"
+    ],
+    "incluye_fechas": "No. El CSV no trae fechas de commit; solo daysDistance (días entre BIC y BFC) y commitDistance. Las fechas hay que unirlas desde linux-commits-2023-11-12.json.gz (Perceval) o desde un clon de git.",
+    "estadisticas_verificadas": "daysDistance: min 0, mediana 203, max 6697; el 35,96 % de los pares tiene daysDistance <= 90.",
+    "articulo_asociado": "La página de Zenodo no lista artículo (sección de citas vacía) y el README del repositorio no da una cita completa. NO es el dataset de Lyu et al.: ese (KFC, 76.046 BFC, oct-2013 a nov-2022, hasta v6.1-rc5) está en figshare, DOI 10.6084/m9.figshare.23889792.v2.",
+    "articulo_lyu_cita": "Yunbo Lyu, Hong Jin Kang, Ratnadira Widyasari, Julia Lawall, David Lo. 'Evaluating SZZ Implementations: An Empirical Study on the Linux Kernel'. IEEE Transactions on Software Engineering, 50(9):2219-2239, 2024. DOI 10.1109/TSE.2024.3406718. Preprint arXiv:2308.05060. (metadatos verificados en Crossref; publicado en septiembre de 2024).",
+    "repositorio_reproduccion": "https://github.com/codeurjc/LinuxCommitsDataset"
+  },
+  "fiabilidad_fixes": {
+    "fuente": "Lyu et al. (TSE 2024), arXiv:2308.05060v2, sección III (validación del dataset KFC)",
+    "url": "https://arxiv.org/html/2308.05060v2",
+    "cifra": "81 % (317 de 383)",
+    "detalle": "Muestra aleatoria de 383 de 76.046 BFC (95 % de confianza, 5 % de margen), etiquetada por tres anotadores. 81 % en la categoría 'Yes' (el BIC del Fixes: es la causa del bug); 4 % 'Introducing a new function', 2 % 'Affected by other changes', 3 % 'Partial fix', 2 % 'No', 7 % 'Not sure'.",
+    "matiz": "La validación es sobre el dataset KFC de Lyu (figshare), no sobre el bfc_bic.csv de Zenodo; se usa como proxy de la fiabilidad del trailer Fixes:. Es más preciso decir '81 % confirmados, 2 % incorrectos, 17 % ambiguos o parciales' que '81 % de fiabilidad'."
+  },
+  "assisted_by": {
+    "existe": "Sí, existió en la documentación oficial, pero fue ELIMINADO en octubre de 2026.",
+    "introduccion": "Commit 78d979db6cef 'docs: add AI Coding Assistants documentation' (Sasha Levin; autor 2025-12-23, integrado 2026-01-06). Crea Documentation/process/coding-assistants.rst. Primera versión que lo contiene: v7.0-rc1 (según la lista de tags de GitHub).",
+    "formato_original": "Assisted-by: AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]; las herramientas opcionales son de análisis especializado (coccinelle, sparse, smatch, clang-tidy) y no se listan git, gcc, make ni editores. Ejemplo oficial: 'Assisted-by: Claude:claude-3-opus coccinelle sparse'.",
+    "cambio_formato": "Commit 816d9992d9ed 'coding-assistants: simplify attribution' (Christian Brauner, integrado 2026-08-03, en v7.3): el formato pasa a 'Assisted-by: LLM [TOOL1] [TOOL2]', ya sin nombre de modelo.",
+    "eliminacion": "Commit 1e035297ffda 'docs: remove Assisted-by references' (Sasha Levin, integrado 2026-10-14, en v7.4-rc1): quita la sección de atribución de coding-assistants.rst y de submitting-patches.rst, y saca Assisted-by: de checkpatch.pl. El mensaje del commit dice que aprox. el 10 % de los 18.533 commits no-merge de 7.3 (hasta -rc7) llevaba el trailer, mientras el uso real de LLM es mucho mayor; en el Maintainers Summit 2026 se decidió eliminarlo y pedir que el uso de herramientas se describa en la cover letter.",
+    "documento_actual": "La versión actual de coding-assistants.rst (master y docs.kernel.org) ya no menciona Assisted-by; mantiene la prohibición de que los agentes añadan Signed-off-by.",
+    "urls": [
+      "https://github.com/torvalds/linux/commit/78d979db6cef557c171d6059cbce06c3db89c7ee",
+      "https://github.com/torvalds/linux/commit/816d9992d9ed434ec52cfbd63080d518e535a41b",
+      "https://github.com/torvalds/linux/commit/1e035297ffdadf2184c3c773b8c098e372324aaf",
+      "https://docs.kernel.org/_sources/process/coding-assistants.rst.txt"
+    ]
+  },
+  "aidev": {
+    "cita": "Hao Li, Haoxiang Zhang, Ahmed E. Hassan. 'AIDev: Studying AI Coding Agents on GitHub'. arXiv:2602.09185 [cs.SE], 9 feb 2026. MSR '26 (23rd International Conference on Mining Software Repositories), 13-14 abril 2026, Río de Janeiro. DOI ACM relacionado: 10.1145/3793302.3797249.",
+    "url_paper": "https://arxiv.org/abs/2602.09185",
+    "contenido": "932.791 PR de agentes (OpenAI Codex, Devin, GitHub Copilot, Cursor, Claude Code) en 116.211 repositorios y 72.189 desarrolladores; subconjunto curado de 33.596 PR de 2.807 repos con más de 100 estrellas, con revisiones, diffs por commit e issues. Corte: 1 de agosto de 2025.",
+    "hosting": {
+      "huggingface": "https://huggingface.co/datasets/hao-li/AIDev (licencia CC-BY-4.0, modificado por última vez 2026-10-21)",
+      "zenodo": "https://doi.org/10.5281/zenodo.16899501 (resuelve a la versión 10.5281/zenodo.16919272, CC-BY-4.0, 2025-11-05)",
+      "github": "https://github.com/SAILResearch/AI_Teammates_in_SE3"
+    },
+    "version_previa": "arXiv:2507.15003 (julio 2025), 456.535 PR en 61.453 repositorios (no se abrió; viene de los resultados de búsqueda).",
+    "nota": "AIDev trae PR de GitHub, no commits del kernel, y no tiene etiqueta Fixes: a 90 días; para usarlo como plan B hay que redefinir el riesgo (p. ej. PR revertido o rechazado)."
+  },
+  "veredicto": "El plan A es viable esta semana para la parte histórica, con dos ajustes. (1) Entrenamiento: bfc_bic.csv (18 MB, CC-BY-4.0) da 90.760 pares y daysDistance, así que la etiqueta 'citado por un Fixes: en <= 90 días' sale directo (36 % de los pares cumple). Faltan las fechas y las features del commit, que hay que sacar del json.gz (590 MB) o de un clon de git, y los negativos (commits nunca citados) hay que armarlos con la lista completa de commits. La cifra del 81 % es de Lyu et al. sobre su dataset KFC, no sobre el de Zenodo. (2) Prueba 2026 con Assisted-by: es el riesgo principal. El trailer existió entre v7.0-rc1 (enero 2026) y su eliminación en v7.4-rc1 (14-oct-2026); desde agosto 2026 el formato es solo 'Assisted-by: LLM' (sin modelo) y, según el propio kernel, apenas ~10 % de los commits de 7.3 lo llevaba, con subdeclaración reconocida. Por eso 'sin Assisted-by' no significa 'sin IA', lo que contamina el grupo de control. Además, con el corte al 2026-11-06, la etiqueta a 90 días solo se observa completa para commits anteriores a ~2026-08-08, y hay un hueco de datos de nov-2023 a 2026 que hay que minar con git. Riesgos: sesgo de etiquetado, ventana de 90 días censurada, tiempo de minado con git y que el trailer ya no exista. El plan B (AIDev) está disponible y es CC-BY-4.0, pero cambia la unidad de análisis (PR de GitHub).",
+  "fuentes": [
+    "https://zenodo.org/records/10654193",
+    "https://zenodo.org/api/records/10654193",
+    "https://zenodo.org/api/records/10654193/files/bfc_bic.csv/content",
+    "https://github.com/codeurjc/LinuxCommitsDataset",
+    "https://arxiv.org/html/2308.05060v2",
+    "https://doi.org/10.48550/arXiv.2308.05060",
+    "https://doi.org/10.6084/m9.figshare.23889792.v2",
+    "https://github.com/torvalds/linux/commit/78d979db6cef557c171d6059cbce06c3db89c7ee",
+    "https://github.com/torvalds/linux/commit/816d9992d9ed434ec52cfbd63080d518e535a41b",
+    "https://github.com/torvalds/linux/commit/1e035297ffdadf2184c3c773b8c098e372324aaf",
+    "https://raw.githubusercontent.com/torvalds/linux/master/Documentation/process/coding-assistants.rst",
+    "https://docs.kernel.org/_sources/process/coding-assistants.rst.txt",
+    "https://arxiv.org/abs/2602.09185",
+    "https://arxiv.org/html/2602.09185v1",
+    "https://huggingface.co/datasets/hao-li/AIDev",
+    "https://zenodo.org/api/records/16899501",
+    "https://api.crossref.org/works/10.1109/TSE.2024.3406718"
+  ]
+}
