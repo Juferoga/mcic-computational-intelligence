@@ -1,1 +1,8 @@
-{ "taller": 6, "demo": "series" }
+{
+  "taller": 6,
+  "demo": "series",
+  "carpeta": "2.Talleres/6.Taller",
+  "python": "3.12",
+  "paquetes": ["numpy", "pandas", "matplotlib", "scipy", "statsmodels", "tensorflow", "jupyterlab"],
+  "presentacion": "presentacion/index.html?ligero"
+}

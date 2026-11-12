@@ -19,27 +19,20 @@ Todo este guion se ejecutó completo antes de escribirlo: el cuaderno corre en *
 
 ## 0. Antes de grabar (sin cámara)
 
-1. Escena del Taller 6:
+1. **Un solo comando deja todo listo** (en este Mac o en el pc143):
    ```bash
-   cd ~/repos/ud/maestria/mcic/semestre-2/mcic-computational-intelligence/grabacion
-   cp talleres/taller-6/tareas.md tareas.md
-   cp talleres/taller-6/taller.json overlay/taller.json
-   printf 'inicio,fin,duracion_s,fuente\n' > registro_claude.csv
+   cd ~/repos/ud/maestria/mcic/semestre-2/mcic-computational-intelligence
+   git pull
+   ./grabacion/preparar.sh 6
    ```
-   La barra debe decir "Taller 6 — Series de tiempo" y la pausa muestra la animación de pronóstico.
-2. Carpeta del taller limpia:
-   ```bash
-   cd ../2.Talleres/6.Taller && ls
-   ```
-   👀 Debe salir `bibliografia` y `presentacion`.
-3. **Tus hipótesis en la presentación** (diapositiva 8). Abre `2.Talleres/6.Taller/presentacion/plan_taller6.tex`, busca las 4 líneas `Creo que: \ldots` y escribe **tu** respuesta en cada una. Luego compila:
-   ```bash
-   cd ~/repos/ud/maestria/mcic/semestre-2/mcic-computational-intelligence/2.Talleres/6.Taller/presentacion
-   tectonic -Z search-path=$HOME/repos/ud/maestria/mcic/.UniversidadDistrital-manual-marca/plantillas-latex plan_taller6.tex
-   ```
-   Son tus predicciones: escríbelas tú aunque no estés seguro. Equivocarse y explicar por qué es lo que más se aprende.
-4. Ventanas en el **Samsung**: navegador a la izquierda, terminal con Claude a la derecha, zoom ⌘+ en ambas. En el **MacBook**: este guion.
-5. OBS → **Iniciar grabación** → ⌃⌥0 (Inicio) mientras arrancas, luego ⌃⌥1 (Código). Mira que el **REC esté en rojo**.
+   Hace `git pull`, pone la escena del Taller 6 (barra, animación de pronóstico y registro de Claude en cero), crea `.venv` con Python 3.12, instala las librerías, escribe `requirements.txt` y abre OBS, este guion en VS Code, la presentación y Jupyter Lab.
+   👀 Al final dice **Listo para grabar** y muestra tensorflow 2.21 y statsmodels 0.15. La primera vez en un PC tarda unos minutos, porque TensorFlow es pesado.
+   Si OBS ya estaba abierto y la barra se ve vieja: clic derecho en la fuente del navegador → **Actualizar**.
+2. **Tus hipótesis en la presentación** (diapositiva 8). En la presentación que abrió el script, ve a la 8 (tecla `8`), **haz clic en cada "Creo que…" y escribe tu respuesta**. Se guardan solas en ese navegador: no la abras en otro navegador ni en ventana privada, porque ahí no estarán. Son tus predicciones: escríbelas tú, aunque no estés seguro. Equivocarse y explicar por qué es lo que más se aprende.
+3. Ventanas en el **monitor que graba OBS**: navegador a la izquierda (presentación y Jupyter), terminal con Claude a la derecha, zoom en ambas. En la **otra pantalla**: este guion.
+4. OBS → **Iniciar grabación** → Inicio (⌃⌥0) mientras arrancas, luego Código (⌃⌥1). Mira que el **REC esté en rojo**.
+
+**En Linux (pc143)** los atajos de este guion con ⌘ son con **Ctrl**: marcar tarea = Ctrl+⇧+→, pestaña nueva = Ctrl+⇧+T, vista previa del guion = Ctrl+⇧+V.
 
 ---
 
@@ -66,56 +59,59 @@ Abre `bibliografia/enunciado-classroom.md` y luego `bibliografia/propuesto/Talle
 ✅ ⌘⇧→
 
 ### Paso 3 · Presentación del plan (~6 min)
-Abre `2.Talleres/6.Taller/presentacion/plan_taller6.pdf` en pantalla completa (⌃⌘F). Avanza con →.
+Ve a la pestaña de la presentación (`presentacion/index.html?ligero`; el `?ligero` deja el fondo quieto y la hace más liviana), vuelve a la 1 (tecla `1`) y pon pantalla completa con **F**. Avanza con → (en la 4 y la 6, → primero va revelando cosas y luego pasa).
 
-**Truco para no leer:** cada diapositiva tiene una **idea en negrita**. Dila primero con tus palabras.
+**Para hablar con las manos:** en la 3 pasa el mouse por la serie (sale la fecha y el valor de cada día) y toca **Viento encima**. En la 4, cada → suma un pliegue; toca uno para ver sus fechas. En la 5 cambia entre **lazo abierto y lazo cerrado**, apaga el clima (pasa a NAR) y cambia retardos y neuronas: el número de entradas y de pesos cambia en vivo. En la 6 toca un paso para ver cómo lo verifico. Teclas: **L** láser, **D** dibujar (**C** borra), **Z** foco, **B** pausa, **?** ayuda.
+
+**Truco para no leer:** cada diapositiva tiene una **idea en negrita** abajo. Dila primero con tus palabras.
 
 ---
 **Diapositiva 1 · Portada**
-> **Antes de escribir código, muestro mi plan.** Así, cuando programe, ya sé qué hago y por qué.
+> **Antes de escribir código, muestro mi plan.** Así, cuando programe, ya sé qué hago y por qué. La animación es la serie real: lo azul es la historia que el modelo conoce y lo naranja, los 24 días que tiene que pronosticar.
 
 ---
 **Diapositiva 2 · ¿Qué pide el taller?**
 > **El objetivo es comparar un modelo clásico con una red NARX y decidir con evidencia estadística si la red gana.**
-> La plantilla ya trae todo lo de evaluación, y eso no se toca. Yo hago los tres TODO de la tarjeta roja. Y la regla de oro: la prueba externa se corre una sola vez, con los hiperparámetros ya elegidos.
+> Hago los tres TODO: el modelo clásico, la red y las rejillas. La plantilla ya trae todo lo de evaluación, y eso no se toca. Y la regla de oro: la prueba externa se corre una sola vez, con los hiperparámetros ya elegidos.
 
 ---
 **Diapositiva 3 · Los datos**
-> **Es la contaminación del aire en Beijing: PM2.5 diario, con el clima como variables exógenas.**
-> Son 1461 días, de 2013 a 2017. El 80 % es desarrollo, donde elijo todo, y el 20 % final es la prueba externa.
-> Escogí Beijing porque probé los tres conjuntos: es diario, corre rápido en CPU, y el clima tiene una relación física con la contaminación. **El viento la dispersa.** Ahí es donde una NARX debería aportar.
+> **Es la contaminación del aire en Beijing: PM2.5 diario, con el clima como variables exógenas.** (Pasa el mouse por la serie.)
+> Son 1461 días, de 2013 a 2017. Los picos son los episodios de smog del invierno. El 80 % es desarrollo, donde elijo todo, y lo dorado es la prueba externa.
+> Escogí Beijing porque probé los tres conjuntos: es diario, corre rápido en CPU, y el clima tiene una relación física con la contaminación. (Toca **Viento encima**.) **Cuando sube el viento, baja el PM2.5: el viento la dispersa.** Ahí es donde una NARX debería aportar.
 > Un supuesto, igual que en el Taller 1: el clima futuro se toma como conocido. En la vida real vendría de un pronóstico con su propio error.
 
 ---
-**Diapositiva 4 · Origen móvil**
-> **Nunca se baraja el tiempo.** (Señala las barras.)
-> Cada pliegue entrena con todo lo anterior a su origen y pronostica los 24 días siguientes. Son cinco pliegues dentro del desarrollo. Con eso elijo hiperparámetros; la prueba externa, en dorado, queda aparte.
+**Diapositiva 4 · Origen móvil** (→ suma un pliegue a la vez)
+> **Nunca se baraja el tiempo.**
+> Cada pliegue entrena con todo lo anterior a su origen y pronostica los 24 días siguientes, en rojo. Son cinco pliegues dentro del desarrollo (toca uno para ver sus fechas). Con eso elijo hiperparámetros. (Último →.) La prueba externa son 12 orígenes sobre los 293 días finales, y se corre una sola vez.
 > Mido RMSE, MAE y sobre todo MASE: si es menor que 1, el modelo le gana al ingenuo estacional. Y Diebold-Mariano me dice si la diferencia entre dos modelos es significativa o es suerte.
 
 ---
 **Diapositiva 5 · Los modelos**
 > **Tres modelos con el mismo contrato: reciben la historia y devuelven 24 valores.**
-> El ingenuo repite la última semana. El clásico es un SARIMAX sobre el logaritmo, con el clima como regresor lineal; su orden lo elijo con el diagnóstico y con AIC y BIC. La NARX tiene una capa oculta tanh, recibe los últimos días de PM2.5 y el clima; se entrena en lazo abierto y pronostica en lazo cerrado, o sea, sus predicciones se vuelven sus entradas.
-> **Sin fuga**: el escalado se ajusta dentro de cada llamada, solo con el entrenamiento. Y corro la misma red sin clima, la NAR, para ver cuánto aporta el clima.
+> El ingenuo repite la última semana. El clásico es un SARIMAX sobre el logaritmo, con el clima como regresor lineal; su orden lo elijo con el diagnóstico y con AIC y BIC.
+> La NARX (señala el diagrama) recibe los últimos días de PM2.5 y el clima, pasa por una capa oculta tanh y da el día siguiente. (Toca **lazo cerrado**.) **Se entrena en lazo abierto y pronostica en lazo cerrado**: su pronóstico vuelve como entrada, 24 veces, y el error se puede acumular. (Cambia retardos y neuronas.) Estos son justo los niveles de mi rejilla. (Apaga el clima.) Y esta es la NAR, la misma red sin clima, para medir cuánto aporta.
+> **Sin fuga**: el escalado se ajusta dentro de cada llamada, solo con el entrenamiento.
 
 ---
-**Diapositiva 6 · Plan de trabajo**
-> **Para cada bloque ya sé cómo voy a verificar que quedó bien.**
-> Primero corro la plantilla sin cambios. Después el clásico, la red, las rejillas, la prueba externa y Diebold-Mariano. La rejilla de la red son 135 entrenamientos, unos 10 minutos. Y un commit por bloque.
+**Diapositiva 6 · Plan paso a paso** (→ revela cada paso)
+> **Para cada bloque ya sé cómo voy a verificar que quedó bien.** (Toca un paso.)
+> Primero corro la plantilla sin cambios. Después el diagnóstico del clásico, las dos funciones, las rejillas, la prueba externa y Diebold-Mariano. La rejilla de la red son 135 entrenamientos, unos 10 minutos. Y un commit por bloque.
 
 ---
 **Diapositiva 7 · Lo que aprendí**
-> **Cuido cuatro cosas desde el principio:** alcance justo, entrega autocontenida, el nombre Taller 6 y la IA declarada.
+> **Cuido cinco cosas desde el principio:** alcance justo, entrega que corre sola, el nombre Taller 6, la IA declarada y conclusiones con mis números.
 
 ---
 **Diapositiva 8 · Mis hipótesis**
-> **Antes de ejecutar, apuesto qué va a pasar.** (Lee cada pregunta y di tu respuesta en azul.)
+> **Antes de ejecutar, apuesto qué va a pasar.** (Lee cada pregunta y lo que escribiste.)
 
 ---
 **Diapositiva 9 · Orden del video**
-> **Ahora sigue el entorno, la plantilla sin cambios, los modelos, las rejillas y la prueba externa. Al final comparo mis hipótesis con los resultados.**
+> **Ahora sigue el entorno, la plantilla sin cambios, los modelos, las rejillas y la prueba externa. Al final vuelvo a esta presentación y comparo mis hipótesis con los resultados.**
 
-(Sal de la pantalla completa con Esc.)
+(Las diapositivas 10 y 11 son para el final. Sal de la pantalla completa con **F** o **Esc**.)
 
 ✅ ⌘⇧→
 
@@ -139,35 +135,34 @@ git commit -m "taller 6: plantilla del profesor sin resolver y plan"
 
 ✅ ⌘⇧→
 
-### Paso 5 · Entorno con uv
+### Paso 5 · El entorno
+El script `preparar.sh` ya creó el entorno antes de grabar. Aquí lo muestras y lo activas.
 ⌨️ Escribe:
 ```bash
-uv venv --python 3.12
 source .venv/bin/activate
-```
-👀 `Creating virtual environment at: .venv` y el prompt cambia.
-
-✅ ⌘⇧→
-
-### Paso 6 · Instalar librerías
-⌨️ Escribe:
-```bash
-uv pip install numpy pandas matplotlib scipy statsmodels tensorflow jupyterlab
-uv pip freeze > requirements.txt
+python --version
 ```
 🎙 Di:
-> statsmodels tiene el SARIMAX, las pruebas ADF, KPSS y Ljung-Box, y la descomposición STL. TensorFlow, con Keras, es para la red, igual que en el Taller 1 resuelto del profe. Todo corre en CPU.
+> Antes de grabar corrí `grabacion/preparar.sh 6`: trae lo último del repositorio, pone esta escena, crea el entorno con uv en Python 3.12, instala las librerías y abre Jupyter. Así no se me va el video esperando instalaciones.
 
-👀 Debe instalar tensorflow 2.21 y statsmodels 0.15 (tarda un minuto).
+👀 `Python 3.12.x` y el prompt con `(.venv)`.
 
 ✅ ⌘⇧→
 
-### Paso 7 · Abrir Jupyter
+### Paso 6 · Las librerías
 ⌨️ Escribe:
 ```bash
-jupyter lab
+grep -iE "^(numpy|pandas|statsmodels|tensorflow|jupyterlab)==" requirements.txt
 ```
-Abre `taller6_series_tiempo.ipynb`. Arriba de todo, inserta una celda **Markdown** (en la primera celda: `A`, luego `M`):
+🎙 Di:
+> statsmodels tiene el SARIMAX, las pruebas ADF, KPSS y Ljung-Box, y la descomposición STL. TensorFlow, con Keras, es para la red, igual que en el Taller 1 resuelto del profe. Todo corre en CPU. El `requirements.txt` va en la entrega para que se pueda reproducir.
+
+👀 Debe salir tensorflow 2.21 y statsmodels 0.15.
+
+✅ ⌘⇧→
+
+### Paso 7 · Abrir el cuaderno en Jupyter
+Jupyter Lab ya está abierto en el navegador (lo abrió el script). Si `taller6_series_tiempo.ipynb` no aparece en la lista de la izquierda, dale al botón de recargar de esa lista. Ábrelo y, arriba de todo, inserta una celda **Markdown** (en la primera celda: `A`, luego `M`):
 ```markdown
 **Estudiante:** Juan Felipe Rodríguez Galindo · 20261595004 — Taller 6 (series de tiempo), plantilla Python
 ```
@@ -594,13 +589,13 @@ git commit -m "taller 6: prueba externa, residuos, Diebold-Mariano y resultados"
 ## Cierre
 
 ### Paso 27 · Hipótesis contra resultados
-Vuelve a la diapositiva 8 (o léela de tu `.tex`). Inserta al final del cuaderno una celda **Markdown** con, para cada hipótesis, **lo que creías y lo que salió**, con tus palabras. Los datos:
+Vuelve a la presentación, **diapositiva 10** (tecla `0`), en pantalla completa (**F**). Ahí sale lo que escribiste en la 8. Para cada hipótesis, **escribe en vivo lo que salió** y marca **Acerté**, **A medias** o **No acerté**; arriba se va sumando el puntaje. Después copia lo mismo en una celda **Markdown** al final del cuaderno, con tus palabras, para que quede en la entrega. Los datos:
 1. NARX contra clásico en la prueba: MASE 0.41 contra 0.61, RMSE 49.6 contra 68.5; DM p = 0.026.
 2. Clima: NARX 0.41 contra NAR 0.68; DM p = 0.053 (no significativo al 5 %). La NAR no le gana ni al clásico.
 3. dy contra neuronas: dy = 28 empeora de ~40 a ~45–50; las neuronas mueven 1 a 3 puntos.
 4. DM: significativo contra el clásico, no contra la NAR.
 
-🎙 Dilo en voz alta, hipótesis por hipótesis.
+🎙 Dilo en voz alta, hipótesis por hipótesis. Si una falló, dilo sin problema: explicar por qué falló es lo que más vale.
 
 ✅ ⌘⇧→
 
@@ -615,11 +610,12 @@ Debajo, otra celda **Markdown**. Las conclusiones **con tus palabras**, una lín
 Y la declaración (el profe pide herramienta, partes y verificación):
 ```markdown
 ## Declaración de uso de IA
-Usé Claude (Anthropic). Comparó los tres datasets, preparó la guía de pasos y la presentación del plan, y propuso el código de los TODO-EQUIPO (modelo clásico, NARX y rejillas) y de las celdas añadidas; yo lo escribí, lo ejecuté y expliqué cada parte en el video, y verifiqué las salidas contra la guía. Las hipótesis y las conclusiones las redacté yo. No se modificó el motor de evaluación. La versión en MATLAB no se desarrolló porque no tengo MATLAB.
+Usé Claude (Anthropic). Comparó los tres datasets, preparó la guía de pasos, la presentación del plan y el script que prepara el entorno, y propuso el código de los TODO-EQUIPO (modelo clásico, NARX y rejillas) y de las celdas añadidas; yo lo escribí, lo ejecuté y expliqué cada parte en el video, y verifiqué las salidas contra la guía. Las hipótesis y las conclusiones las redacté yo. No se modificó el motor de evaluación. La versión en MATLAB no se desarrolló porque no tengo MATLAB.
 ```
 ✅ ⌘⇧→
 
 ### Paso 29 · Cierre del video (~1 min)
+En la presentación pasa a la **11** (→): "A programar" con tu nombre.
 🎙 Di:
 > Eso es el Taller 6: los tres TODO resueltos, la sensibilidad con tres semillas, la prueba externa corrida una sola vez y Diebold-Mariano. La NARX le gana al clásico de forma significativa, con la advertencia de que usa el clima real. El informe lo hago aparte con estos resultados. Gracias.
 
