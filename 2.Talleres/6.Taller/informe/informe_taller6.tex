@@ -20,9 +20,9 @@
 
 \section{Introducción}
 
-El objetivo del taller es comparar un modelo estadístico clásico con una red neuronal autorregresiva no lineal sobre una serie real, y decidir con evidencia estadística si la red pronostica mejor. Usé la plantilla del curso, \textit{TallerST\_Plantilla.ipynb}, que ya trae la carga, la validación del conjunto, el diagnóstico, la validación cruzada de origen móvil, las métricas, el análisis de residuos y la prueba de Diebold-Mariano. Resolví sus tres \texttt{TODO-EQUIPO}: \texttt{modelo\_clasico}, \texttt{modelo\_neuronal} y \texttt{REJILLAS}. No modifiqué el motor de evaluación y ejecuté la prueba externa una sola vez, al final. Desarrollé solo la versión en Python; la versión en MATLAB no la hice porque no tengo MATLAB.
+El objetivo del taller es comparar un modelo estadístico clásico con una red neuronal autorregresiva no lineal sobre una serie real, y decidir con evidencia estadística si la red pronostica mejor. Usé la plantilla del curso, que ya trae la carga, la validación del conjunto, el diagnóstico, la validación cruzada de origen móvil, las métricas, el análisis de residuos y la prueba de Diebold-Mariano. Resolví sus tres \texttt{TODO-EQUIPO}: \texttt{modelo\_clasico}, \texttt{modelo\_neuronal} y \texttt{REJILLAS}. No modifiqué el motor de evaluación y ejecuté la prueba externa una sola vez, al final. Desarrollé solo la versión en Python; la versión en MATLAB no la hice porque no tengo MATLAB.
 
-Elegí el conjunto \textit{Beijing Multi-Site Air Quality} (UCI), estación Aotizhongxin: la contaminación por partículas finas PM2.5 se relaciona físicamente con el clima (el viento la dispersa), que es el escenario en que una NARX con variables exógenas debería aportar. Entregables: el cuaderno \texttt{taller6\_series\_tiempo.ipynb} ejecutado con sus salidas, la carpeta \texttt{resultados/}, \texttt{requirements.txt} y este informe.
+Elegí el conjunto \textit{Beijing Multi-Site Air Quality} (UCI), estación Aotizhongxin: la contaminación por partículas finas PM2.5 se relaciona físicamente con el clima (el viento la dispersa), que es el escenario en que una NARX con variables exógenas debería aportar. El uso de inteligencia artificial se declara en la sección~\ref{sec:ia}.
 
 \section{Marco teórico}
 
@@ -34,7 +34,21 @@ Elegí el conjunto \textit{Beijing Multi-Site Air Quality} (UCI), estación Aoti
 \end{equation*}
 que premian la verosimilitud $L$ y castigan los $k$ parámetros (BIC con más fuerza). La prueba de Ljung-Box verifica si a los residuos les queda autocorrelación.
 
-\textbf{NAR y NARX.} Una red NAR aproxima $y_t = f(y_{t-1},\dots,y_{t-d_y}) + \varepsilon_t$ con un perceptrón multicapa; la NARX agrega las exógenas, $f(y_{t-1},\dots,y_{t-d_y},\, x_t,\dots,x_{t-d_x})$. Se entrena en \textbf{lazo abierto}, con los retardos reales como entradas, y pronostica en \textbf{lazo cerrado}: cada pronóstico vuelve como retardo del paso siguiente, por lo que el error puede acumularse con el horizonte.
+\textbf{NAR y NARX.} Una red NAR aproxima $y_t = f(y_{t-1},\dots,y_{t-d_y}) + \varepsilon_t$ con un perceptrón multicapa; la NARX agrega las exógenas, $f(y_{t-1},\dots,y_{t-d_y},\, x_t,\dots,x_{t-d_x})$. Se entrena en \textbf{lazo abierto}, con los retardos reales como entradas, y pronostica en \textbf{lazo cerrado}: cada pronóstico vuelve como retardo del paso siguiente, por lo que el error puede acumularse con el horizonte (figura~\ref{fig:narx}).
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.38\linewidth]{../figuras/web_narx_realimentacion.png}
+\caption{Estructura de una NARX: la salida $Y(t)$ se calcula con los retardos de la entrada $X(t)$ y de la propia salida, que se realimenta (Manikandan y Subha, 2016, CC BY).}\label{fig:narx}
+\end{figure}
+
+\textbf{Origen móvil.} La validación de series de tiempo nunca baraja el orden: cada pliegue entrena solo con lo anterior a su origen y evalúa los $H$ pasos siguientes (figura~\ref{fig:origen}; Bergmeir y Benítez, 2012; Hyndman y Athanasopoulos, 2021).
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.44\linewidth]{../figuras/web_origen_movil.png}
+\caption{Evaluación de origen móvil con pronóstico de varios pasos: en cada fila, los puntos azules entrenan y el naranja se evalúa; los grises quedan sin usar (adaptado de Hyndman y Athanasopoulos, 2021, §5.10, CC BY-NC-SA 4.0). En el taller el horizonte es de 24 días.}\label{fig:origen}
+\end{figure}
 
 \textbf{Evaluación.} Con errores $e_t = y_t - \hat y_t$, se usan $\mathrm{RMSE}=\sqrt{\overline{e^2}}$, $\mathrm{MAE}=\overline{|e|}$ y el error absoluto escalado $\mathrm{MASE} = \mathrm{MAE}/\mathrm{MAE}_{\text{ingenuo}}$, donde el denominador es el error del ingenuo estacional $\hat y_t = y_{t-s}$ en el desarrollo; $\mathrm{MASE}<1$ indica un modelo mejor que repetir la semana anterior. La prueba de Diebold-Mariano contrasta $H_0: \mathrm{E}[d_t]=0$ con $d_t = e_{1,t}^2 - e_{2,t}^2$, con la varianza corregida por la autocorrelación hasta el horizonte $h$ y el ajuste de Harvey, Leybourne y Newbold para muestras pequeñas.
 
@@ -167,6 +181,35 @@ NARX frente a NAR & $-1{,}943$ & 0,053 \\
 
 \textbf{Costo e interpretabilidad.} La red tarda casi 10 veces más que el clásico en la prueba (62 s frente a 6 s) y sus pesos no se interpretan; el ARIMAX, en cambio, cuantifica el efecto de cada variable del clima. Es un intercambio: precisión con la NARX, explicación con el clásico.
 
+\section{Contraste con una segunda implementación}\label{sec:contraste}
+
+Para comprobar que el resultado no depende de mis decisiones, lo contrasté con una segunda implementación hecha por separado, con otras elecciones y con apoyo de Claude (sección~\ref{sec:ia}). La tabla~\ref{tab:contraste} compara la prueba externa de ambas.
+
+\begin{table}[!htbp]
+\centering
+\caption{Prueba externa de las dos implementaciones (RMSE en $\mu$g/m$^3$).}\label{tab:contraste}
+\small
+\begin{tabular}{lcc}
+\toprule
+& Este informe & Segunda implementación \\
+\midrule
+Clásico & ARIMAX$(1,1)$, escala log & SARIMAX$(3,3)(0,0,1)_7$, escala original \\
+NARX & $d_y=7$, 20 neuronas & $d_y=3$, 5 neuronas \\
+\midrule
+RMSE ingenuo & 96,2 & 96,2 \\
+RMSE clásico & 68,5 & 61,3 \\
+RMSE NARX & 49,6 & 45,8 \\
+RMSE NAR & 76,0 & 74,2 \\
+DM clásico frente a NARX ($p$) & 0,026 & 0,029 \\
+DM NARX frente a NAR ($p$) & 0,053 & 0,073 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las conclusiones coinciden: el ingenuo da exactamente lo mismo, la NARX supera al clásico de forma significativa, la NAR no supera al clásico, y la diferencia entre NARX y NAR queda en el borde de la significancia. Los valores absolutos cambian porque el clásico es sensible a cómo se ajusta: en la segunda implementación, el SARIMAX logarítmico con los regresores escalados no convergía del todo (RMSE de validación de 77,2) y con los regresores sin escalar daba 52,5, mientras que en escala original daba 47,1. Es decir, el clásico de este informe, en logaritmo, probablemente es algo conservador: con un clásico mejor ajustado la brecha entre el clásico y la NARX se reduce (de 18,9 a 15,5 $\mu$g/m$^3$ de RMSE, aunque con otros hiperparámetros de la red), sin cambiar la conclusión.
+
+\textbf{Límites.} (i) El clima futuro se toma como conocido, lo que favorece a los modelos con regresores. (ii) La prueba externa tiene 293 días y 12 orígenes: el RMSE por horizonte resume solo 12 puntos, y Diebold-Mariano se aplicó sobre los errores agrupados de todos los orígenes, que no son independientes. (iii) Varios óptimos quedaron en el borde de la rejilla ($d_y=7$, $p=q=1$), por lo que podría haber valores mejores fuera de ella. (iv) La red de la prueba usa una sola semilla y no se midió su efecto en la prueba externa.
+
 \section{Conclusiones}
 
 \begin{enumerate}
@@ -176,5 +219,17 @@ NARX frente a NAR & $-1{,}943$ & 0,053 \\
 \item En la prueba externa la NARX supera al clásico (MASE 0,411 frente a 0,610) y la diferencia es significativa ($p=0{,}026$); sin clima, la NAR no supera al clásico.
 \item La ventaja de la NARX depende del clima futuro conocido y cuesta casi 10 veces más tiempo de cómputo, con menos interpretabilidad que el ARIMAX.
 \end{enumerate}
+
+\section*{Referencias}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item Bergmeir, C. y Benítez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. \textit{Information Sciences}, 191, 192--213.
+\item Hyndman, R. J. y Athanasopoulos, G. (2021). \textit{Forecasting: Principles and Practice} (3.ª ed.). OTexts. \url{https://otexts.com/fpp3/}
+\item Manikandan, N. y Subha, S. (2016). Software design challenges in time series prediction systems using parallel implementation of artificial neural networks. \textit{The Scientific World Journal}, 2016, 6709352.
+\end{itemize}
+
+\section{Declaración de uso de IA}\label{sec:ia}
+
+Desarrollé este taller sin usar inteligencia artificial: el cuaderno, los resultados y el texto del informe son míos. Usé Claude (Anthropic) solo para contrastar y complementar mi trabajo: preparó por separado una segunda implementación completa, con la que comparé mis resultados en la sección~\ref{sec:contraste}; buscó las imágenes de la web de las figuras~\ref{fig:narx} y~\ref{fig:origen}; y ayudó a redactar, con ese material, la sección de contraste, los límites y las referencias. La elección del conjunto de datos (Beijing) y del alcance (solo la parte en Python) fue mía. No se modificó el motor de evaluación de la plantilla y la prueba externa se ejecutó una sola vez, con los hiperparámetros ya elegidos en validación.
 
 \end{document}
