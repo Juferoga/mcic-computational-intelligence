@@ -1,0 +1,38 @@
+{
+  "dataset": "beijing",
+  "objetivo": "PM2.5",
+  "exogenas": [
+    "TEMP",
+    "DEWP",
+    "PRES",
+    "WSPM"
+  ],
+  "frecuencia": "D",
+  "S": 7,
+  "horizonte": 24,
+  "pliegues": 5,
+  "ventana": "expandible",
+  "hiperparametros": {
+    "Ingenuo estacional": {},
+    "Cl\u00e1sico": {
+      "p": 1,
+      "q": 1,
+      "P": 0,
+      "Q": 0
+    },
+    "Neuronal": {
+      "dy": 7,
+      "dx": 2,
+      "neuronas": 20,
+      "semilla": 2026,
+      "exogenas": true
+    },
+    "NAR": {
+      "dy": 7,
+      "dx": 2,
+      "neuronas": 20,
+      "semilla": 2026,
+      "exogenas": false
+    }
+  }
+}
