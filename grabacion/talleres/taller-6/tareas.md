@@ -7,9 +7,9 @@
 
 ## Entorno
 - [ ] Copiar la plantilla y commit inicial
-- [ ] Entorno con uv (Python 3.12)
-- [ ] Instalar librerías
-- [ ] Abrir Jupyter
+- [ ] El entorno (preparar.sh)
+- [ ] Las librerías
+- [ ] Abrir el cuaderno en Jupyter
 
 ## Plantilla sin cambios
 - [ ] Elegir DATASET = "beijing"

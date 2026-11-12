@@ -6,6 +6,7 @@ Escena de OBS para grabar los talleres hechos a mano.
 |---|---|
 | `tareas.md` | Lista de tareas del video. El overlay la relee cada segundo. |
 | `tarea` | CLI para marcar, agregar y saltar tareas desde la terminal. |
+| `preparar.sh` | Deja todo listo para grabar un taller: `git pull`, escena, entorno con uv y abre OBS, el guion, la presentación y Jupyter. |
 | `overlay/` | Overlay HTML (fuentes de navegador): tareas, reloj, tiempo grabado, Claude, marcos. |
 | `obs/code_with_me.lua` | Script de OBS: escribe `overlay/estado.json`, registra el uso de Claude y da los atajos de tareas. |
 | `obs/generar_escena.py` | Regenera la colección de escenas y el perfil "Code with me" (con OBS cerrado). `--dry-run` solo muestra. |
@@ -14,10 +15,17 @@ Escena de OBS para grabar los talleres hechos a mano.
 
 ## Cambiar de taller
 
-Cada taller tiene su carpeta en `talleres/taller-N/` con `tareas.md`, `taller.json` y, al terminar, el guion y `registro_claude.csv` de esa grabación. Para preparar una grabación nueva:
+Cada taller tiene su carpeta en `talleres/taller-N/` con `tareas.md`, `taller.json` y, al terminar, el guion y `registro_claude.csv` de esa grabación. Para preparar una grabación nueva (macOS o Linux):
 
 ```bash
-N=5
+./preparar.sh 6              # git pull, escena, .venv + librerías, y abre OBS, guion, presentación y Jupyter
+./preparar.sh 6 --sin-abrir  # solo escena y entorno
+```
+
+El script guarda el `registro_claude.csv` anterior en la carpeta de su taller antes de ponerlo en cero. Lo que instala y abre sale de `taller.json`: `carpeta`, `python`, `paquetes` y `presentacion`. A mano, la escena es:
+
+```bash
+N=6
 cp talleres/taller-$N/tareas.md tareas.md                # título de la barra y lista de tareas
 cp talleres/taller-$N/taller.json overlay/taller.json    # animación de pausa/inicio
 printf 'inicio,fin,duracion_s,fuente\n' > registro_claude.csv
