@@ -265,6 +265,31 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
 .score .dots i.medio{background:var(--orange)}
 .score .dots i.no{background:var(--red)}
 
+/* (i) para profundizar */
+[data-info]:not(.score){position:relative}
+.ibtn{position:absolute;top:14px;right:14px;z-index:5;width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;
+  font:italic 700 20px Georgia,"Times New Roman",serif;color:#fff;background:rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px rgba(0,0,0,.3);transition:background .25s,transform .35s var(--spring),opacity .3s}
+.ibtn:hover{background:rgba(255,255,255,.28);transform:scale(1.1)}
+.ibtn.on{background:#fff;color:#0b0d16}
+.score .ibtn,.chart > .ibtn,.netcard > .ibtn{top:-12px;right:-12px}
+#stage.sin-info .ibtn{opacity:0;pointer-events:none}
+#ipop{position:absolute;z-index:39;width:660px;padding:30px 34px 28px;border-radius:30px;opacity:0;transform:translateY(10px) scale(.97);filter:blur(6px);pointer-events:none;
+  transition:opacity .35s var(--spring),transform .45s var(--spring),filter .35s var(--spring);
+  background:linear-gradient(160deg,rgba(30,34,52,.92),rgba(14,16,28,.94))}
+#ipop.show{opacity:1;transform:none;filter:none;pointer-events:auto}
+#ipop .ih{display:flex;align-items:center;gap:14px}
+#ipop .ih i{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:italic 700 20px Georgia,serif;background:var(--blue);box-shadow:0 6px 18px -6px var(--blue)}
+#ipop h4{font-size:29px;line-height:1.15;flex:1}
+#ipop .ix-close{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;color:#fff;font:600 22px var(--font);background:rgba(255,255,255,.12)}
+#ipop .ib{margin-top:16px;font-size:22px;line-height:1.5;color:var(--ink2)}
+#ipop .ib p + p{margin-top:12px}
+#ipop .ib b{color:#fff}
+#ipop .ib ul{margin:10px 0 0 24px}
+#ipop .ib li + li{margin-top:6px}
+#ipop .ib .fx{display:block;margin:12px 0;padding:12px 18px;border-radius:16px;background:rgba(0,0,0,.3);color:#fff;font:600 20px ui-monospace,"SF Mono",Menlo,monospace;text-align:center}
+#ipop .ib .src{display:block;margin-top:14px;font-size:18px;color:var(--ink3)}
+
 /* herramientas del presentador */
 #spot{position:absolute;inset:0;z-index:35;pointer-events:none;opacity:0;transition:opacity .4s var(--spring);--sx:960px;--sy:540px;
   background:radial-gradient(circle at var(--sx) var(--sy),rgba(3,4,8,0) 0,rgba(3,4,8,0) 200px,rgba(3,4,8,.8) 250px)}
@@ -329,16 +354,16 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
   <div class="eyebrow rv" style="--d:0">Plantilla del profesor: TallerST_Plantilla.ipynb</div>
   <h2 class="title rv" style="--d:1">¿Qué pide el taller?</h2>
   <div class="req-grid">
-    <div class="glass card req rv" style="--d:2"><div class="n">1</div><div>
+    <div class="glass card req rv" data-info="todo-clasico" style="--d:2"><div class="n">1</div><div>
       <h3>Un modelo clásico</h3>
       <p><code>modelo_clasico</code>: SARIMA o <b>SARIMAX</b>, con el orden justificado por el diagnóstico.</p></div></div>
-    <div class="glass card req rv" style="--d:3"><div class="n" style="--nc:var(--red)">2</div><div>
+    <div class="glass card req rv" data-info="todo-red" style="--d:3"><div class="n" style="--nc:var(--red)">2</div><div>
       <h3>Una red NAR o NARX</h3>
       <p><code>modelo_neuronal</code>: el escalado se ajusta <b>solo con los datos de entrenamiento</b>.</p></div></div>
-    <div class="glass card req rv" style="--d:4"><div class="n" style="--nc:var(--purple)">3</div><div>
+    <div class="glass card req rv" data-info="todo-rejillas" style="--d:4"><div class="n" style="--nc:var(--purple)">3</div><div>
       <h3>Rejillas de sensibilidad</h3>
       <p><code>REJILLAS</code>: mínimo <b>2 hiperparámetros × 3 niveles</b>, con al menos <b>3 semillas</b>.</p></div></div>
-    <div class="glass card req rv" style="--d:5"><div class="n" style="--nc:var(--orange)">4</div><div>
+    <div class="glass card req rv" data-info="reglas" style="--d:5"><div class="n" style="--nc:var(--orange)">4</div><div>
       <h3>Dos reglas de oro</h3>
       <p>El <b>motor de evaluación no se toca</b>. Ya trae validación, diagnóstico, métricas y Diebold-Mariano.</p>
       <p style="margin-top:16px"><span class="pill warn">La prueba externa se corre una sola vez</span></p></div></div>
@@ -351,7 +376,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
   <div class="eyebrow rv" style="--d:0">UCI · Beijing Multi-Site Air Quality · estación Aotizhongxin</div>
   <h2 class="title rv" style="--d:1">Los datos: el aire de Beijing</h2>
   <div class="s3">
-    <div class="glass chart rv ix" style="--d:2">
+    <div class="glass chart rv ix" data-info="pm25" data-info-pos="left" style="--d:2">
       <div class="chart-top">
         <h3>PM2.5 diario<small>µg/m³ · promedio de las 24 horas</small></h3>
         <button class="btn" id="windBtn" type="button" style="--tc:var(--c-wind)"><i></i>Viento encima</button>
@@ -361,13 +386,13 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
     </div>
     <div class="facts">
       <div class="bigstat rv" style="--d:3"><span class="num" data-count="1461">1461</span><span>días<br>mar. 2013 a feb. 2017</span></div>
-      <div class="glass fact rv" style="--d:4"><h4>Objetivo y periodo</h4>
+      <div class="glass fact rv" data-info="periodo" style="--d:4"><h4>Objetivo y periodo</h4>
         <p><b>PM2.5</b>, partículas finas. Datos horarios promediados por día; periodo estacional <b>s = 7</b> (la semana).</p></div>
-      <div class="glass fact rv" style="--d:5"><h4>Exógenas: el clima</h4>
+      <div class="glass fact rv" data-info="exogenas" style="--d:5"><h4>Exógenas: el clima</h4>
         <div class="chips"><span class="chip">TEMP <small>temperatura</small></span><span class="chip">DEWP <small>punto de rocío</small></span><span class="chip">PRES <small>presión</small></span><span class="chip">WSPM <small>viento</small></span></div></div>
-      <div class="glass fact rv" style="--d:6"><h4>Desarrollo y prueba</h4>
+      <div class="glass fact rv" data-info="particion" style="--d:6"><h4>Desarrollo y prueba</h4>
         <p><b>1168</b> días para elegir modelos (80 %) y <b>293</b> para la prueba externa (20 %). 15 días sin dato se interpolan.</p></div>
-      <div class="glass fact rv" style="--d:7"><h4>Supuesto</h4>
+      <div class="glass fact rv" data-info="supuesto" style="--d:7"><h4>Supuesto</h4>
         <p>El clima futuro se toma como <b>conocido</b>. En la vida real vendría de un pronóstico con error.</p></div>
     </div>
   </div>
@@ -377,15 +402,15 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
 <section class="slide" data-title="Origen móvil" data-steps="7">
   <div class="eyebrow rv" style="--d:0">Así se evalúa: nunca se baraja el tiempo</div>
   <h2 class="title rv" style="--d:1">Validación de origen móvil</h2>
-  <div class="glass cv rv" style="--d:2">
+  <div class="glass cv rv" data-info="origen" style="--d:2">
     <svg viewBox="0 0 1600 396" id="cvsvg"></svg>
     <div class="cvfoot"><div class="cvleg"><span><i style="background:rgba(10,132,255,.62)"></i>entrena</span><span><i style="background:var(--c-fc)"></i>pronostica H = 24 días</span><span><i style="background:var(--c-test)"></i>prueba externa</span></div></div>
     <div id="cvDetail">Pulsa → para ir sumando pliegues. Toca uno para ver sus fechas.</div>
   </div>
   <div class="cvinfo">
-    <div class="glass rv" style="--d:3"><h4>Ventana expandible</h4><p>Cada pliegue entrena con <b>todo lo anterior</b> a su origen y pronostica los <b>24 días siguientes</b>. Con 5 pliegues elijo los hiperparámetros.</p></div>
-    <div class="glass rv" style="--d:4"><h4>Métricas</h4><p>RMSE, MAE y <b>MASE</b>: si MASE &lt; 1, el modelo es mejor que repetir la semana anterior.</p></div>
-    <div class="glass rv" style="--d:5"><h4>Al final</h4><p><b>Diebold-Mariano</b> dice si la diferencia entre dos modelos es significativa o puede ser suerte.</p></div>
+    <div class="glass rv" data-info="ventana" style="--d:3"><h4>Ventana expandible</h4><p>Cada pliegue entrena con <b>todo lo anterior</b> a su origen y pronostica los <b>24 días siguientes</b>. Con 5 pliegues elijo los hiperparámetros.</p></div>
+    <div class="glass rv" data-info="metricas" style="--d:4"><h4>Métricas</h4><p>RMSE, MAE y <b>MASE</b>: si MASE &lt; 1, el modelo es mejor que repetir la semana anterior.</p></div>
+    <div class="glass rv" data-info="dm" style="--d:5"><h4>Al final</h4><p><b>Diebold-Mariano</b> dice si la diferencia entre dos modelos es significativa o puede ser suerte.</p></div>
   </div>
 </section>
 
@@ -395,12 +420,12 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
   <h2 class="title rv" style="--d:1">Los modelos que comparo</h2>
   <div class="s5">
     <div class="models" id="models">
-      <div class="glass mdl ix rv" data-m="0" style="--d:2"><div class="ic" style="--ic:var(--yellow)">0</div><div><h3>Ingenuo estacional</h3><p>Repite la semana anterior: <b>ŷ<sub>t</sub> = y<sub>t−7</sub></b>. Es la referencia que hay que superar.</p></div></div>
-      <div class="glass mdl ix rv" data-m="1" style="--d:3"><div class="ic" style="--ic:var(--blue)">1</div><div><h3>Clásico: SARIMAX</h3><p>Sobre <b>log(1 + y)</b>, con el clima como regresor <b>lineal</b>. El orden lo elijo con el diagnóstico, AIC y BIC, y reviso los residuos con Ljung-Box.</p></div></div>
-      <div class="glass mdl ix rv" data-m="2" style="--d:4"><div class="ic" style="--ic:var(--red)">2</div><div><h3>Neuronal: NARX y NAR</h3><p>Una capa oculta <b>tanh</b>. Aprende relaciones <b>no lineales</b> entre la historia, el clima y el día siguiente. La NAR es la misma red sin clima.</p></div></div>
-      <div class="glass mdl rv" style="--d:5"><div class="ic" style="--ic:var(--green)"><svg viewBox="0 0 40 40" width="34" height="34" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6l12 5v8c0 8-5 13-12 15C13 32 8 27 8 19v-8z"/><path d="M14 20l4 4 8-8"/></svg></div><div><h3>Sin fuga</h3><p>El escalado sale solo de <b>y_hist</b> y <b>X_hist</b>; la parada temprana usa el 15 % final de la historia.</p></div></div>
+      <div class="glass mdl ix rv" data-m="0" data-info="ingenuo" style="--d:2"><div class="ic" style="--ic:var(--yellow)">0</div><div><h3>Ingenuo estacional</h3><p>Repite la semana anterior: <b>ŷ<sub>t</sub> = y<sub>t−7</sub></b>. Es la referencia que hay que superar.</p></div></div>
+      <div class="glass mdl ix rv" data-m="1" data-info="sarimax" style="--d:3"><div class="ic" style="--ic:var(--blue)">1</div><div><h3>Clásico: SARIMAX</h3><p>Sobre <b>log(1 + y)</b>, con el clima como regresor <b>lineal</b>. El orden lo elijo con el diagnóstico, AIC y BIC, y reviso los residuos con Ljung-Box.</p></div></div>
+      <div class="glass mdl ix rv" data-m="2" data-info="narx" style="--d:4"><div class="ic" style="--ic:var(--red)">2</div><div><h3>Neuronal: NARX y NAR</h3><p>Una capa oculta <b>tanh</b>. Aprende relaciones <b>no lineales</b> entre la historia, el clima y el día siguiente. La NAR es la misma red sin clima.</p></div></div>
+      <div class="glass mdl rv" data-info="fuga" style="--d:5"><div class="ic" style="--ic:var(--green)"><svg viewBox="0 0 40 40" width="34" height="34" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6l12 5v8c0 8-5 13-12 15C13 32 8 27 8 19v-8z"/><path d="M14 20l4 4 8-8"/></svg></div><div><h3>Sin fuga</h3><p>El escalado sale solo de <b>y_hist</b> y <b>X_hist</b>; la parada temprana usa el 15 % final de la historia.</p></div></div>
     </div>
-    <div class="glass netcard rv" style="--d:3">
+    <div class="glass netcard rv" data-info="diagrama" data-info-pos="left" style="--d:3">
       <div class="netctl">
         <div class="seg" id="loopSeg"><button class="btn on" data-v="open" type="button">Entrenar · lazo abierto</button><button class="btn" data-v="closed" type="button">Pronosticar · lazo cerrado</button></div>
         <button class="btn on" id="exoBtn" type="button" style="--tc:var(--c-wind)"><i></i>Con clima (NARX)</button>
@@ -463,7 +488,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
 <section class="slide" data-title="Hipótesis contra resultados">
   <div class="eyebrow rv" style="--d:0">Lo que creí en la diapositiva 8, contra lo que salió</div>
   <h2 class="title rv" style="--d:1">Hipótesis contra resultados</h2>
-  <div class="score glass rv" style="--d:2"><span>acerté</span><b id="scoreN">0 de 4</b><span class="dots" id="scoreDots"><i></i><i></i><i></i><i></i></span></div>
+  <div class="score glass rv" data-info="puntaje" data-info-pos="left" style="--d:2"><span>acerté</span><b id="scoreN">0 de 4</b><span class="dots" id="scoreDots"><i></i><i></i><i></i><i></i></span></div>
   <div class="vs" id="vs"></div>
 </section>
 
@@ -486,6 +511,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
 <div id="spot"></div>
 <canvas id="ink"></canvas>
 <canvas id="fx"></canvas>
+<div id="ipop" class="glass"><div class="ih"><i>i</i><h4 id="ipopT"></h4><button class="ix-close" type="button" aria-label="Cerrar">×</button></div><div class="ib" id="ipopB"></div></div>
 <div id="pause"><span class="pill glass">Pausa</span></div>
 <div id="keys" class="glass">
   <span class="k"><kbd>→</kbd><kbd>Espacio</kbd></span><span>siguiente</span>
@@ -495,6 +521,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
   <span class="k"><kbd>D</kbd></span><span>dibujar · <kbd>C</kbd> borra</span>
   <span class="k"><kbd>Z</kbd></span><span>foco</span>
   <span class="k"><kbd>B</kbd></span><span>pausa</span>
+  <span class="k"><kbd>I</kbd></span><span>mostrar u ocultar los (i)</span>
   <span class="k"><kbd>F</kbd></span><span>pantalla completa</span>
   <span class="k"><kbd>Esc</kbd></span><span>salir del modo</span>
   <span class="k"><kbd>?</kbd></span><span>mostrar u ocultar atajos</span>
@@ -802,6 +829,109 @@ function makeSerie(canvas, mode) {
 }
 const series = [...document.querySelectorAll('.serie-canvas')].map(c => ({ el: c, draw: makeSerie(c, c.dataset.mode) }));
 
+/* ================= (i): fichas para profundizar ================= */
+const INFO = {
+  'todo-clasico': ['SARIMAX, letra por letra', `
+    <p><b>S</b> estacional · <b>AR(p)</b> el valor depende de sus p valores anteriores · <b>I(d)</b> se diferencia d veces para volverla estacionaria · <b>MA(q)</b> depende de los q errores anteriores · <b>X</b> variables exógenas como regresores lineales.</p>
+    <span class="fx">SARIMAX(p, d, q)(P, D, Q)<sub>s</sub></span>
+    <p><b>Justificado</b> quiere decir que el orden no se elige a ojo: <b>d</b> sale de ADF y KPSS, la parte estacional de la descomposición STL, y p y q de comparar AIC y BIC.</p>`],
+  'todo-red': ['NAR y NARX', `
+    <p><b>NAR</b> = <i>Nonlinear AutoRegressive</i>: la red solo ve los valores pasados de la serie. <b>NARX</b> agrega entradas e<b>X</b>ógenas, aquí el clima.</p>
+    <p><b>¿Por qué escalar solo con entrenamiento?</b> La media y la desviación con que normalizo tienen que salir de la historia que el modelo conoce. Si usara toda la serie, el futuro se colaría en el ajuste (fuga) y el error saldría más bajo de lo que sería en la realidad.</p>`],
+  'todo-rejillas': ['Rejilla de sensibilidad', `
+    <p>Una rejilla prueba <b>todas las combinaciones</b> de niveles. 2 hiperparámetros × 3 niveles = 9 configuraciones, y cada una pasa por los 5 pliegues.</p>
+    <p><b>¿Por qué semillas?</b> La red arranca con pesos aleatorios: con otra semilla da otro resultado. Con 3 semillas veo la media y la desviación, y no elijo una configuración que ganó por suerte.</p>
+    <span class="fx">red: 3 d<sub>y</sub> × 3 neuronas × 3 semillas × 5 pliegues = 135</span>`],
+  'reglas': ['¿Por qué esas dos reglas?', `
+    <p><b>El motor</b> (sección 8) parte los pliegues, llama a cada modelo con los mismos datos y calcula las métricas. Si no lo toco, todos se evalúan igual y la comparación es justa.</p>
+    <p><b>Una sola vez</b>: si miro la prueba y después cambio algo, la estoy usando para elegir. Deja de ser una estimación honesta del error con datos nuevos; es el sesgo de <i>data snooping</i>.</p>`],
+  'pm25': ['¿Qué es el PM2.5?', `
+    <p>Partículas en el aire de <b>2,5 micras o menos</b>, unas 30 veces más delgadas que un cabello. Llegan hasta los pulmones y la sangre.</p>
+    <p>La guía de la OMS (2021) recomienda no pasar de <b>15 µg/m³</b> en promedio de 24 horas. Los picos de invierno de la serie son episodios de smog: más combustión para calefacción y aire quieto que no dispersa.</p>
+    <p>Los datos vienen por hora; la plantilla los <b>promedia por día</b>. Pasa el mouse para leer cada día y toca <b>Viento encima</b> para compararlo.</p>`],
+  'periodo': ['El periodo estacional s', `
+    <p><b>s</b> es cuántos pasos dura un ciclo que se repite. Con datos diarios, el ciclo natural es la <b>semana</b>: s = 7 (días laborales contra fin de semana, tráfico, industria).</p>
+    <p>El <b>ingenuo estacional</b> usa s: repite el valor de hace 7 días. Y el diagnóstico (STL, con su fuerza estacional F<sub>S</sub>) dice qué tan marcado es ese ciclo en esta serie.</p>`],
+  'exogenas': ['Variables exógenas', `
+    <p>Una exógena es una variable <b>externa</b> que ayuda a explicar la serie, pero que el modelo no pronostica.</p>
+    <ul><li><b>TEMP</b>: temperatura, °C.</li><li><b>DEWP</b>: punto de rocío, la temperatura a la que el aire se satura. Alto = aire húmedo.</li><li><b>PRES</b>: presión atmosférica, hPa.</li><li><b>WSPM</b>: velocidad del viento, m/s.</li></ul>
+    <p>En el SARIMAX entran como regresores lineales; en la NARX, con 3 retardos cada una: x(t), x(t−1) y x(t−2).</p>`],
+  'particion': ['Desarrollo y prueba', `
+    <p>La partición es <b>en orden</b>, nunca al azar: los primeros 1168 días (80 %) son para todo lo que decido (diagnóstico, AIC/BIC, rejillas, validación) y los últimos 293 (20 %) no se miran hasta el final.</p>
+    <p><b>Faltantes</b>: al promediar por día quedan 15 días sin PM2.5. La plantilla los rellena interpolando en el tiempo entre los días vecinos (huecos de hasta 6 días).</p>`],
+  'supuesto': ['¿Por qué es un supuesto fuerte?', `
+    <p>Para pronosticar los 24 días, la NARX y el SARIMAX reciben el <b>clima real</b> de esos días (X_fut). En la vida real tendría un pronóstico del clima, con su propio error.</p>
+    <p>Por eso sus resultados son <b>optimistas</b>: una cota de lo mejor que podrían hacer. El ingenuo y la NAR no usan clima, así que no tienen esa ventaja.</p>`],
+  'origen': ['¿Por qué no barajar?', `
+    <p>En una serie, hoy se parece a ayer. Con una validación cruzada barajada entrenaría con días <b>posteriores</b> a los que pruebo: el modelo conocería el futuro y el error saldría falso.</p>
+    <p>El <b>origen móvil</b> imita lo real: en cada origen solo existe el pasado. Los 5 orígenes se reparten en el último 40 % del desarrollo, y desde cada uno se pronostican <b>H = 24</b> días.</p>
+    <span class="src">Bergmeir y Benítez (2012); Hyndman y Athanasopoulos (2021), §5.10.</span>`],
+  'ventana': ['Expandible o deslizante', `
+    <p><b>Expandible</b>: cada pliegue entrena desde el primer día. Usa todos los datos, pero entrenar es cada vez más lento.</p>
+    <p><b>Deslizante</b>: solo los últimos N días. Se adapta si la serie cambia con el tiempo, pero aprende con menos datos.</p>
+    <p>La plantilla usa la expandible.</p>`],
+  'metricas': ['RMSE, MAE y MASE', `
+    <span class="fx">RMSE = √media(e²)  ·  MAE = media|e|</span>
+    <p><b>RMSE</b> castiga más los errores grandes, como no ver venir un pico de smog. <b>MAE</b> pesa todos los errores por igual.</p>
+    <span class="fx">MASE = MAE / MAE del ingenuo (s = 7)</span>
+    <p>El denominador se calcula en el desarrollo. <b>MASE no tiene unidades</b>: 0,5 quiere decir la mitad del error de repetir la semana anterior. El MAPE, en cambio, se dispara cuando el PM2.5 real es muy bajo.</p>`],
+  'dm': ['Diebold-Mariano', `
+    <p>Toma, punto a punto, la diferencia entre los errores al cuadrado de dos modelos y prueba si su media es cero:</p>
+    <span class="fx">d<sub>t</sub> = e<sub>1,t</sub>² − e<sub>2,t</sub>²  →  H<sub>0</sub>: E[d<sub>t</sub>] = 0</span>
+    <p>La varianza tiene en cuenta que los errores de un mismo origen están correlacionados (h = 24), y la <b>corrección HLN</b> (Harvey, Leybourne y Newbold, 1997) la ajusta para muestras pequeñas. Si <b>p &lt; 0,05</b>, la diferencia no se explica por azar.</p>`],
+  'ingenuo': ['La vara mínima', `
+    <p>Es el pronóstico más simple que respeta la semana: <b>lo que pasó hace 7 días</b>. No aprende nada.</p>
+    <p>Si un modelo no le gana, no aporta. Además es la escala del MASE: el ingenuo tiene MASE ≈ 1 por definición.</p>`],
+  'sarimax': ['Detalles del clásico', `
+    <p><b>log(1 + y)</b>: el PM2.5 es positivo, muy asimétrico y varía más cuando está alto. El logaritmo estabiliza la varianza; al final se deshace con exp(·) − 1. El +1 evita log(0).</p>
+    <span class="fx">AIC = 2k − 2 ln L  ·  BIC = k ln n − 2 ln L</span>
+    <p>Los dos premian el ajuste (L) y castigan los parámetros (k); BIC castiga más. <b>Ljung-Box</b> prueba si a los residuos les queda autocorrelación: si p &lt; 0,05, quedó estructura sin explicar.</p>`],
+  'narx': ['Detalles de la red', `
+    <ul><li><b>tanh</b>: activación entre −1 y 1. Le permite a la red aprender curvas, no solo rectas.</li>
+    <li><b>Regularización L2</b> (10⁻⁴): castiga los pesos grandes para que no memorice.</li>
+    <li><b>Parada temprana</b>: el 15 % final de la historia es validación. Si el error no mejora en 20 épocas, para y recupera los mejores pesos.</li>
+    <li><b>Adam</b>, tasa 10⁻³, lotes de 32, máximo 300 épocas.</li>
+    <li><b>Semilla fija</b>: el mismo resultado cada vez que se corre.</li></ul>`],
+  'fuga': ['¿Qué es la fuga?', `
+    <p>Fuga (<i>leakage</i>) es que información del periodo a pronosticar se cuele en el ajuste. El ejemplo típico: normalizar con la media de toda la serie, que incluye el futuro.</p>
+    <p>Por eso <b>todo</b> lo que depende de los datos (log, media, desviación, parada temprana) se calcula dentro de cada llamada, solo con <b>y_hist</b> y <b>X_hist</b>.</p>`],
+  'diagrama': ['Cómo leer el diagrama', `
+    <p><b>Cuadros azules</b>: retardos de PM2.5. <b>Verdes</b>: clima en t, t−1 y t−2 (cada uno son las 4 variables). <b>Círculos</b>: neuronas ocultas. <b>ŷ(t)</b>: el pronóstico.</p>
+    <span class="fx">entradas = d<sub>y</sub> + 4 × 3</span><span class="fx">pesos = (entradas + 1)·n + (n + 1)</span>
+    <p>El +1 son los sesgos. <b>Lazo abierto</b>: aprende con los valores reales. <b>Lazo cerrado</b>: del segundo día en adelante usa sus propios pronósticos (pronóstico recursivo), por eso el error tiende a crecer con el horizonte.</p>`],
+  'puntaje': ['Cómo se cuenta', `
+    <p><b>Acerté</b> = 1 · <b>A medias</b> = 0,5 · <b>No acerté</b> = 0.</p>
+    <p>Lo que escribes aquí y en la diapositiva 8 se guarda en este navegador. Si abres la presentación en otro navegador, no estará.</p>`]
+};
+const ipop = $('ipop'); let iOpen = null;
+function closeInfo() { ipop.classList.remove('show'); if (iOpen) iOpen.classList.remove('on'); iOpen = null; }
+function openInfo(btn) {
+  if (iOpen === btn) { closeInfo(); return; }
+  if (iOpen) iOpen.classList.remove('on');
+  const host = btn.parentElement, [t, b] = INFO[host.dataset.info];
+  $('ipopT').textContent = t; $('ipopB').innerHTML = b;
+  const r = btn.getBoundingClientRect(), s = stage.getBoundingClientRect(), k = s.width / 1920;
+  const bx = (r.left - s.left) / k, by = (r.top - s.top) / k;
+  ipop.style.visibility = 'hidden'; ipop.classList.add('show');
+  const ph = ipop.offsetHeight; ipop.style.visibility = '';
+  let x = host.dataset.infoPos === 'left' ? bx - 680 : bx - 640 + 40;
+  if (host.dataset.infoPos !== 'left' && x < 60) x = bx + 50;
+  x = Math.max(60, Math.min(1920 - 60 - 660, x));
+  let y = Math.max(60, Math.min(1080 - 110 - ph, by - 10));
+  ipop.style.left = x + 'px'; ipop.style.top = y + 'px';
+  btn.classList.add('on'); iOpen = btn;
+}
+document.querySelectorAll('[data-info]').forEach(el => {
+  if (!INFO[el.dataset.info]) return;
+  const b = document.createElement('button');
+  b.className = 'ibtn'; b.type = 'button'; b.textContent = 'i'; b.title = 'Profundizar'; b.setAttribute('aria-label', 'Profundizar: ' + INFO[el.dataset.info][0]);
+  b.addEventListener('click', e => { e.stopPropagation(); openInfo(b); b.blur(); });
+  el.appendChild(b);
+});
+ipop.addEventListener('click', e => e.stopPropagation());
+ipop.querySelector('.ix-close').addEventListener('click', closeInfo);
+document.addEventListener('pointerdown', e => { if (iOpen && !e.target.closest('#ipop, .ibtn')) closeInfo(); });
+
 /* ================= conteo animado ================= */
 function countUp(slide) {
   slide.querySelectorAll('[data-count]').forEach(el => {
@@ -953,7 +1083,7 @@ function go(i, st = 0, fromHash = false) {
     cur = i;
     countUp(slides[i]);
     if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
-    curStroke = null; redrawInk();
+    curStroke = null; redrawInk(); closeInfo();
   }
   const ns = nSteps(cur);
   step = ns ? Math.max(0, Math.min(ns - 1, st)) : 0;
@@ -988,14 +1118,15 @@ document.addEventListener('keydown', e => {
   else if (k === 'd' || k === 'D') setMode('draw');
   else if (k === 'z' || k === 'Z') setMode('spot');
   else if (k === 'b' || k === 'B') togglePause();
+  else if (k === 'i' || k === 'I') { stage.classList.toggle('sin-info'); closeInfo(); }
   else if (k === 'c' || k === 'C') { strokes[cur] = []; curStroke = null; redrawInk(); }
   else if (k === '?') $('keys').classList.toggle('show');
-  else if (k === 'Escape') { if (mode) setMode(mode); togglePause(false); $('keys').classList.remove('show'); }
+  else if (k === 'Escape') { if (iOpen) { closeInfo(); return; } if (mode) setMode(mode); togglePause(false); $('keys').classList.remove('show'); }
   else if (/^[0-9]$/.test(k)) { const n = k === '0' ? 10 : +k; go(n - 1); }
 });
 document.addEventListener('click', e => {
   if (mode === 'draw' || stage.classList.contains('m-pause')) return;
-  if (e.target.closest('.ix, .ans, input, button, a, #keys, svg')) return;
+  if (e.target.closest('.ix, .ans, input, button, a, #keys, #ipop, svg')) return;
   if (window.getSelection && String(window.getSelection()).length) return;
   if (e.clientX > window.innerWidth / 2) next(); else prev();
 });
@@ -1009,7 +1140,7 @@ function loop(t) {
   requestAnimationFrame(loop);
 }
 mirror();
-window.__deck = { go, setMode, togglePause, strokes, redrawInk };
+window.__deck = { openInfo, closeInfo, go, setMode, togglePause, strokes, redrawInk };
 fromHashF();
 requestAnimationFrame(loop);
 })();

@@ -63,6 +63,8 @@ Ve a la pestaña de la presentación (`presentacion/index.html?ligero`; el `?lig
 
 **Para hablar con las manos:** en la 3 pasa el mouse por la serie (sale la fecha y el valor de cada día) y toca **Viento encima**. En la 4, cada → suma un pliegue; toca uno para ver sus fechas. En la 5 cambia entre **lazo abierto y lazo cerrado**, apaga el clima (pasa a NAR) y cambia retardos y neuronas: el número de entradas y de pesos cambia en vivo. En la 6 toca un paso para ver cómo lo verifico. Teclas: **L** láser, **D** dibujar (**C** borra), **Z** foco, **B** pausa, **?** ayuda.
 
+**Los (i):** casi todas las tarjetas tienen un botón (i) arriba a la derecha que abre una ficha para profundizar: qué es cada letra de SARIMAX, por qué no se baraja, cómo se calcula el MASE, qué prueba Diebold-Mariano, qué es la fuga, cómo leer el diagrama de la red. Ábrelos solo si quieres ampliar algo; se cierran con × , **Esc** o tocando afuera. La tecla **I** los oculta todos si quieres la diapositiva limpia.
+
 **Truco para no leer:** cada diapositiva tiene una **idea en negrita** abajo. Dila primero con tus palabras.
 
 ---
