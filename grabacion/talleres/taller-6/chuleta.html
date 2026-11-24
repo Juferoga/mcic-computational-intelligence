@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es-CO"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuleta Taller 6</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#141824;--ink2:#4a5163;--line:#e3e6ee;--code:#0f1320;--codeink:#e8ecf6;--blue:#0A63D8;--green:#1f9d55;--term:#7c3aed;--md:#c2410c;--ok:#e9f7ef}
+@media (prefers-color-scheme: dark){:root{--bg:#0b0d14;--card:#141824;--ink:#eef1f8;--ink2:#a7afc2;--line:#262c3c;--code:#05070c;--codeink:#e8ecf6;--blue:#4c9bff;--green:#34c779;--term:#a78bfa;--md:#fb923c;--ok:#12261b}}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 20px}
+header h1{margin:0;font-size:21px} header p{margin:2px 0 8px;color:var(--ink2);font-size:14px}
+nav{display:flex;flex-wrap:wrap;gap:6px} nav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;background:var(--card)}
+nav a.done{background:var(--green);color:#fff;border-color:var(--green)}
+main{max-width:980px;margin:0 auto;padding:20px 16px 80px}
+.paso{display:grid;grid-template-columns:52px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin-bottom:14px;scroll-margin-top:120px}
+.paso.ok{opacity:.55}
+.cuerpo{min-width:0}
+.hecho{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}
+.hecho input{width:20px;height:20px;accent-color:var(--green)}
+.n{font-weight:700;font-size:20px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line)}
+.paso.ok .n{background:var(--green);color:#fff;border-color:var(--green)}
+h2{margin:6px 0 8px;font-size:21px} p{margin:6px 0;color:var(--ink2)} p b{color:var(--ink)}
+code{font:600 .9em ui-monospace,"SF Mono",Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0 5px;color:var(--ink)}
+.code{margin:10px 0;border-radius:14px;overflow:hidden;background:var(--code)}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:7px 10px 7px 14px;background:rgba(255,255,255,.06)}
+.tag{font-size:13px;font-weight:700;letter-spacing:.02em;color:#fff;padding:2px 10px;border-radius:999px;background:var(--blue)}
+.t-bash{background:var(--term)} .t-markdown{background:var(--md)}
+.cp{font:600 13px inherit;font-family:inherit;border:0;border-radius:999px;padding:5px 14px;cursor:pointer;background:#fff;color:#111}
+.cp.ok{background:var(--green);color:#fff}
+pre{margin:0;padding:14px 16px;overflow-x:auto;color:var(--codeink);font:14px/1.5 ui-monospace,"SF Mono",Menlo,monospace;white-space:pre}
+.ok span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--green);margin-right:8px}
+details.salida{margin:8px 0;border:1px dashed var(--line);border-radius:12px;padding:6px 12px}
+details.salida summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--green)}
+details.salida pre{color:var(--ink2);padding:10px 0 4px;font-size:13px}
+.paso.cur{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 35%,transparent)}
+.paso.cur .n{border-color:var(--blue)}
+.code.flash{outline:3px solid var(--green);outline-offset:2px}
+kbd{font:600 12px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;background:var(--card);color:var(--ink)}
+.teclas{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:13px;color:var(--ink2)}
+.prog{font-size:13px;font-weight:700;color:var(--green);margin-left:8px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;transition:.25s;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:8px 16px;border-radius:999px;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%)}
+@media (max-width:640px){.paso{grid-template-columns:1fr} .hecho{flex-direction:row}}
+</style></head><body>
+<header><h1>Chuleta · Taller 6 — Series de tiempo</h1><p>Solo lo que escribes, en orden. Copiar pega el bloque exacto del guion verificado; la casilla marca el paso como hecho (se guarda en este navegador).</p><div class="teclas"><span><kbd>↓</kbd><kbd>j</kbd> siguiente</span><span><kbd>↑</kbd><kbd>k</kbd> anterior</span><span><kbd>Espacio</kbd> marcar y pasar</span><span><kbd>x</kbd> marcar o desmarcar</span><span><kbd>c</kbd> copiar el código (<kbd>2</kbd><kbd>3</kbd> el 2.º o 3.º bloque)</span><span><kbd>s</kbd> abrir lo que debe salir</span><span><kbd>u</kbd> primer paso pendiente</span><span class="prog" id="prog"></span></div><nav id="nav"><a href="#p4">4</a><a href="#p5">5</a><a href="#p6">6</a><a href="#p7">7</a><a href="#p8">8</a><a href="#p9">9</a><a href="#p10">10</a><a href="#p11">11</a><a href="#p12">12</a><a href="#p13">13</a><a href="#p14">14</a><a href="#p15">15</a><a href="#p16">16</a><a href="#p17">17</a><a href="#p18">18</a><a href="#p19">19</a><a href="#p20">20</a><a href="#p21">21</a><a href="#p22">22</a><a href="#p23">23</a><a href="#p24">24</a><a href="#p25">25</a><a href="#p26">26</a><a href="#p27">27</a><a href="#p28">28</a><a href="#p29">29</a></nav></header>
+<main><section class="paso" id="p4"><label class="hecho"><input type="checkbox" data-k="4"><span class="n">4</span></label><div class="cuerpo"><h2>Copiar la plantilla y commit inicial</h2><p>Escribe:</p><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>cd ~/repos/ud/maestria/mcic/semestre-2/mcic-computational-intelligence/2.Talleres/6.Taller
+cp bibliografia/propuesto/TallerST_Plantilla.ipynb taller6_series_tiempo.ipynb
+printf &#x27;datos/\n.venv/\n&#x27; &gt; .gitignore
+git add taller6_series_tiempo.ipynb .gitignore bibliografia presentacion
+git commit -m &quot;taller 6: plantilla del profesor sin resolver y plan&quot;</pre></div></div></section><section class="paso" id="p5"><label class="hecho"><input type="checkbox" data-k="5"><span class="n">5</span></label><div class="cuerpo"><h2>El entorno</h2><p>El script <code>preparar.sh</code> ya creó el entorno antes de grabar. Aquí lo muestras y lo activas.</p><p>Escribe:</p><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>source .venv/bin/activate
+python --version</pre></div><p class="ok"><span>Debe salir</span><code>Python 3.12.x</code> y el prompt con <code>(.venv)</code>.</p></div></section><section class="paso" id="p6"><label class="hecho"><input type="checkbox" data-k="6"><span class="n">6</span></label><div class="cuerpo"><h2>Las librerías</h2><p>Escribe:</p><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>grep -iE &quot;^(numpy|pandas|statsmodels|tensorflow|jupyterlab)==&quot; requirements.txt</pre></div><p class="ok"><span>Debe salir</span>Debe salir tensorflow 2.21 y statsmodels 0.15.</p></div></section><section class="paso" id="p7"><label class="hecho"><input type="checkbox" data-k="7"><span class="n">7</span></label><div class="cuerpo"><h2>Abrir el cuaderno en Jupyter</h2><p>Jupyter Lab ya está abierto en el navegador (lo abrió el script). Si <code>taller6_series_tiempo.ipynb</code> no aparece en la lista de la izquierda, dale al botón de recargar de esa lista. Ábrelo y, arriba de todo, inserta una celda <b>Markdown</b> (en la primera celda: <code>A</code>, luego <code>M</code>):</p><div class="code"><div class="bar"><span class="tag t-markdown">Celda Markdown</span><button type="button" class="cp">Copiar</button></div><pre>**Estudiante:** Juan Felipe Rodríguez Galindo · 20261595004 — Taller 6 (series de tiempo), plantilla Python</pre></div></div></section><section class="paso" id="p8"><label class="hecho"><input type="checkbox" data-k="8"><span class="n">8</span></label><div class="cuerpo"><h2>Elegir el dataset</h2><p>En la celda de <b>Configuración</b> (sección 0), cambia solo esta línea:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre>DATASET     = &quot;beijing&quot;   # &#x27;appliances&#x27; | &#x27;beijing&#x27; | &#x27;jena&#x27; | &#x27;propio&#x27; | &#x27;sintetico&#x27; (prueba rápida)</pre></div></div></section><section class="paso" id="p9"><label class="hecho"><input type="checkbox" data-k="9"><span class="n">9</span></label><div class="cuerpo"><h2>Ejecutar todo con el ingenuo</h2><p>Menú <b>Run → Run All Cells</b>.</p><p class="ok"><span>Debe salir</span>Tarda unos 15 segundos (la descarga de 8 MB va a <code>datos/</code>). Al final:</p><details class="salida"><summary>Debe salir algo así</summary><pre>[aviso] &#x27;Clásico&#x27; aún no implementado: se omite.
+[aviso] &#x27;Neuronal&#x27; aún no implementado: se omite.
+Validación cruzada de origen móvil (5 pliegues, H=24)
+                        RMSE      MAE   MAPE(%)  sMAPE(%)    MASE  Tiempo(s)
+Ingenuo estacional  110.5323  71.6894  194.2491   85.0649  1.0046     0.0000
+...
+Prueba externa: 12 orígenes, H=24
+Ingenuo estacional  96.2395  69.4932  175.6126   86.3006  0.9738</pre></details></div></section><section class="paso" id="p10"><label class="hecho"><input type="checkbox" data-k="10"><span class="n">10</span></label><div class="cuerpo"><h2>Validación y diagnóstico</h2><p class="ok"><span>Debe salir</span>Debe salir: los seis criterios C1 a C6 en <code>True</code>, <code>faltantes objetivo: 2.64%</code>, <code>PM2.5 15</code> imputados, <code>Total 1461 | desarrollo 1168 ... | prueba externa 293</code>, las tres filas de <code>ADF p=0.0000 | KPSS p=0.1000</code>, <code>F_T=0.200  F_S=0.071</code> y la tabla de correlaciones.</p></div></section><section class="paso" id="p11"><label class="hecho"><input type="checkbox" data-k="11"><span class="n">11</span></label><div class="cuerpo"><h2>Commit: plantilla ejecutada</h2><p>En la terminal (otra pestaña, con el entorno activo no hace falta):</p><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>git add taller6_series_tiempo.ipynb requirements.txt
+git commit -m &quot;taller 6: plantilla ejecutada con beijing (solo el ingenuo)&quot;</pre></div></div></section><section class="paso" id="p12"><label class="hecho"><input type="checkbox" data-k="12"><span class="n">12</span></label><div class="cuerpo"><h2>Logaritmo de PM2.5</h2><p>Inserta una celda de código <b>debajo</b> de la celda del diagnóstico (la que termina en <code>display(desarrollo.corr().round(3))</code>):</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre># Transformación log(1 + PM2.5): la serie es positiva, muy asimétrica y su varianza crece con el nivel.
+# Es punto a punto (no usa estadísticos de otros instantes), así que no introduce fuga.
+print(f&quot;Asimetría de y: {stats.skew(y_dev):.2f} | de log(1+y): {stats.skew(np.log1p(y_dev)):.2f}&quot;)
+fig, ax = plt.subplots(1, 2, figsize=(12, 3.5))
+ax[0].hist(y_dev, bins=40); ax[0].set_title(f&quot;{OBJ} (desarrollo)&quot;)
+ax[1].hist(np.log1p(y_dev), bins=40); ax[1].set_title(f&quot;log(1 + {OBJ})&quot;)
+plt.show()</pre></div><p class="ok"><span>Debe salir</span><code>Asimetría de y: 1.77 | de log(1+y): -0.28</code> y dos histogramas: el primero con una cola larga a la derecha, el segundo casi simétrico.</p></div></section><section class="paso" id="p13"><label class="hecho"><input type="checkbox" data-k="13"><span class="n">13</span></label><div class="cuerpo"><h2>AIC, BIC y Ljung-Box</h2><p>En la sección 7, <b>encima</b> de la celda que empieza con <code>def ingenuo_estacional</code>, inserta una celda <b>Markdown</b> <code>### 7.1 Identificación del modelo clásico (AIC/BIC)</code> y debajo una de código:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre># Identificación del modelo clásico: AIC y BIC sobre el bloque de desarrollo (nunca sobre la prueba).
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+z_dev = np.log1p(y_dev)
+filas = []
+for p, q, (P, Q) in itertools.product([0, 1, 2], [0, 1, 2], [(0, 0), (1, 1)]):
+    r = SARIMAX(z_dev, exog=desarrollo[EXO], order=(p, 0, q), seasonal_order=(P, 0, Q, PER), trend=&quot;c&quot;).fit(disp=False)
+    filas.append({&quot;orden&quot;: (p, 0, q), &quot;estacional&quot;: (P, 0, Q, PER), &quot;AIC&quot;: r.aic, &quot;BIC&quot;: r.bic})
+display(pd.DataFrame(filas).sort_values(&quot;AIC&quot;).head(6).round(1))
+
+elegido = SARIMAX(z_dev, exog=desarrollo[EXO], order=(1, 0, 1), seasonal_order=(0, 0, 0, PER), trend=&quot;c&quot;).fit(disp=False)
+print(elegido.summary().tables[1])
+print(&quot;Ljung-Box de los residuos del modelo elegido:\n&quot;, acorr_ljungbox(elegido.resid, lags=[PER, 2*PER, 3*PER]).round(4))</pre></div><p>Ejecuta (tarda unos 20 s).</p><p class="ok"><span>Debe salir</span>Debe salir:</p><details class="salida"><summary>Debe salir algo así</summary><pre>        orden    estacional     AIC     BIC
+8   (1, 0, 1)  (0, 0, 0, 7)  1991.2  2031.7
+10  (1, 0, 2)  (0, 0, 0, 7)  2003.7  2049.3
+11  (1, 0, 2)  (1, 0, 1, 7)  2006.4  2062.1
+...
+TEMP     -0.0612 ... P&gt;|z| 0.000
+DEWP      0.1100 ...       0.000
+PRES      0.0024 ...       0.578
+WSPM     -0.1231 ...       0.000
+ar.L1     0.8538 ...       0.000
+ma.L1    -0.3522 ...       0.000
+Ljung-Box ... lb_pvalue 0.0 en los rezagos 7, 14 y 21</pre></details></div></section><section class="paso" id="p14"><label class="hecho"><input type="checkbox" data-k="14"><span class="n">14</span></label><div class="cuerpo"><h2>TODO: <code>modelo_clasico</code></h2><p>Encima de la celda de modelos, inserta una Markdown <code>### 7.2 Modelos</code>. Luego, en la celda de modelos, <b>reemplaza la función <code>modelo_clasico</code> completa</b> (la que tiene <code>raise NotImplementedError</code>) por:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre>def modelo_clasico(y_hist, X_hist, X_fut, H, **hp):
+    # ARIMAX(p,0,q) con exógenas sobre log(1+y); (P,Q) estacionales en cero según AIC/BIC y F_S.
+    z = np.log1p(y_hist)
+    exo = X_hist if len(X_hist.columns) else None
+    m = SARIMAX(z, exog=exo, order=(hp[&quot;p&quot;], 0, hp[&quot;q&quot;]),
+                seasonal_order=(hp[&quot;P&quot;], 0, hp[&quot;Q&quot;], PER), trend=&quot;c&quot;).fit(disp=False)
+    f = m.forecast(H, exog=X_fut if len(X_fut.columns) else None)
+    return np.expm1(f.values)</pre></div></div></section><section class="paso" id="p15"><label class="hecho"><input type="checkbox" data-k="15"><span class="n">15</span></label><div class="cuerpo"><h2>TODO: <code>modelo_neuronal</code></h2><p>En la misma celda, <b>reemplaza la función <code>modelo_neuronal</code> completa</b> por esto, y agrega <code>import tensorflow as tf</code> en la primera línea de la celda:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre>def retardos(ys, xs, k, dy, dx):
+    # Regresores del instante k: [y_{k-1}, ..., y_{k-dy} | x_k, ..., x_{k-dx}]
+    z = ys[k-dy:k][::-1]
+    if xs is not None:
+        z = np.r_[z, xs[k-dx:k+1][::-1].ravel()]
+    return z
+
+def modelo_neuronal(y_hist, X_hist, X_fut, H, **hp):
+    dy, dx = hp[&quot;dy&quot;], hp[&quot;dx&quot;]
+    # 1) Escalado con estadísticos SOLO de y_hist y X_hist (sin fuga)
+    yl = np.log1p(y_hist.values)
+    mu, sd = yl.mean(), yl.std()
+    ys = np.r_[(yl - mu) / sd, np.zeros(H)]          # los H huecos se llenan en lazo cerrado
+    xs = None
+    if hp[&quot;exogenas&quot;] and len(X_hist.columns):
+        mx, sx = X_hist.values.mean(axis=0), X_hist.values.std(axis=0)
+        xs = (np.vstack([X_hist.values, X_fut.values]) - mx) / sx
+    # 2) Regresores con retardos (lazo abierto: los retardos son valores reales)
+    n = len(y_hist)
+    idx = np.arange(max(dy, dx), n)
+    Z = np.array([retardos(ys, xs, k, dy, dx) for k in idx])
+    T = ys[idx]
+    # 3) La cola (15 %) de y_hist es la validación para la parada temprana
+    nv = int(0.15 * len(idx))
+    tf.keras.utils.set_random_seed(hp[&quot;semilla&quot;])
+    red = tf.keras.Sequential([
+        tf.keras.Input(shape=(Z.shape[1],)),
+        tf.keras.layers.Dense(hp[&quot;neuronas&quot;], activation=&quot;tanh&quot;,
+                              kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+        tf.keras.layers.Dense(1)])
+    red.compile(optimizer=tf.keras.optimizers.Adam(1e-3), loss=&quot;mse&quot;)
+    red.fit(Z[:-nv], T[:-nv], validation_data=(Z[-nv:], T[-nv:]), epochs=300, batch_size=32, verbose=0,
+            callbacks=[tf.keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)])
+    # 4) Lazo cerrado: cada predicción entra como retardo de la siguiente
+    for k in range(n, n + H):
+        ys[k] = red(retardos(ys, xs, k, dy, dx)[None, :], training=False).numpy()[0, 0]
+    # 5) Desescalar y deshacer el logaritmo
+    return np.expm1(ys[n:] * sd + mu)</pre></div></div></section><section class="paso" id="p16"><label class="hecho"><input type="checkbox" data-k="16"><span class="n">16</span></label><div class="cuerpo"><h2>Modelos e hiperparámetros iniciales</h2><p>En la misma celda, <b>reemplaza el diccionario <code>MODELOS</code></b> del final por:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre>HP_CLASICO = {&quot;p&quot;: 1, &quot;q&quot;: 1, &quot;P&quot;: 0, &quot;Q&quot;: 0}
+HP_RED     = {&quot;dy&quot;: 14, &quot;dx&quot;: 2, &quot;neuronas&quot;: 10, &quot;semilla&quot;: SEMILLA}
+MODELOS = {&quot;Ingenuo estacional&quot;: (ingenuo_estacional, {}),
+           &quot;Clásico&quot;:            (modelo_clasico, HP_CLASICO),
+           &quot;Neuronal&quot;:           (modelo_neuronal, {**HP_RED, &quot;exogenas&quot;: True}),
+           &quot;NAR&quot;:                (modelo_neuronal, {**HP_RED, &quot;exogenas&quot;: False})}</pre></div><p>Ejecuta la celda (no imprime nada).</p></div></section><section class="paso" id="p17"><label class="hecho"><input type="checkbox" data-k="17"><span class="n">17</span></label><div class="cuerpo"><h2>Validación cruzada</h2><p>Ejecuta la celda de la sección 8 (<b>motor de evaluación, no se modifica</b>). Tarda ~1 minuto.</p><p class="ok"><span>Debe salir</span>Debe salir:</p><details class="salida"><summary>Debe salir algo así</summary><pre>Validación cruzada de origen móvil (5 pliegues, H=24)
+                        RMSE      MAE   MAPE(%)  sMAPE(%)    MASE  Tiempo(s)
+Ingenuo estacional  110.5323  71.6894  194.2491   85.0649  1.0046     0.0000
+Clásico              52.5022  37.1692   86.0689   57.6717  0.5208     1.5684
+Neuronal             43.3311  30.0607   62.2225   48.9266  0.4212    28.9919
+NAR                  59.7522  43.3551  119.2477   65.2447  0.6075    23.5740</pre></details></div></section><section class="paso" id="p18"><label class="hecho"><input type="checkbox" data-k="18"><span class="n">18</span></label><div class="cuerpo"><h2>Commit: modelos</h2><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>git add taller6_series_tiempo.ipynb
+git commit -m &quot;taller 6: modelo clásico (ARIMAX log) y NARX/NAR con validación cruzada&quot;</pre></div></div></section><section class="paso" id="p19"><label class="hecho"><input type="checkbox" data-k="19"><span class="n">19</span></label><div class="cuerpo"><h2>TODO: <code>REJILLAS</code></h2><p>En la sección 9, <b>reemplaza solo el diccionario <code>REJILLAS</code></b> (deja <code>def sensibilidad</code> igual) por:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre>REJILLAS = {
+    &quot;Clásico&quot;:  {&quot;p&quot;: [1, 2, 3], &quot;q&quot;: [0, 1, 2]},
+    &quot;Neuronal&quot;: {&quot;dy&quot;: [7, 14, 28], &quot;neuronas&quot;: [5, 10, 20], &quot;semilla&quot;: [1, 2, 3]},
+}</pre></div><p>Ejecuta. <b>Tarda unos 9 minutos</b>: pasa a la escena de <b>Pausa</b> (⌃⌥3) y vuelve con ⌃⌥1 cuando termine.</p><p class="ok"><span>Debe salir</span>Debe salir: la tabla del clásico con <code>(p=1, q=1)</code> primero, <code>RMSE medio 50.66</code>, su mapa de calor, y la tabla de 27 filas de la red con <code>dy = 7</code> arriba.</p></div></section><section class="paso" id="p20"><label class="hecho"><input type="checkbox" data-k="20"><span class="n">20</span></label><div class="cuerpo"><h2>Promedio de semillas y elección</h2><p>Inserta una celda de código <b>debajo</b> de la de sensibilidad:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre># La rejilla de la red tiene 3 claves (dy, neuronas, semilla): promedio sobre las semillas.
+t = tablas_sens[&quot;Neuronal&quot;]
+red_sem = t.groupby([&quot;dy&quot;, &quot;neuronas&quot;])[&quot;RMSE medio&quot;].agg([&quot;mean&quot;, &quot;std&quot;]).reset_index()
+display(red_sem.sort_values(&quot;mean&quot;).round(3))
+piv = red_sem.pivot(index=&quot;dy&quot;, columns=&quot;neuronas&quot;, values=&quot;mean&quot;)
+plt.figure(figsize=(5, 4))
+plt.imshow(piv, cmap=&quot;viridis&quot;); plt.colorbar(label=&quot;RMSE medio (3 semillas)&quot;)
+plt.xticks(range(piv.shape[1]), piv.columns); plt.yticks(range(piv.shape[0]), piv.index)
+plt.xlabel(&quot;neuronas&quot;); plt.ylabel(&quot;dy&quot;); plt.title(&quot;Sensibilidad NARX&quot;); plt.show()
+
+# Hiperparámetros elegidos SOLO con la validación cruzada (la prueba externa sigue sin tocarse)
+mejor_c = tablas_sens[&quot;Clásico&quot;].iloc[0]
+mejor_r = red_sem.loc[red_sem[&quot;mean&quot;].idxmin()]
+HP_CLASICO.update(p=int(mejor_c[&quot;p&quot;]), q=int(mejor_c[&quot;q&quot;]))
+HP_RED.update(dy=int(mejor_r[&quot;dy&quot;]), neuronas=int(mejor_r[&quot;neuronas&quot;]))
+MODELOS[&quot;Clásico&quot;]  = (modelo_clasico, HP_CLASICO)
+MODELOS[&quot;Neuronal&quot;] = (modelo_neuronal, {**HP_RED, &quot;exogenas&quot;: True})
+MODELOS[&quot;NAR&quot;]      = (modelo_neuronal, {**HP_RED, &quot;exogenas&quot;: False})
+print(&quot;Elegidos:&quot;, HP_CLASICO, HP_RED)
+
+tabla_cv, salidas_cv = correr_benchmark(desarrollo, pl_cv, MODELOS)
+print(&quot;Validación cruzada con los hiperparámetros elegidos&quot;); display(tabla_cv.round(4))</pre></div><p>Ejecuta (~1 min).</p><p class="ok"><span>Debe salir</span>Debe salir:</p><details class="salida"><summary>Debe salir algo así</summary><pre>   dy  neuronas    mean    std
+2   7        20  38.802  0.201
+1   7        10  41.330  2.479
+4  14        10  41.698  2.616
+...
+8  28        10  50.135  1.838
+Elegidos: {&#x27;p&#x27;: 1, &#x27;q&#x27;: 1, &#x27;P&#x27;: 0, &#x27;Q&#x27;: 0} {&#x27;dy&#x27;: 7, &#x27;dx&#x27;: 2, &#x27;neuronas&#x27;: 20, &#x27;semilla&#x27;: 2026}
+Clásico   52.5022 ... MASE 0.5208
+Neuronal  42.8117 ... MASE 0.4464
+NAR       61.3766 ... MASE 0.6223</pre></details></div></section><section class="paso" id="p21"><label class="hecho"><input type="checkbox" data-k="21"><span class="n">21</span></label><div class="cuerpo"><h2>Commit: sensibilidad</h2><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>git add taller6_series_tiempo.ipynb
+git commit -m &quot;taller 6: rejillas de sensibilidad (3 semillas) y elección por validación cruzada&quot;</pre></div></div></section><section class="paso" id="p22"><label class="hecho"><input type="checkbox" data-k="22"><span class="n">22</span></label><div class="cuerpo"><h2>Prueba externa (una sola vez)</h2><p>Ejecuta la celda de la sección 10 (~1,5 min).</p><p class="ok"><span>Debe salir</span>Debe salir:</p><details class="salida"><summary>Debe salir algo así</summary><pre>Prueba externa: 12 orígenes, H=24
+                       RMSE      MAE   MAPE(%)  sMAPE(%)    MASE  Tiempo(s)
+Ingenuo estacional  96.2395  69.4932  175.6126   86.3006  0.9738     0.0001
+Clásico             68.4711  43.5502   80.1265   56.7341  0.6103     5.3662
+Neuronal            49.6144  29.3332   49.3029   40.4724  0.4110    49.3046
+NAR                 76.0368  48.3028   97.8692   64.1294  0.6768    33.0190</pre></details></div></section><section class="paso" id="p23"><label class="hecho"><input type="checkbox" data-k="23"><span class="n">23</span></label><div class="cuerpo"><h2>Gráfica de pronósticos</h2><p>Inserta una celda de código <b>debajo</b> de la de la prueba externa:</p><div class="code"><div class="bar"><span class="tag t-python">Celda de código</span><button type="button" class="cp">Copiar</button></div><pre># Pronósticos de la prueba externa: los 12 orígenes, cada uno con sus 24 días pronosticados
+fig, ax = plt.subplots(figsize=(12, 4))
+ax.plot(prueba.index, prueba[OBJ], color=&quot;k&quot;, lw=.8, label=&quot;real&quot;)
+for m, c in [(&quot;Clásico&quot;, &quot;tab:blue&quot;), (&quot;Neuronal&quot;, &quot;tab:red&quot;)]:
+    R, P = salidas_test[m]
+    for j, (_, ite) in enumerate(pl_test):
+        ax.plot(datos.index[ite], P[j], color=c, lw=1, label=m if j == 0 else None)
+ax.set_title(&quot;Prueba externa: pronósticos a 24 días desde cada origen&quot;); ax.legend(); plt.show()</pre></div><p class="ok"><span>Debe salir</span>La línea roja (NARX) sigue varios picos de smog de octubre a enero; la azul (clásico) se queda más plana.</p></div></section><section class="paso" id="p24"><label class="hecho"><input type="checkbox" data-k="24"><span class="n">24</span></label><div class="cuerpo"><h2>Residuos y Diebold-Mariano</h2><p>Ejecuta la celda de la sección 11.</p><p class="ok"><span>Debe salir</span>Cuatro filas de gráficas de residuos, Ljung-Box con <code>lb_pvalue 0.0</code> en los cuatro modelos, y:</p><details class="salida"><summary>Debe salir algo así</summary><pre>DM Ingenuo estacional vs Clásico: DM*=2.608, p=0.0096
+DM Ingenuo estacional vs Neuronal: DM*=2.807, p=0.0053
+DM Ingenuo estacional vs NAR: DM*=2.340, p=0.0200
+DM Clásico vs Neuronal: DM*=2.246, p=0.0255
+DM Clásico vs NAR: DM*=-1.357, p=0.1760
+DM Neuronal vs NAR: DM*=-1.943, p=0.0530</pre></details></div></section><section class="paso" id="p25"><label class="hecho"><input type="checkbox" data-k="25"><span class="n">25</span></label><div class="cuerpo"><h2>Exportar <code>resultados/</code></h2><p>Ejecuta la celda de la sección 12.</p><p class="ok"><span>Debe salir</span><code>Archivos en ./resultados: [&#x27;benchmark_cv.csv&#x27;, &#x27;sensibilidad_Clásico.csv&#x27;, &#x27;benchmark_prueba.csv&#x27;, &#x27;sensibilidad_Neuronal.csv&#x27;, &#x27;configuracion.json&#x27;]</code> (el orden puede cambiar).</p></div></section><section class="paso" id="p26"><label class="hecho"><input type="checkbox" data-k="26"><span class="n">26</span></label><div class="cuerpo"><h2>Commit: prueba externa</h2><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>git add taller6_series_tiempo.ipynb resultados
+git commit -m &quot;taller 6: prueba externa, residuos, Diebold-Mariano y resultados&quot;</pre></div></div></section><section class="paso" id="p27"><label class="hecho"><input type="checkbox" data-k="27"><span class="n">27</span></label><div class="cuerpo"><h2>Hipótesis contra resultados</h2><p>Vuelve a la presentación, <b>diapositiva 10</b> (tecla <code>0</code>), en pantalla completa (<b>F</b>). Ahí sale lo que escribiste en la 8. Para cada hipótesis, <b>escribe en vivo lo que salió</b> y marca <b>Acerté</b>, <b>A medias</b> o <b>No acerté</b>; arriba se va sumando el puntaje. Después copia lo mismo en una celda <b>Markdown</b> al final del cuaderno, con tus palabras, para que quede en la entrega. Los datos:</p><p>1. NARX contra clásico en la prueba: MASE 0.41 contra 0.61, RMSE 49.6 contra 68.5; DM p = 0.026.</p><p>2. Clima: NARX 0.41 contra NAR 0.68; DM p = 0.053 (no significativo al 5 %). La NAR no le gana ni al clásico.</p><p>3. dy contra neuronas: dy = 28 empeora de ~40 a ~45–50; las neuronas mueven 1 a 3 puntos.</p><p>4. DM: significativo contra el clásico, no contra la NAR.</p></div></section><section class="paso" id="p28"><label class="hecho"><input type="checkbox" data-k="28"><span class="n">28</span></label><div class="cuerpo"><h2>Conclusiones y declaración de IA</h2><p>Debajo, otra celda <b>Markdown</b>. Las conclusiones <b>con tus palabras</b>, una línea por hallazgo:</p><p>1. PM2.5 diario es estacionaria en nivel (ADF y KPSS), con estacionalidad semanal débil (F_S = 0,07); el logaritmo baja la asimetría de 1,77 a −0,28.</p><p>2. AIC, BIC y la validación cruzada eligen el mismo clásico: ARIMAX(1,0,1) con clima; la humedad sube la contaminación y el viento la baja.</p><p>3. En la red pesan más los retardos que las neuronas: una semana es mejor que cuatro; hay que promediar semillas (hasta 7 puntos de diferencia).</p><p>4. En la prueba externa la NARX gana (MASE 0,41 frente a 0,61; DM p = 0,026), pero la ventaja viene en buena parte del clima futuro, que aquí es conocido.</p><p>5. La red tarda de 10 a 18 veces más en ajustarse que el clásico (49 s frente a 5 s en la prueba) y es menos interpretable.</p><p>Y la declaración (el profe pide herramienta, partes y verificación):</p><div class="code"><div class="bar"><span class="tag t-markdown">Celda Markdown</span><button type="button" class="cp">Copiar</button></div><pre>## Declaración de uso de IA
+Usé Claude (Anthropic). Comparó los tres datasets, preparó la guía de pasos, la presentación del plan y el script que prepara el entorno, y propuso el código de los TODO-EQUIPO (modelo clásico, NARX y rejillas) y de las celdas añadidas; yo lo escribí, lo ejecuté y expliqué cada parte en el video, y verifiqué las salidas contra la guía. Las hipótesis y las conclusiones las redacté yo. No se modificó el motor de evaluación. La versión en MATLAB no se desarrolló porque no tengo MATLAB.</pre></div></div></section><section class="paso" id="p29"><label class="hecho"><input type="checkbox" data-k="29"><span class="n">29</span></label><div class="cuerpo"><h2>Cierre del video (~1 min)</h2><p>En la presentación pasa a la <b>11</b> (→): &quot;A programar&quot; con tu nombre.</p><p>Último commit:</p><div class="code"><div class="bar"><span class="tag t-bash">Terminal</span><button type="button" class="cp">Copiar</button></div><pre>git add taller6_series_tiempo.ipynb
+git commit -m &quot;taller 6: hipótesis, conclusiones y declaración de IA&quot;</pre></div></div></section></main>
+<script>
+document.querySelectorAll('.cp').forEach(b => b.addEventListener('click', async () => {
+  const t = b.closest('.code').querySelector('pre').innerText;
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); }
+  b.textContent = 'Copiado'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1400);
+}));
+const nav = document.getElementById('nav');
+document.querySelectorAll('.hecho input').forEach(c => {
+  const k = 'chuleta6-' + c.dataset.k, sec = c.closest('.paso'), a = nav.querySelector(`a[href="#p${c.dataset.k}"]`);
+  const set = v => { c.checked = v; sec.classList.toggle('ok', v); a && a.classList.toggle('done', v); };
+  try { set(localStorage.getItem(k) === '1'); } catch (e) {}
+  c.addEventListener('change', () => { set(c.checked); try { localStorage.setItem(k, c.checked ? '1' : '0'); } catch (e) {} });
+});
+
+/* ---------- teclado ---------- */
+const pasos = [...document.querySelectorAll('.paso')];
+let cur = 0;
+const toast = Object.assign(document.createElement('div'), { id: 'toast' }); document.body.appendChild(toast);
+let tt; const say = t => { toast.textContent = t; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove('show'), 1300); };
+function progreso() {
+  const n = pasos.filter(p => p.classList.contains('ok')).length;
+  document.getElementById('prog').textContent = `${n} de ${pasos.length} hechos`;
+}
+function ir(i, scroll = true) {
+  cur = Math.max(0, Math.min(pasos.length - 1, i));
+  pasos.forEach((p, k) => p.classList.toggle('cur', k === cur));
+  if (scroll) pasos[cur].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try { localStorage.setItem('chuleta6-cur', cur); } catch (e) {}
+}
+function marcar(v) {
+  const c = pasos[cur].querySelector('.hecho input');
+  c.checked = v === undefined ? !c.checked : v; c.dispatchEvent(new Event('change'));
+  progreso(); return c.checked;
+}
+async function copiar(n) {
+  const bloques = pasos[cur].querySelectorAll('.code');
+  if (!bloques[n]) { say(n ? `Este paso no tiene bloque ${n + 1}` : 'Este paso no tiene código'); return; }
+  const t = bloques[n].querySelector('pre').innerText;
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); }
+  bloques[n].classList.add('flash'); setTimeout(() => bloques[n].classList.remove('flash'), 700);
+  say(`Copiado: ${bloques[n].querySelector('.tag').textContent}${bloques.length > 1 ? ` (${n + 1} de ${bloques.length})` : ''}`);
+}
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA)$/.test(e.target.tagName) && e.target.type !== 'checkbox') return;
+  const k = e.key;
+  if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); ir(cur + 1); }
+  else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); ir(cur - 1); }
+  else if (k === ' ') { e.preventDefault(); if (marcar(true)) { say(`Paso ${pasos[cur].id.slice(1)} hecho`); ir(cur + 1); } }
+  else if (k === 'x') { const v = marcar(); say(`Paso ${pasos[cur].id.slice(1)} ${v ? 'hecho' : 'pendiente'}`); }
+  else if (k === 'c' || k === '1') copiar(0);
+  else if (k === '2') copiar(1);
+  else if (k === '3') copiar(2);
+  else if (k === 's') { const d = pasos[cur].querySelector('details'); if (d) d.open = !d.open; else say('Este paso no tiene salida esperada'); }
+  else if (k === 'u') { const i = pasos.findIndex(p => !p.classList.contains('ok')); if (i >= 0) ir(i); else say('Todo hecho'); }
+});
+pasos.forEach((p, i) => p.addEventListener('click', e => { if (!e.target.closest('button, input, summary')) ir(i, false); }));
+document.querySelectorAll('.hecho input').forEach(c => c.addEventListener('change', progreso));
+nav.querySelectorAll('a').forEach((a, i) => a.addEventListener('click', () => ir(i, false)));
+let c0 = 0; try { c0 = +(localStorage.getItem('chuleta6-cur') || 0); } catch (e) {}
+ir(c0, false); progreso();
+</script></body></html>

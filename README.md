@@ -29,10 +29,12 @@ Repositorio de la asignatura *Inteligencia Computacional* (Maestría). Aquí se 
 | Taller 1 | Perceptrón y Adaline (rehecho y grabado: [video](https://youtu.be/TNVHhuWUC0g)) | [`2.Talleres/1.Taller/`](2.Talleres/1.Taller/) |
 | Taller 2 | Perceptrón multicapa (MLP) y backpropagation | [`2.Talleres/2.Taller/`](2.Talleres/2.Taller/) |
 | Taller 3 | Red convolucional (CNN) sobre KMNIST: informe, presentación y animación | [`2.Talleres/3.Taller/`](2.Talleres/3.Taller/) |
-| Taller 4 | Lógica difusa (adicional): clasificador difuso del robot que sigue la pared, con 2 y 4 sensores — en curso | [`2.Talleres/4.Taller/`](2.Talleres/4.Taller/) |
+| Taller 4 | Lógica difusa (adicional): clasificador difuso del robot que sigue la pared, con 2 y 4 sensores (cuaderno, informe y presentación) | [`2.Talleres/4.Taller/`](2.Talleres/4.Taller/) |
 | Taller 5 | Lógica difusa: taller propuesto (cuaderno corregido del 16 oct; [video](https://youtu.be/sCQziT3QukI)) | [`2.Talleres/5.Taller/`](2.Talleres/5.Taller/) |
+| Taller 6 | Series de tiempo: modelo clásico frente a redes NAR y NARX para pronosticar PM2.5 diario en Beijing, con validación de origen móvil y prueba de Diebold-Mariano | [`2.Talleres/6.Taller/`](2.Talleres/6.Taller/) |
+| Tarea 1 | Algoritmo genético binario desde cero, con interfaz web y modelo en NetLogo | [`1.Tareas/1.AlgoritmoGenetico/`](1.Tareas/1.AlgoritmoGenetico/) |
 | Trabajo 1 | Revisión estadística y limpieza de variables (datasets *E. coli* y *Bank Marketing*) | [`3.Trabajos/1.en-casa-limpieza/`](3.Trabajos/1.en-casa-limpieza/) |
-| Proyecto final | Pendiente | [`4.ProyectoFinal/`](4.ProyectoFinal/) |
+| Proyecto final | *Riesgo de los commits del kernel de Linux bajo deriva temporal con un clasificador difuso-evolutivo interpretable* (CRISP-ML(Q), artículo IEEE). Entregables 1 a 3 enviados (el 2 corregido); faltan el 4 (29 nov), la entrega final (3 dic) y la sustentación (4 dic) | [`4.ProyectoFinal/`](4.ProyectoFinal/) |
 
 Los talleres 2 y 3 traen además guía de sustentación (`GUIA_SUSTENTACION.md`) y presentación Beamer. Desde el Taller 1 rehecho, cada taller se graba en video con la escena de [`grabacion/`](grabacion/).
 
@@ -42,7 +44,7 @@ Los talleres 2 y 3 traen además guía de sustentación (`GUIA_SUSTENTACION.md`)
 - `1.Tareas/` — Entregas formales por actividad.
 - `2.Talleres/` — Un directorio por taller:
   - `bibliografia/` — material del profesor (enunciado, datos, solución si la hay).
-  - el cuaderno del taller, `requirements.txt` y `figuras/` (talleres 1, 4 y 5), o `desarrollo/` (talleres 2 y 3).
+  - el cuaderno del taller, `requirements.txt` y `figuras/` (talleres 1, 4, 5 y 6), o `desarrollo/` (talleres 2 y 3).
   - `informe/` — LaTeX con la plantilla UD.
   - `entrega/` — exactamente lo que se sube a Classroom, autocontenido.
 - `grabacion/` — Escena de OBS para los *code with me* (overlay, tareas y guion por taller).
@@ -54,7 +56,7 @@ Los talleres 2 y 3 traen además guía de sustentación (`GUIA_SUSTENTACION.md`)
 
 ## Cómo reproducir un taller
 
-Talleres 1, 4 y 5: abrir `entrega/` y ejecutar el cuaderno (las rutas son relativas a esa carpeta):
+Talleres 1, 4, 5 y 6: abrir `entrega/` y ejecutar el cuaderno (las rutas son relativas a esa carpeta):
 
 ```bash
 cd 2.Talleres/1.Taller/entrega
