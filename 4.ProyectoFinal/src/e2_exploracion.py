@@ -2,8 +2,8 @@
 
 Todo lo que orienta decisiones (distribuciones, correlaciones, relación con la
 etiqueta) se calcula SOLO con commits de entrenamiento y validación
-(2019-2025). El periodo de prueba aparece únicamente en conteos y prevalencia,
-para la ficha y la verificación D1-D7.
+(2019-2025). Del periodo de prueba solo se cuenta el número de commits (D1); su
+etiqueta no se mira.
 
 Uso:  python src/e2_exploracion.py
 Salida: resultados/e2/*.json, resultados/e2/*.png
@@ -59,7 +59,7 @@ def main():
     d["D1_tamano"] = {"commits_2019_2026": int(len(desarrollo) + len(prueba)),
                       "desarrollo_2019_2025": int(len(desarrollo)), "prueba_2026": int(len(prueba)),
                       "minimo_curso_difusos": 300, "cumple": True}
-    anual = obs[obs["fecha"].dt.year >= 2019].groupby(obs["fecha"].dt.year)["riesgoso"]
+    anual = desarrollo.groupby(desarrollo["fecha"].dt.year)["riesgoso"]   # sin 2026
     d["D2_objetivo"] = {"definicion": "riesgoso = citado por un Fixes: de mainline en <=90 días",
                         "positivos_por_anio": {int(k): int(v) for k, v in anual.sum().items()},
                         "prevalencia_por_anio": {int(k): float(v) for k, v in anual.mean().items()}}
@@ -68,9 +68,10 @@ def main():
         "faltantes_por_variable": {v: int(todo[v].isna().sum()) for v in C.VARIABLES},
         "hashes_duplicados": int(todo["hash"].duplicated().sum()),
         "censurados_excluidos": int(todo["censurado"].sum()),
-        "nota": "Sin merges. Los backports de stable no están en mainline, así que no hay "
-                "el mismo parche dos veces; las referencias Fixes: no resueltas (9,4 %) apuntan "
-                "a commits anteriores a 2014 o a otros árboles."}
+        "nota": "Sin merges. Los backports de stable no están en mainline, pero sí hay "
+                "cherry-picks entre árboles de subsistema: el mismo parche aparece dos veces "
+                "(ver src/e2_backports.py y backports.json). Las referencias Fixes: no "
+                "resueltas (9,4 %) apuntan a commits anteriores a 2014 o a otros árboles."}
     gaps = desarrollo["t_commit"].diff().dropna() / 3600
     d["D4_estructura"] = {"indice": "fecha del committer, ordenada",
                           "muestreo": "irregular (eventos)",
@@ -110,11 +111,13 @@ def main():
 
     # ---------------- figuras
     fig, ax = plt.subplots(1, 2, figsize=(7, 2.3))
-    p = obs.groupby(obs["fecha"].dt.year)["riesgoso"].mean() * 100
-    colores = [PLATA if a < 2019 else (DORADO if a == 2026 else AZUL) for a in p.index]
+    # La prueba (2026) queda fuera de la exploración: solo años anteriores.
+    previo = obs[obs["fecha"] < C._ts(C.PRUEBA[0])]
+    p = previo.groupby(previo["fecha"].dt.year)["riesgoso"].mean() * 100
+    colores = [PLATA if a < 2019 else AZUL for a in p.index]
     ax[0].bar(p.index, p.values, color=colores)
     ax[0].set_ylabel("% riesgosos")
-    ax[0].set_title("Prevalencia por año (gris: fuera del estudio)")
+    ax[0].set_title("Prevalencia por año, 2014-2025 (gris: antes del estudio)")
     x = desarrollo["lineas_add"].clip(upper=desarrollo["lineas_add"].quantile(0.99))
     ax[1].hist([np.log10(1 + x[desarrollo.riesgoso == 0]), np.log10(1 + x[desarrollo.riesgoso == 1])],
                bins=40, density=True, color=[PLATA, AZUL], label=["no riesgoso", "riesgoso"])

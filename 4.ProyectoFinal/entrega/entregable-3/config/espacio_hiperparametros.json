@@ -1,0 +1,64 @@
+{
+  "busqueda": "aleatoria, 14 configuraciones, elegidas por AUC-PR medio en las 3 ventanas",
+  "n_reglas": [
+    5,
+    10,
+    15
+  ],
+  "poblacion": [
+    40,
+    60,
+    80
+  ],
+  "generaciones": [
+    60,
+    100,
+    140
+  ],
+  "prob_mutacion": [
+    0.05,
+    0.15,
+    0.3
+  ],
+  "prob_cruce": [
+    0.7,
+    0.9
+  ],
+  "lambda_complejidad": [
+    0.0,
+    0.0005
+  ],
+  "fijos": {
+    "terminos_por_variable": 3,
+    "max_antecedentes": 3,
+    "torneo": 3,
+    "elitismo": 2,
+    "muestra_aptitud": 80000,
+    "variables": [
+      "lineas_add",
+      "lineas_del",
+      "n_archivos",
+      "n_subsistemas",
+      "n_reviewed",
+      "n_signed",
+      "es_fix",
+      "cc_stable",
+      "exp_autor",
+      "exp_autor_subsistema"
+    ]
+  },
+  "sensibilidad": {
+    "n_reglas": [
+      5,
+      10,
+      15
+    ],
+    "prob_mutacion": [
+      0.05,
+      0.15,
+      0.3
+    ],
+    "resto": "en la mejor configuración de la búsqueda"
+  },
+  "presupuesto": "284 s medidos con la configuración máxima. Cota de 6,6 h en un núcleo para 84 entrenamientos (42 de búsqueda, 27 de sensibilidad y 15 de semillas)."
+}

@@ -1,102 +1,195 @@
 %=====================================================================
-\section{Metodología: datos y modelos}
+\section{Metodología}
 
-La metodología sigue las etapas de CRISP-ML(Q) \cite{Studer2021}. Esta sección cubre la comprensión y preparación de los datos (etapa 2) y la elección de los modelos (etapa 3). Las subsecciones finales declaran el protocolo de evaluación (etapa 3), fijado antes de entrenar el modelo propuesto.
+\subsection{Proceso según CRISP-ML(Q)}
+El estudio sigue el modelo de proceso CRISP-ML(Q) \cite{Studer2021}, que organiza el desarrollo en seis etapas con controles de calidad: comprensión del negocio y de los datos, preparación de los datos, modelado, evaluación, despliegue, y monitoreo y mantenimiento. Este artículo documenta las etapas 1 a 4 y discute las etapas 5 y 6 como viabilidad. Este entregable cubre la comprensión de los datos (etapa 2) y la elección de los modelos (inicio de la etapa 3).
 
-\subsection{Construcción del dataset}
+\subsection{Conjunto de datos}
+El historial de \texttt{torvalds/linux} permite responder la pregunta porque trae, en el mismo registro, la información disponible al integrar cada commit (diff, trailers y fechas) y la etiqueta posterior (el \texttt{Fixes:} que lo señala), y porque cubre sin cortes el año 2026, en el que se mide la degradación. Con el kernel trabajaron también Lyu \emph{et al.} \cite{Lyu2024}, que validan la etiqueta \texttt{Fixes:} frente a SZZ, y Nguyen \emph{et al.} \cite{Nguyen2025}, que reportan AUC-PR con la prevalencia real, lo que permite comparar órdenes de magnitud. El conjunto de Zenodo de Maes Bermejo \emph{et al.} \cite{MaesBermejo2024} termina en noviembre de 2023, así que no cubre la validación de 2024--2025 ni la prueba, y se usó solo para contrastar la etiqueta. Por eso se minó el clon completo.
 
-Se minó un clon completo de \texttt{torvalds/linux} con una sola pasada de \texttt{git log} sobre la rama principal, sin commits de fusión, desde 2014. Los años 2014--2018 solo sirven para calcular la experiencia de los autores. Por cada commit se extraen el \emph{numstat} del diff, los trailers del mensaje y las fechas. Las referencias \texttt{Fixes:} (prefijos de al menos 8 caracteres hexadecimales) se resuelven contra el historial: el 9,4\,\% que no se resuelve apunta a commits anteriores a 2014 o a otros árboles.
-
-\textbf{Etiqueta.} Un commit es \emph{riesgoso} si algún commit posterior de la rama principal lo cita con \texttt{Fixes:} en 90 días o menos. Los commits con menos de 90 días de observación a la fecha de corte quedan \emph{censurados} y se excluyen (\cifCensurados{} commits), porque su etiqueta negativa todavía no es definitiva \cite{Falessi2022,Cabral2019}.
-
-\textbf{Anonimización.} Nombre y correo del autor se reemplazan por un SHA-256 con sal. No se publica el texto de los mensajes.
-
-La Tabla~\ref{tab:ficha} resume la ficha del dataset y su validación con los criterios D1--D7 del enunciado. Las \cifNVariables{} variables candidatas son las familias clásicas de JIT \cite{Kamei2013}:
-\begin{itemize}
-\item tamaño: líneas añadidas y borradas, archivos y binarios;
-\item difusión: directorios de primer nivel y subsistemas;
-\item revisión: \texttt{Reviewed-by}, \texttt{Acked-by}, \texttt{Tested-by}, \texttt{Reported-by}, \texttt{Signed-off-by}, \texttt{Co-developed-by} y \texttt{Link};
-\item propósito: si trae su propio \texttt{Fixes:}, si pide backport a \emph{stable}, si el asunto menciona \emph{fix} y la longitud del asunto;
-\item experiencia: commits previos del autor, en total y en el subsistema, y días desde su primer commit;
-\item momento: hora y día de la semana.
-\end{itemize}
-Todas se conocen al integrar el commit.
+Se recorrió la rama principal con una sola pasada de \texttt{git log}, sin commits de fusión, desde 2014; los años 2014--2018 solo alimentan la experiencia de los autores. Las referencias \texttt{Fixes:} (prefijos de al menos 8 caracteres hexadecimales) se resuelven contra el historial: el 9,4\,\% que no se resuelve apunta a commits anteriores a 2014 o a otros árboles. Un commit es \emph{riesgoso} si un commit posterior de la rama principal lo cita con \texttt{Fixes:} en 90 días o menos. Los commits con menos de 90 días de observación a la fecha de corte quedan \emph{censurados} y se excluyen (\cifCensurados{} commits), porque su etiqueta negativa todavía no es definitiva \cite{Falessi2022,Cabral2019}. La Tabla~\ref{tab:ficha} resume la ficha del conjunto, elaborada según la propuesta \emph{Datasheets for Datasets} \cite{Gebru2021}.
 
 \begin{table}[!t]
-\caption{Ficha del dataset y verificación D1--D7}
+\caption{Ficha del conjunto de datos}
 \label{tab:ficha}
 \centering\footnotesize
-\begin{tabularx}{\columnwidth}{@{}l Y@{}}
+\begin{tabularx}{\columnwidth}{@{}p{2.2cm} Y@{}}
 \toprule
-\cabecera & \textbf{Valor}\\
+\cabecera \textbf{Campo} & \textbf{Descripción}\\
 \midrule
-Fuente & Clon de \texttt{torvalds/linux}, rama principal, GPL-2.0\\
-Periodo & 2019-01-01 a 2026-07-31\\
-D1 Tamaño & \cifCommits{} commits no censurados: \cifDesarrollo{} de desarrollo (2019--2025) y \cifPrueba{} de prueba (2026)\\
-D2 Objetivo & Riesgoso (binaria): \cifPositivosDesarrollo{} positivos en desarrollo, prevalencia anual entre \cifPrevMin{} y \cifPrevMax{}\\
-D3 Calidad & Sin faltantes ni hashes duplicados; colas pesadas (hasta 730\,092 líneas en un commit); 3 fechas de autor corruptas\\
-D4 Estructura & Eventos irregulares ordenados por fecha del committer; \cifAutores{} autores y \cifSubsistemas{} subsistemas\\
-D5 Disponibilidad & Solo información del propio commit y del pasado del autor\\
-D6 Licencia y ética & Metadatos públicos; autores anonimizados\\
-D7 Documentación & Diccionario de las \cifNVariables{} variables en el anexo\\
+Nombre y versión & Commits de \texttt{torvalds/linux}, rama \texttt{master}; clon del 2026-11-07\\
+Fuente y enlace & \url{https://github.com/torvalds/linux}; extracción del historial de la rama principal\\
+Licencia & Código GPL-2.0; metadatos de git públicos\\
+Contexto & Commits integrados por los mantenedores; fechas de autor y de committer\\
+Tamaño & \cifCommits{} commits no censurados $\times$ \cifNVariables{} variables de entrada; eventos irregulares, 2019-01-01 a 2026-07-31\\
+Variable objetivo & \texttt{riesgoso} (0/1): citado por un \texttt{Fixes:} en $\le$90 días. Clasificación binaria\\
+Variables de entrada & Tamaño, difusión, revisión, propósito, experiencia y momento; diccionario con unidades en la Tabla~A1 del anexo\\
+Faltantes y atípicos & 0\,\% de faltantes en todas las variables. Atípicos: colas pesadas reales (hasta 730.092 líneas en un commit); se conservan y se tratan con transformaciones por rangos\\
+Sesgos conocidos & Solo se ven los defectos que alguien corrigió con \texttt{Fixes:}; la adopción del trailer crece hasta 2019; \texttt{drivers/} concentra el 49\,\% de los commits y el 1\,\% de los autores, el 39\,\%\\
+Uso previsto & Priorizar la revisión de commits. No se recomienda para evaluar personas: los autores están anonimizados con SHA-256 con sal\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Análisis exploratorio}
+\subsection{Verificación de los criterios de calidad D1--D7}\label{sec:d1d7}
+La Tabla~\ref{tab:d1d7} verifica los siete criterios mínimos de validación del conjunto con la evidencia cuantitativa de cada uno. Todas las cifras se calculan con el conjunto de desarrollo (2019--2025); de la prueba solo se cuenta su tamaño.
 
-Hay tres hallazgos que guían el diseño:
-\begin{itemize}
-\item \textbf{La prevalencia depende de la adopción de \texttt{Fixes:}.} Antes de 2019 crece año a año (Fig.~\ref{fig:eda}), porque cada vez más correcciones usan el trailer, no porque el código empeore. Desde 2019 se estabiliza entre \cifPrevMin{} y \cifPrevMax{}, y por eso el entrenamiento empieza el 1 de enero de 2019. En 2026 baja a \cifPrevAnioVeintiseis{}.
-\item \textbf{El tamaño es la señal dominante y no es lineal.} La prevalencia pasa de \cifPrevQunoAdd{} en el quintil más pequeño de líneas añadidas a \cifPrevQcincoAdd{} en el más grande, con una distribución de colas muy pesadas.
-\item \textbf{Hay deriva en las covariables antes de 2026.} El número medio de \texttt{Reviewed-by} por commit sube de \cifReviewedIni{} (2019) a \cifReviewedFin{} (2025), y la fracción de commits que son correcciones, de \cifFixIni{} a \cifFixFin{}.
-\end{itemize}
-En correlación de Spearman, dos pares son casi redundantes: directorios de primer nivel y subsistemas (0,97), y experiencia y antigüedad del autor (0,73). Por eso el modelo difuso usa solo uno de cada par.
+\begin{table}[!t]
+\caption{Verificación de los criterios D1--D7}
+\label{tab:d1d7}
+\centering\footnotesize
+\begin{tabularx}{\columnwidth}{@{}p{1.8cm} Y p{0.95cm}@{}}
+\toprule
+\cabecera \textbf{Criterio} & \textbf{Evidencia} & \textbf{¿Cumple?}\\
+\midrule
+D1 Tamaño ($\ge$300 obs.) & $n$ = \cifCommits{}: \cifDesarrollo{} de desarrollo y \cifPrueba{} de prueba & Sí\\
+D2 Objetivo definido & \texttt{Fixes:} en $\le$90 días con censura de 90 días; \cifPositivosDesarrollo{} positivos en desarrollo (\cifPrevMin{}--\cifPrevMax{} por año) & Sí\\
+D3 Calidad & 0\,\% de faltantes en el objetivo y en las entradas; 0 hashes duplicados. \cifParesCherry{} pares del mismo parche por \emph{cherry-pick} entre árboles (\cifFracCherry{} del desarrollo), \cifDiscCherry{} con etiqueta distinta; los backports a \emph{stable} no están en la rama principal & Sí\\
+D4 Estructura & Ordenado por fecha del committer (la de integración); eventos irregulares; \cifAutores{} autores y \cifSubsistemas{} subsistemas como grupos & Sí\\
+D5 Disponibilidad & Solo el propio commit y los commits anteriores del autor; ninguna variable descartada por fuga & Sí\\
+D6 Licencia y ética & GPL-2.0; nombres y correos reemplazados por SHA-256 con sal; no se publican los mensajes & Sí\\
+D7 Documentación & Diccionario con origen y unidad de las \cifNVariables{} variables (Tabla~A1); fecha del clon en la ficha & Sí\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Revisión de los \emph{cherry-picks} (D3).} Se buscó en los mensajes la marca \emph{``cherry picked from commit''} y se comprobó si el commit original también está en la rama principal. Casi todos los pares tocan \texttt{drivers/gpu/drm}, cuyos árboles llevan una corrección a \emph{-fixes} y la dejan también en \emph{-next}. Las dos copias distan una mediana de \cifDiasCherry{} días, así que casi siempre caen en el mismo bloque temporal, y las \cifDiscCherry{} etiquetas discordantes son una fracción mínima del desarrollo, por debajo del ruido de la propia etiqueta (81\,\% de culpables confirmados \cite{Lyu2024}). Se conservan ambas copias y se declara como excepción justificada.
+
+\subsection{Análisis exploratorio}
+Antes de explorar se reservó el bloque de prueba: los commits del 1 de enero al 31 de julio de 2026. Toda la exploración usa solo el conjunto de desarrollo (2019--2025), y de la prueba no se miró ni la etiqueta ni la distribución de las entradas.
+
+La Tabla~\ref{tab:desc} presenta los estadísticos descriptivos de las diez variables del modelo difuso; las \cifNVariables{} están en el anexo. Las variables de tamaño tienen colas extremas: la media de líneas añadidas es de unas 59, pero el máximo pasa de 730.000 y la desviación estándar es 27 veces la media. La experiencia del autor también es muy asimétrica, por unos pocos mantenedores con miles de commits.
+
+\begin{table}[!t]
+\caption{Estadísticos descriptivos (conjunto de desarrollo, 2019--2025)}
+\label{tab:desc}
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}l l r r r r r@{}}
+\toprule
+\cabecera \textbf{Variable} & \textbf{Unidad} & \textbf{Media} & \textbf{DE} & \textbf{Mín.} & \textbf{Máx.} & \textbf{\%\,falt.}\\
+\midrule
+\texttt{riesgoso} & 0/1 & \multicolumn{4}{l}{prevalencia anual \cifPrevMin{}--\cifPrevMax{}} & 0{,}0\\
+\filas{../comun/tabla_descriptivos.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+La Fig.~\ref{fig:objetivo} muestra la distribución de la variable objetivo y su relación con el tamaño, y la Fig.~\ref{fig:corr} la matriz de correlación de Spearman entre las entradas. Se usa Spearman y no Pearson porque las colas pesadas harían que unos pocos commits enormes dominaran el coeficiente.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{../../resultados/e2/prevalencia_y_tamano.png}
-\caption{Izquierda: prevalencia de commits riesgosos por año (en gris, los años fuera del estudio). Derecha: distribución del tamaño por clase en 2019--2025.}
-\label{fig:eda}
+\caption{Variable objetivo. Izquierda: balance de clases (prevalencia de riesgosos) por año, 2014--2025; en gris, los años anteriores al estudio. Derecha: distribución de las líneas añadidas por clase en el desarrollo.}
+\label{fig:objetivo}
 \end{figure}
 
-\subsection{Modelos y su papel}
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.92\columnwidth]{../../resultados/e2/correlaciones.png}
+\caption{Matriz de correlación de Spearman entre las \cifNVariables{} variables de entrada (desarrollo, 2019--2025).}
+\label{fig:corr}
+\end{figure}
 
-La Tabla~\ref{tab:modelos} resume los modelos. Las dos referencias clásicas cubren dos extremos. La regresión logística es el estándar de JIT y es difícil de superar con partición temporal \cite{Kamei2013,Zeng2021}. El \emph{gradient boosting} \cite{Friedman2001} da la cota alta de una caja negra sobre las mismas variables.
+Los hallazgos del análisis exploratorio orientan las decisiones de preparación y modelado:
+\begin{itemize}
+\item \textbf{La prevalencia crece hasta 2018 por la adopción de \texttt{Fixes:}} y desde 2019 se estabiliza entre \cifPrevMin{} y \cifPrevMax{} $\rightarrow$ el entrenamiento empieza el 1 de enero de 2019.
+\item \textbf{Clases desbalanceadas} (cerca del 4\,\% de positivos) $\rightarrow$ la métrica principal es el AUC-PR \cite{Saito2015} y no se remuestrea, para que la prevalencia de validación sea la real.
+\item \textbf{El tamaño es la señal dominante y no es lineal}: la prevalencia pasa de \cifPrevQunoAdd{} en el quintil más pequeño de líneas añadidas a \cifPrevQcincoAdd{} en el más grande, con colas extremas $\rightarrow$ el modelo difuso trabaja sobre la función de distribución empírica y la regresión logística sobre $\log(1+x)$ estandarizado, ambos ajustados solo con el entrenamiento.
+\item \textbf{Dos pares casi redundantes}: directorios de primer nivel y subsistemas ($\rho$ = 0,97), y experiencia y antigüedad del autor ($\rho$ = 0,73) $\rightarrow$ el modelo difuso usa solo uno de cada par.
+\item \textbf{Deriva en las covariables antes de 2026}: los \texttt{Reviewed-by} por commit suben de \cifReviewedIni{} (2019) a \cifReviewedFin{} (2025) y las correcciones, de \cifFixIni{} a \cifFixFin{} $\rightarrow$ validación por ventanas temporales y no validación cruzada aleatoria.
+\end{itemize}
+
+\subsection{Modelos del estudio}
+La Tabla~\ref{tab:modelos} define los modelos del estudio y el papel de cada uno. Los modelos se fijaron antes de observar el conjunto de prueba. La regresión logística es el estándar de JIT y es difícil de superar con partición temporal \cite{Kamei2013,Zeng2021}; el \emph{gradient boosting} \cite{Friedman2001} da la cota alta de una caja negra sobre las mismas variables.
 
 \begin{table}[!t]
-\caption{Modelos comparados}
+\caption{Modelos del estudio y su papel}
 \label{tab:modelos}
 \centering\footnotesize
-\begin{tabularx}{\columnwidth}{@{}l l Y@{}}
+\begin{tabularx}{\columnwidth}{@{}p{1.35cm} p{1.5cm} Y p{1.15cm}@{}}
 \toprule
-\cabecera \textbf{Modelo} & \textbf{Papel} & \textbf{Justificación}\\
+\cabecera \textbf{Papel} & \textbf{Modelo} & \textbf{Justificación} & \textbf{Parám.}\\
 \midrule
-Clase mayoritaria & Trivial & Su AUC-PR es la prevalencia: el piso\\
-Reg.\ logística & Clásica & Estándar de JIT \cite{Kamei2013}; $\log(1+x)$ y estandarización\\
-\emph{Gradient boosting} & Clásica fuerte & Cota alta sin restricción de interpretabilidad \cite{Friedman2001}\\
-Difuso-evolutivo & Propuesto & $\le$15 reglas legibles; vértices y reglas ajustados con un AG\\
-Difuso sin evolución & Variante de control & Mismas reglas iniciales, sin AG: mide el aporte de la evolución\\
+Referencia trivial & Clase mayoritaria & Su AUC-PR es la prevalencia: fija el piso & 0\\
+Referencia clásica & Regresión logística & Estándar de JIT \cite{Kamei2013,Zeng2021} & 23\\
+Referencia clásica fuerte & \emph{Gradient boosting} & Cota alta sin restricción de interpretabilidad \cite{Friedman2001} & $\le$12.600 hojas\\
+Propuesto & Difuso-evolutivo & $\le$15 reglas legibles; vértices y reglas ajustados con un AG \cite{Herrera2008,Ishibuchi2001} & \cifGenes{} genes (\cifGenesReales{} reales)\\
+Variante sin evolución & Difuso voraz & Mismas reglas iniciales, sin AG: aísla el aporte de la evolución & $\le$15 pesos\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\textbf{Qué propiedad de los datos aprovecha el modelo propuesto.} El riesgo crece por umbrales con el tamaño y la difusión, se modula con la revisión y la experiencia, y las variables tienen colas muy pesadas. Una partición difusa sobre la escala de cuantiles captura esos umbrales sin depender de la escala. Las reglas con pocos antecedentes capturan las interacciones que un mantenedor reconoce, por ejemplo ``si el cambio es grande y toca varios subsistemas''. El modelo usa 10 variables fijadas antes de ver resultados: líneas añadidas y borradas, archivos, subsistemas, \texttt{Reviewed-by}, \texttt{Signed-off-by}, si es corrección, si va a \emph{stable} y la experiencia del autor, en total y en el subsistema.
-
-\subsection{Clasificador difuso-evolutivo}
-
-Cada variable $x_j$ se lleva a $z_j\in[0,1]$ con su función de distribución empírica, estimada solo con el entrenamiento. Sobre $z_j$ se definen tres términos (bajo, medio, alto) que forman una partición de Ruspini \cite{Ruspini1969} con vértices $a_j<b_j<c_j$: bajo vale 1 hasta $a_j$ y cae a 0 en $b_j$; medio es el triángulo $(a_j,b_j,c_j)$; alto sube de 0 en $b_j$ a 1 en $c_j$. Una regla $r$ tiene hasta tres antecedentes y un peso $w_r\in[0,1]$:
+Cada variable $x_j$ se lleva a $z_j\in[0,1]$ con su función de distribución empírica, estimada solo con el entrenamiento. Sobre $z_j$ se definen tres términos (bajo, medio y alto) que forman una partición de Ruspini \cite{Ruspini1969} con vértices $a_j<b_j<c_j$. El modelo propuesto se formula como
 \begin{equation}
 \mu_r(\mathbf{x})=\prod_{(j,t)\in A_r}\mu_{jt}(z_j),\qquad
-s(\mathbf{x})=1-\prod_{r}\bigl(1-w_r\,\mu_r(\mathbf{x})\bigr),
+\hat{y}=s(\mathbf{x})=1-\prod_{r=1}^{R}\bigl(1-w_r\,\mu_r(\mathbf{x})\bigr),
 \end{equation}
-es decir, t-norma producto y O probabilístico entre reglas. El puntaje $s$ ordena los commits por riesgo.
+donde $A_r$ es el conjunto de hasta tres antecedentes (variable $j$, término $t$) de la regla $r$, $\mu_{jt}$ la pertenencia de $z_j$ al término $t$, $w_r\in[0,1]$ el peso de la regla, $R\le15$ el número de reglas activas y $s(\mathbf{x})$ el puntaje de riesgo que ordena los commits (t-norma producto y O probabilístico entre reglas).
 
-El ajuste sigue el enfoque Pittsburgh de los sistemas difusos genéticos \cite{Herrera2008,Ishibuchi2001}: cada individuo codifica todos los vértices y la base completa de reglas (activación, antecedentes, términos y pesos). La aptitud es el AUC-PR de entrenamiento, que es la métrica adecuada con clases desbalanceadas \cite{Saito2015}, menos una penalización por el número de antecedentes. Los operadores son:
-\begin{itemize}
-\item selección por torneo y elitismo;
-\item cruce uniforme, que hereda cada regla completa;
-\item mutación gaussiana de vértices y pesos, y mutación aleatoria de antecedentes y términos.
-\end{itemize}
+El ajuste sigue el enfoque Pittsburgh \cite{Herrera2008,Ishibuchi2001}: cada individuo codifica los $3\times10$ vértices y la base completa de 15 reglas (activación, hasta tres pares variable--término y peso), \cifGenes{} genes en total. La aptitud es el AUC-PR de entrenamiento menos $\lambda$ por antecedente. Los operadores son selección por torneo de 3 con elitismo de 2, cruce uniforme que hereda cada regla completa, y mutación gaussiana de vértices y pesos y aleatoria de antecedentes y términos. El espacio de búsqueda es: población $\{40, 60, 80\}$, generaciones $\{60, 100, 140\}$, reglas $\{5, 10, 15\}$, probabilidad de mutación $\{0{,}05; 0{,}15; 0{,}3\}$, de cruce $\{0{,}7; 0{,}9\}$ y $\lambda\in\{0; 0{,}0005\}$. La variante sin evolución fija los vértices en los cuantiles $(0{,}2; 0{,}5; 0{,}8)$ y elige reglas de 1 o 2 antecedentes de forma voraz; esa misma solución siembra un cuarto de la población inicial del AG.
 
-La variante sin evolución fija los vértices en los cuantiles $(0{,}2;\,0{,}5;\,0{,}8)$ y elige reglas de 1 o 2 antecedentes de forma voraz, por su confianza difusa, mientras mejore el AUC-PR. Esa misma solución siembra la población inicial del AG. Así, la diferencia entre ambas variantes aísla el aporte de la evolución.
+\textbf{(i) Propiedad de los datos que aprovecha.} El riesgo crece por umbrales con el tamaño y la difusión y se modula con la revisión y la experiencia. Una partición difusa sobre la escala de cuantiles captura esos umbrales sin depender de las colas, y las reglas cortas expresan interacciones que un mantenedor reconoce, como ``si el cambio es grande y toca varios subsistemas''.
+
+\textbf{(ii) Mejores modelos de la matriz y por qué este.} En la matriz, los mejores AUC son de redes profundas y modelos preentrenados sobre el diff \cite{Ni2022}, pero con partición temporal una regresión logística las iguala \cite{Zeng2021}, y ninguno es legible. Se elige un clasificador difuso-evolutivo porque es el vacío identificado y porque el criterio de éxito exige interpretabilidad.
+
+\textbf{(iii) Número de parámetros frente al tamaño.} El individuo tiene \cifGenes{} genes, de los que \cifGenesReales{} son reales. La aptitud se calcula sobre \cifFilasAptitud{} commits (de unos 300.000 en la primera ventana de entrenamiento), más de 500 por gen, así que el riesgo de sobreajuste es bajo; el límite de 15 reglas responde a la interpretabilidad y no al tamaño. La regresión logística (23 parámetros) y el \emph{gradient boosting} (hasta 200 árboles de 63 hojas) también quedan muy por debajo del tamaño del conjunto.
+
+\textbf{(iv) Presupuesto de cómputo.} Cada entrenamiento evalúa hasta \cifEvalAptitud{} individuos (población $\times$ generaciones) sobre una muestra fija de \cifFilasAptitud{} commits. La configuración más cara tardó \cifSegEntrenamiento{} s en un Apple M1 (8 núcleos, 8 GB). El plan prevé \cifNEntrenamientos{} entrenamientos: 14 configuraciones de la búsqueda aleatoria, 9 de sensibilidad y 5 semillas, cada uno en 3 ventanas. Eso suma como cota superior \cifHorasCota{} h en un núcleo, que caben en el presupuesto de una noche y se reducen al paralelizar.
+
+\subsection{Partición y preprocesamiento sin fuga}
+\label{sec:particion}
+Primero se parten los datos y después se ajusta cualquier transformación. De la tabla publicada (\cifEtresFilas{} filas) se quitan los \cifEtresCensurados{} commits censurados y los \cifEtresPosteriores{} posteriores a julio de 2026; no hay hashes duplicados y las copias por \emph{cherry-pick} se conservan (Sec.~\ref{sec:d1d7}). Quedan \cifEtresDesarrollo{} commits de desarrollo (2019--2025) y \cifEtresPrueba{} de prueba (enero--julio de 2026). De la prueba solo se guardan su tamaño y una huella SHA-256 de sus hashes y etiquetas (\texttt{\cifEtresHuella\ldots}), que la evaluación final debe reproducir; el cuaderno la borra de memoria antes de explorar.
+
+La partición es por bloques temporales con ventana creciente y nunca mezcla commits al azar (Fig.~\ref{fig:particion}, Tabla~\ref{tab:particion}). Para validar el año $V\in\{2023,2024,2025\}$ se entrena desde 2019-01-01 hasta 90 días antes del inicio de $V$. El hueco imita la práctica: al entrenar, las etiquetas de los últimos 90 días todavía no existen. El modelo final se entrena hasta 2025-10-03 y se evalúa una sola vez en la prueba. Como la selección usa etiquetas maduras de todo 2025, la evaluación de 2026 es retrospectiva. Una puesta en marcha el 1 de enero de 2026 requeriría cerrar también la selección con las etiquetas disponibles a esa fecha.
+
+\begin{figure}[!t]
+\centering
+\input{fig-particion}
+\caption{Partición temporal con ventana creciente y hueco de 90 días. La prueba (enero--julio de 2026) se evalúa una sola vez.}
+\label{fig:particion}
+\end{figure}
+
+\begin{table}[!t]
+\caption{Partición temporal: tamaño y prevalencia de cada bloque}
+\label{tab:particion}
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}l c r r r r r@{}}
+\toprule
+\cabecera & \textbf{Entrenamiento} & \textbf{$n$ entr.} & \textbf{Prev.} & \textbf{$n$ val.} & \textbf{Prev.} & \textbf{Hueco (d)}\\
+\midrule
+\filas{generado/tabla_particion.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Cada transformación vive dentro de un \texttt{Pipeline} de scikit-learn y se ajusta solo con el entrenamiento de cada ventana (Tabla~\ref{tab:pipeline}). El cuaderno lo comprueba: la media que aprende el escalador coincide con la del entrenamiento y no con la de todo el desarrollo. Ninguna entrada se deriva de commits posteriores: \texttt{dias\_a\_fix}, \texttt{riesgoso} y \texttt{censurado} quedan fuera, y la experiencia del autor solo cuenta sus commits anteriores (no decreciente en el \cifEtresMonotonia{} de los pares consecutivos; el resto son empates de fecha de autor).
+
+\begin{table}[!t]
+\caption{Pasos del preprocesamiento}
+\label{tab:pipeline}
+\centering\footnotesize
+\begin{tabularx}{\columnwidth}{@{}p{1.6cm} Y@{}}
+\toprule
+\cabecera \textbf{Paso} & \textbf{Qué se hace y qué se reporta}\\
+\midrule
+Limpieza & Se quitan censurados y posteriores a julio de 2026 (cifras arriba); 0 duplicados\\
+Faltantes & 0\,\% en las \cifNVariables{} variables; no se imputa\\
+Atípicos & Criterio $Q_3+3\,\mathrm{IQR}$ en escala $\log$ (entrenamiento de V$_{2025}$): hasta el \cifEtresAtipMax{} de las filas en los conteos dispersos, como \texttt{n\_acked}, que casi siempre vale 0. Son commits reales, no errores: se conservan y se comprimen con $\log(1+x)$\\
+Codificación & No hay categóricas en las entradas (\texttt{subsistema} no entra); hora y día como enteros\\
+Escalado & \texttt{StandardScaler} en la regresión logística; el difuso usa la función de distribución empírica (\texttt{QuantileTransformer}); el \emph{boosting} no escala. Todo con el entrenamiento\\
+Selección & 22 variables para las referencias y 10 legibles para el difuso, fijadas en el E2\\
+Balanceo & No se balancea: el AUC-PR se mide con la prevalencia real y el umbral del MCC se fija en validación \cite{Saito2015}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Métricas y pruebas estadísticas}
+Se declaran antes de entrenar el modelo propuesto.
+
+\textbf{Principal: AUC-PR} de la clase riesgoso. Con una prevalencia cercana al 4\,\%, el AUC-ROC es engañosamente alto y el AUC-PR refleja la utilidad real de la lista de commits marcados \cite{Saito2015}. Un clasificador sin información obtiene un AUC-PR igual a la prevalencia, así que también se reporta el cociente AUC-PR/prevalencia.
+
+\textbf{Secundarias:} MCC, AUC-ROC, sensibilidad y especificidad. Las que dependen de un umbral usan el que maximiza el MCC en la validación 2025, aplicado tal cual en la prueba. \textbf{Costo:} tiempo de entrenamiento e inferencia y número de parámetros.
+
+\textbf{Incertidumbre y pruebas.} IC del 95\,\% por \emph{bootstrap} (1000 remuestreos) en la prueba y media $\pm$ DE en 5 semillas. McNemar con corrección de continuidad entre el difuso-evolutivo y cada referencia, sobre las mismas observaciones de prueba \cite{Dietterich1998}; Friedman con \emph{post hoc} de Nemenyi sobre los rangos de AUC-PR en las tres ventanas más la prueba \cite{Demsar2006}. $\alpha=0{,}05$. Friedman--Nemenyi se interpreta como exploratorio por el solapamiento del entrenamiento y la selección de hiperparámetros en esas ventanas. Una diferencia sin prueba se reporta como ``diferencia observada''.

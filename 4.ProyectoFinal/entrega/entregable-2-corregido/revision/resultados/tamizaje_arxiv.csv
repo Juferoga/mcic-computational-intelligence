@@ -1,0 +1,39 @@
+ecuacion,id,anio,titulo,decision,motivo
+Q1,2610.24902v1,2026,RXSynth: A Seed-Grounded Corpus for Studying Java Runtime-Exception Bugs,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2609.34359v1,2026,Improving Large Language Models for Code through Runtime Program-State Reasoning,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2607.02782v1,2026,A Preliminary Study on Explaining Risk of Code Changes using LLM-Based Prediction Models,pasa,I1: explica el riesgo de cambios (JIT) con un modelo LLM
+Q1,2606.26431v1,2026,Revealing Mammographic Phenotypes in Deep Learning Breast Cancer Risk Models,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2606.09030v2,2026,TRIAGE: Dialectical LLM Reasoning for Explainable Risk Prediction on Irregularly Sampled Medical Time Series,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2603.17839v4,2026,How do LLMs Compute Verbal Confidence,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2603.03121v1,2026,RippleGUItester: Change-Aware Exploratory Testing,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2601.22832v1,2026,Just-in-Time Catching Test Generation at Meta,excluido,E1: generación de pruebas
+Q1,2510.07529v1,2025,HotBugs.jar: A Benchmark of Hot Fixes for Time-Critical Bugs,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2509.24419v1,2025,Unit Test Update through LLM-Driven Context Collection and Error-Type-Aware Refinement,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2509.01616v1,2025,Automated Generation of Issue-Reproducing Tests by Combining LLMs and Search-Based Testing,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2508.04408v1,2025,Breaking New Ground in Software Defect Prediction: Introducing Practical and Actionable Metrics with Superior Predictive Power for Enhanced Decision-Making,excluido,E2: nivel de método
+Q1,2507.22580v2,2025,RePaCA: Leveraging Reasoning Large Language Models for Static Automated Patch Correctness Assessment,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2506.20746v3,2025,Dynamic Weight Grafting: Localizing Finetuned Factual Knowledge in Transformers,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2503.12899v4,2025,A Semantic-based Optimization Approach for Repairing LLMs: Case Study on Code Generation,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2501.11086v2,2025,Evaluating LLM-Based Regression Test Generation,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2405.13740v1,2024,Mining Action Rules for Defect Reduction Planning,excluido,"E2: nivel de archivo (reglas de acción, sin predicción por cambio)"
+Q1,2404.08855v1,2024,WROOM: An Autonomous Driving Approach for Off-Road Navigation,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2403.10753v1,2024,The Impact Of Bug Localization Based on Crash Report Mining: A Developers' Perspective,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2402.06247v1,2024,Delving into Parameter-Efficient Fine-Tuning in Code Change Learning: An Empirical Study,pasa,I1 por confirmar: ajuste fino en tareas de cambios de código (incluye JIT-DP?)
+Q1,2309.06057v1,2023,RAP-Gen: Retrieval-Augmented Patch Generation with CodeT5 for Automatic Program Repair,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2306.05792v2,2023,Reinforcement Learning for Mutation Operator Selection in Automated Program Repair,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2305.03365v1,2023,Repairing Deep Neural Networks Based on Behavior Imitation,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2304.02195v1,2023,Explainable Automated Debugging via Large Language Model-driven Scientific Debugging,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2303.16591v1,2023,An AST-based Code Change Representation and its Performance in Just-in-time Vulnerability Prediction,pasa,I1: predicción JIT de vulnerabilidades
+Q1,2301.03270v3,2023,A Survey of Learning-based Automated Program Repair,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2212.04584v5,2022,Explaining Software Bugs Leveraging Code Structures in Neural Machine Translation,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2212.03399v1,2022,Utilizing Source Code Syntax Patterns to Detect Bug Inducing Commits using Machine Learning Models,pasa,I1: detección de commits que inducen bugs
+Q1,2210.02435v3,2022,"IRJIT: A Simple, Online, Information Retrieval Approach for Just-In-Time Software Defect Prediction",pasa,I1: JIT-SDP en línea y explicable
+Q1,2208.07471v1,2022,On the Adoption and Effects of Source Code Reuse on Defect Proneness and Maintenance Effort,excluido,E2: nivel de clase
+Q1,2201.00117v1,2022,Usability and Aesthetics: Better Together for Automated Repair of Web Pages,excluido,E1/E3: fuera de la tarea (por título)
+Q1,2103.13453v1,2021,CrossFix: Collaborative bug fixing by recommending similar bugs,excluido,E1/E3: fuera de la tarea (por título)
+Q1,1912.10093v3,2019,Assessing Practitioner Beliefs about Software Defect Prediction,excluido,"I2: evalúa creencias, no un modelo predictivo"
+Q1,1912.05823v3,2019,Smart Contract Repair,excluido,E1/E3: fuera de la tarea (por título)
+Q1,1911.07988v2,2019,Invariant Diffs,excluido,E1/E3: fuera de la tarea (por título)
+Q2,2511.11265v1,2025,SQuaD: The Software Quality Dataset,excluido,E4: dataset sin evaluación predictiva
+Q2,2507.10729v2,2025,Toward Realistic Evaluations of Just-In-Time Vulnerability Prediction,pasa,I1: evaluación realista de JIT-VP en Linux y FFmpeg
+Q2,2305.09824v2,2023,On the Costs and Benefits of Adopting Lifelong Learning for Software Analytics -- Empirical Study on Brown Build and Risk Prediction,pasa,I1: deriva y aprendizaje continuo en predicción de riesgo de cambios

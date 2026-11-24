@@ -47,9 +47,15 @@ EXTRA = {
     "KernelRemove": 'S. Levin, ``docs: remove Assisted-by references,\'\' Linux kernel, commit '
                     '1e035297ffda, Oct. 14, 2026. [Online]. Available: '
                     '\\url{https://github.com/torvalds/linux/commit/1e035297ffda}',
+    "Gebru2021": 'T. Gebru, J. Morgenstern, B. Vecchione, J. W. Vaughan, H. Wallach, H. Daum\\\'e III, '
+                 'and K. Crawford, ``Datasheets for datasets,\'\' Commun. ACM, vol. 64, no. 12, '
+                 'pp. 86--92, 2021, doi: 10.1145/3458723.',
     "MaesBermejo2024": 'M. Maes Bermejo, J. M. González-Barahona, M. Gallego, and G. Robles, '
                        '``A dataset of Linux kernel commits\'\' (v3), Zenodo, 2024, '
                        'doi: 10.5281/zenodo.10654193.',
+    "DatosKernel2026": 'J. F. Rodr\\\'iguez Galindo, ``Commits del kernel de Linux, 2019--2026, '
+                       'etiquetados por Fixes:,\'\' v1.0, GitHub, 2026. [Online]. Available: '
+                       '\\url{https://github.com/Juferoga/linux-kernel-commits-jit}',
     "Li2026AIDev": 'H. Li, H. Zhang, and A. E. Hassan, ``AIDev: Studying AI coding agents on '
                    'GitHub,\'\' in \\emph{Proc. 23rd Int. Conf. Mining Softw. Repositories (MSR)}, '
                    '2026, arXiv:2602.09185.',
@@ -167,6 +173,11 @@ def main():
     assert all(p["existe"] for p in metodo.values())
     sin_fuente = [k for k in orden if k not in fichas and k not in EXTRA and k not in metodo]
     assert not sin_fuente, f"Citas sin referencia verificada: {sin_fuente}"
+    # Cuántos de los estudios incluidos se citan en este artículo y cuántas referencias hay:
+    # se calcula del propio .tex para que resumen y cuerpo no se contradigan.
+    with open(GEN / "conteos.tex", "a", encoding="utf-8") as f:
+        f.write(f"\\newcommand{{\\nIncluidosCitados}}{{{sum(k in fichas for k in orden)}}}\n")
+        f.write(f"\\newcommand{{\\nReferencias}}{{{len(orden)}}}\n")
     with open(GEN / "referencias.tex", "w", encoding="utf-8") as f:
         f.write(f"% Generado por revision/generar_e1.py {ENTREGABLE} en orden de cita; no editar a mano.\n")
         f.write("\\begin{thebibliography}{%d}\n" % len(orden))

@@ -1,0 +1,93 @@
+{
+ "huella_prueba": "11e7039f3cc279120025ccc8959a207990a4a75f6546ae4c330605c831a19b63",
+ "n_prueba": 54373,
+ "limpieza": {
+  "filas en la tabla": 641926,
+  "hashes duplicados": 0,
+  "censurados (se quitan)": 26133,
+  "posteriores a julio de 2026 (se quitan)": 2982,
+  "desarrollo 2019-2025": 558438,
+  "prueba 2026 (reservada)": 54373
+ },
+ "particion": [
+  {
+   "ventana": "2023",
+   "entrenamiento": "2019-01-01 a 2022-10-02",
+   "n_entr": 300285,
+   "prev_entr": 0.04393492848460629,
+   "n_val": 84780,
+   "prev_val": 0.038865298419438546,
+   "hueco_dias": 90
+  },
+  {
+   "ventana": "2024",
+   "entrenamiento": "2019-01-01 a 2023-10-02",
+   "n_entr": 380343,
+   "prev_entr": 0.0430821653086819,
+   "n_val": 76501,
+   "prev_val": 0.041385079933595637,
+   "hueco_dias": 90
+  },
+  {
+   "ventana": "2025",
+   "entrenamiento": "2019-01-01 a 2024-10-02",
+   "n_entr": 462363,
+   "prev_entr": 0.04253800585254443,
+   "n_val": 78150,
+   "prev_val": 0.04268714011516315,
+   "hueco_dias": 90
+  }
+ ],
+ "monotonia_experiencia": 0.9969813681379798,
+ "atipicos_pct_max": 28.70623298144531,
+ "mejores": {
+  "gboosting": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 15
+  },
+  "logistica": {
+   "C": 0.01
+  },
+  "mayoritaria": {}
+ },
+ "validacion": [
+  {
+   "modelo": "gboosting",
+   "2023": 0.1569078415039057,
+   "2024": 0.15369554673528615,
+   "2025": 0.1627262511134681,
+   "media": 0.15777654645088665,
+   "caída 2023→2025 (%)": -3.7081700658138206,
+   "AUC-ROC medio": 0.7723882220468937,
+   "tiempo medio (s)": 8.557295640309652
+  },
+  {
+   "modelo": "logistica",
+   "2023": 0.15089932110821047,
+   "2024": 0.14330104567755786,
+   "2025": 0.15146371708461845,
+   "media": 0.14855469462346227,
+   "caída 2023→2025 (%)": -0.3740215477863198,
+   "AUC-ROC medio": 0.7692743275408223,
+   "tiempo medio (s)": 0.36197765668233234
+  },
+  {
+   "modelo": "mayoritaria",
+   "2023": 0.038865298419438546,
+   "2024": 0.041385079933595637,
+   "2025": 0.04268714011516315,
+   "media": 0.040979172822732446,
+   "caída 2023→2025 (%)": -9.833558086905366,
+   "AUC-ROC medio": 0.5,
+   "tiempo medio (s)": 0.06063350041707357
+  }
+ ],
+ "n_entrenamientos": 30,
+ "segundos_total": 100.6570360660553,
+ "versiones": {
+  "python": "3.13.15",
+  "pandas": "3.1.1",
+  "numpy": "2.5.4",
+  "scikit-learn": "1.9.1"
+ }
+}

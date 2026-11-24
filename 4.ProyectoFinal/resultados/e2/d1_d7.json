@@ -15,8 +15,7 @@
       "2022": 3424,
       "2023": 3295,
       "2024": 3166,
-      "2025": 3336,
-      "2026": 1947
+      "2025": 3336
     },
     "prevalencia_por_anio": {
       "2019": 0.04268364425502987,
@@ -25,8 +24,7 @@
       "2022": 0.04323669057480554,
       "2023": 0.038865298419438546,
       "2024": 0.041385079933595637,
-      "2025": 0.04268714011516315,
-      "2026": 0.033946473716328134
+      "2025": 0.04268714011516315
     }
   },
   "D3_calidad": {
@@ -57,7 +55,7 @@
     },
     "hashes_duplicados": 0,
     "censurados_excluidos": 26133,
-    "nota": "Sin merges. Los backports de stable no están en mainline, así que no hay el mismo parche dos veces; las referencias Fixes: no resueltas (9,4 %) apuntan a commits anteriores a 2014 o a otros árboles."
+    "nota": "Sin merges. Los backports de stable no están en mainline, pero sí hay cherry-picks entre árboles de subsistema: el mismo parche aparece dos veces (ver src/e2_backports.py y backports.json). Las referencias Fixes: no resueltas (9,4 %) apuntan a commits anteriores a 2014 o a otros árboles."
   },
   "D4_estructura": {
     "indice": "fecha del committer, ordenada",

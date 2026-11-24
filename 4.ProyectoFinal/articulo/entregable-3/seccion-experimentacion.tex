@@ -1,0 +1,48 @@
+%=====================================================================
+\section{Experimentación}
+\label{sec:experimentacion}
+
+\textbf{Hardware y software.} Apple M1 (8 núcleos, 8 GB de RAM), Python \cifEtresPython{}, pandas \cifEtresPandas{}, NumPy \cifEtresNumpy{} y scikit-learn \cifEtresSklearn{}. El cuaderno lee la copia incluida o descarga los datos del repositorio público \cite{DatosKernel2026} y verifica su SHA-256.
+
+\textbf{Espacios de hiperparámetros.} Se fijan antes de entrenar el modelo propuesto (Tabla~\ref{tab:espacio}). En las referencias, la regresión logística explora $C\in\{0{,}01;\,0{,}1;\,1\}$ y el \emph{gradient boosting} la tasa de aprendizaje $\{0{,}05;\,0{,}1\}\times$ máximo de hojas $\{15, 31, 63\}$, con 200 iteraciones como máximo.
+
+\begin{table}[!t]
+\caption{Espacio de hiperparámetros del difuso-evolutivo (arriba, buscados; abajo, fijos)}
+\label{tab:espacio}
+\centering\footnotesize
+\begin{tabularx}{\columnwidth}{@{}l Y@{}}
+\toprule
+\cabecera \textbf{Hiperparámetro} & \textbf{Valores}\\
+\midrule
+\filas{../comun/tabla_espacio.tex}
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Método de búsqueda.} Las referencias usan rejilla completa. El difuso-evolutivo usa búsqueda aleatoria: 14 de las \cifEtresNConfigs{} configuraciones posibles, cada una evaluada en las tres ventanas con la semilla 11 y elegida por el AUC-PR medio de validación. Después se analiza la sensibilidad en la rejilla máximo de reglas $\times$ probabilidad de mutación ($3\times3$), con el resto fijo en la mejor configuración. Regla de desempate, escrita antes: si dos configuraciones difieren menos que un error estándar, gana la de menos reglas.
+
+\textbf{Semillas.} La búsqueda usa la semilla 11. La configuración elegida y las dos referencias clásicas se entrenan con las 5 semillas (11, 23, 37, 41 y 53) y se reportan media y desviación.
+
+\textbf{Criterios de parada.} El difuso-evolutivo corre un número fijo de generaciones, sin parada temprana, para que el costo sea predecible y comparable entre configuraciones. El \emph{gradient boosting} usa la parada temprana de scikit-learn (10\,\% del entrenamiento como validación interna y 10 iteraciones sin mejora), siempre dentro del entrenamiento. La regresión logística converge con L-BFGS (máximo 3000 iteraciones).
+
+\textbf{Presupuesto de cómputo.} Un entrenamiento del difuso-evolutivo con la configuración máxima tarda \cifSegEntrenamiento{} s (\cifEvalAptitud{} evaluaciones de aptitud sobre \cifFilasAptitud{} commits). Los \cifNEntrenamientos{} entrenamientos previstos (42 de búsqueda, 27 de sensibilidad y 15 de semillas) suman como máximo \cifHorasCota{} h en un núcleo; repartidos en 8 procesos, menos de una hora. Las referencias tardaron \cifEtresMinutos{} min en total (\cifEtresNEntren{} entrenamientos).
+
+\textbf{Prueba del pipeline: referencias en validación.} Las referencias se entrenaron con el mismo pipeline y la misma partición que usará el modelo propuesto (Tabla~\ref{tab:referencias}). La mejor referencia clásica es el \cifEtresMejorClasica{} (\cifEtresConfigGB{}), con AUC-PR medio de \cifEtresValGB{}, frente a \cifEtresValLR{} de la regresión logística y \cifEtresValMay{} de la clase mayoritaria, que iguala la prevalencia. Es la referencia $R$ del criterio de éxito. Entre las ventanas 2023 y 2025 su AUC-PR no cae, sino que sube un \cifEtresCaidaGB{} (la regresión logística, un \cifEtresCaidaLR{}): dentro del desarrollo no se ve degradación. Son cifras de validación: la prueba no interviene en ninguna elección.
+
+\begin{table}[!t]
+\caption{Validación de las referencias: AUC-PR por ventana, media y AUC-ROC medio (en negrita, la configuración elegida)}
+\label{tab:referencias}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}l l c c c c c@{}}
+\toprule
+\cabecera \textbf{Modelo} & \textbf{Config.} & \textbf{2023} & \textbf{2024} & \textbf{2025} & \textbf{Media} & \textbf{ROC}\\
+\midrule
+\filas{generado/tabla_validacion.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Reducción de variables por correlación.} La Fig.~\ref{fig:corr} sugiere que el número de subsistemas y el de directorios de primer nivel aportan información similar. Para medir el efecto sobre la mejor referencia clásica, se calculó la correlación de Spearman únicamente en el entrenamiento de cada ventana. Siguiendo el orden de las entradas del cuaderno, se descartó una variable cuando $|\rho|\geq 0{,}85$ con alguna ya conservada. En las tres ventanas salió el número de subsistemas y quedaron 21 de las 22 entradas. Se repitió el ajuste con la misma configuración de \emph{gradient boosting}, semilla y partición que en la Tabla~\ref{tab:referencias}.
+
+Con las 21 entradas, la AUC-PR fue de 0,15840 en 2023, 0,15310 en 2024 y 0,16387 en 2025. Las diferencias frente al modelo completo fueron $+0{,}00149$, $-0{,}00060$ y $+0{,}00115$, respectivamente. El promedio pasó de 0,15778 a 0,15846. Una entrada menos simplifica la representación, pero el cambio de signo en 2024 y el pequeño tamaño de las diferencias aconsejan mantener la referencia original para el contraste previsto. Esta comparación es exploratoria y usa solo datos de desarrollo.

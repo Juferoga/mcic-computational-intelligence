@@ -1,0 +1,11 @@
+\section{Reproducibilidad}
+\label{ap:repro}
+El paquete del entregable trae el código, el cuaderno y el libro de Excel del anexo:
+\begin{itemize}
+\item \texttt{...-entregable-2-cuaderno.ipynb}: cuaderno autocontenido y ejecutado, con salidas visibles. Carga la tabla anonimizada de \texttt{datos/} (\texttt{.parquet}, 31 MB), reserva la prueba y reproduce las Tablas~\ref{tab:d1d7} y \ref{tab:desc} y las Figs.~\ref{fig:objetivo} y \ref{fig:corr}. Corre en Colab o en local.
+\item \texttt{src/minar\_kernel.py}: minería del clon (\texttt{git clone https://github.com/torvalds/linux}); \texttt{src/e2\_exploracion.py}: ficha, D1--D7, descriptivos, correlaciones y figuras; \texttt{src/e2\_backports.py}: revisión de \emph{cherry-picks}; \texttt{src/e2\_presupuesto.py}: tiempo de un entrenamiento; \texttt{src/comun.py} y \texttt{src/difuso.py}: partición y modelos; \texttt{src/e2\_anexo.py}: libro de Excel.
+\item \texttt{revision/}: scripts de búsqueda y tamizaje en arXiv y OpenAlex, con las respuestas crudas.
+\item Entorno: Python 3.13 con las versiones de \texttt{requirements.txt} (pandas 3.1, scikit-learn 1.9, NumPy 2.5). Semillas: 11, 23, 37, 41 y 53.
+\end{itemize}
+
+\textbf{Tabla A1. Diccionario de variables.} Está en la hoja \emph{diccionario} del libro de Excel \texttt{...-entregable-2-anexo.xlsx} (nombre, familia, descripción, unidad, tipo y origen de las \cifNVariables{} entradas y del objetivo).

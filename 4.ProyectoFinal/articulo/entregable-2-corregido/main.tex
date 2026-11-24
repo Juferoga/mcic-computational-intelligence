@@ -1,0 +1,66 @@
+\documentclass[conference,letterpaper]{IEEEtran}
+\IEEEoverridecommandlockouts
+\input{estilo-mcic}
+\newcommand{\pendiente}[1]{\textcolor{udrojo}{\textbf{[#1]}}}
+\input{generado/conteos}
+\input{../comun/cifras}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+\raggedbottom
+
+\begin{document}
+
+\title{Riesgo de los commits del kernel de Linux bajo deriva temporal con un clasificador difuso-evolutivo interpretable}
+
+\author{\IEEEauthorblockN{Juan Felipe Rodríguez Galindo}
+\IEEEauthorblockA{Maestría en Ciencias de la Información y las Comunicaciones, Facultad de Ingeniería\\
+Universidad Distrital Francisco José de Caldas, Bogotá, Colombia\\
+Código 20261595004 \textperiodcentered{} Inteligencia Computacional \textperiodcentered{} Entregable 2 (versión corregida)}}
+
+\maketitle
+
+\begin{abstract}
+Predecir si un commit tendrá que corregirse después permite enfocar la revisión de código. En el kernel de Linux la etiqueta es explícita: el trailer \texttt{Fixes:} de un commit posterior señala al culpable. Este entregable presenta el problema, la revisión del estado del arte (\nTotalIncluidos{} estudios incluidos, \nIncluidosCitados{} citados aquí y todos en la matriz del anexo), el conjunto de datos (\cifCommits{} commits de 2019--2026 minados del clon completo del kernel, con prevalencia anual de \cifPrevMin{}--\cifPrevMax{} en el desarrollo) y los cinco modelos del estudio. El resumen definitivo se redacta en la semana 5.
+\end{abstract}
+
+\begingroup\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+This deliverable frames just-in-time risk prediction for Linux kernel commits, labelled by later \texttt{Fixes:} trailers, reviews the state of the art (\nTotalIncluidos{} included studies, \nIncluidosCitados{} cited here, all of them in the appendix matrix), describes the dataset (\cifCommits{} commits, 2019--2026) and fixes the five models of the study. The final abstract will be written in week 5.
+\end{abstract}\endgroup
+
+\begin{IEEEkeywords}
+AUC-PR, computación evolutiva, deriva temporal, kernel de Linux, predicción de defectos justo a tiempo, sistemas difusos.
+\end{IEEEkeywords}
+
+\begingroup\renewcommand{\IEEEkeywordsname}{Index Terms}
+\begin{IEEEkeywords}
+AUC-PR, concept drift, evolutionary computation, fuzzy systems, just-in-time defect prediction, Linux kernel.
+\end{IEEEkeywords}\endgroup
+
+\input{seccion-introduccion}
+
+\input{seccion-estado-del-arte}
+
+\input{seccion-metodologia-datos}
+
+\section{Experimentación}
+Se desarrolla en el Entregable 3.
+
+\section{Resultados}
+Se desarrolla en el Entregable 4.
+
+\section{Discusión}
+Se desarrolla en la semana 5.
+
+\section{Conclusiones y trabajo futuro}
+Se desarrolla en la semana 5.
+
+\input{seguimiento}
+
+\input{declaracion-ia}
+
+\input{generado/referencias}
+
+\appendices
+\input{anexo-reproducibilidad}
+
+\end{document}

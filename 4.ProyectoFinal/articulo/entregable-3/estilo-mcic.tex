@@ -67,3 +67,9 @@
     rounded corners=1pt,inner sep=1pt},
   flecha/.style={-{Latex[length=1.6mm]},udsable,line width=0.5pt},
 }
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\makeatletter
+\providecommand{\filas}[1]{\@@input #1 }
+\makeatother
+

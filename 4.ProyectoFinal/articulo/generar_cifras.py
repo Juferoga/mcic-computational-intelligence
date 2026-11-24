@@ -46,13 +46,49 @@ def main():
         pos = d["D2_objetivo"]["positivos_por_anio"]
         m["cifPrevMin"] = pct(min(v for k, v in prev.items() if k != "2026"))
         m["cifPrevMax"] = pct(max(v for k, v in prev.items() if k != "2026"))
-        m["cifPrevAnioVeintiseis"] = pct(prev["2026"], 2)   # todo 2026 no censurado (hasta ago.)
+        # Desde la corrección del E2 la exploración no mira la etiqueta de 2026. Estas dos
+        # macros quedan visibles como pendientes en los artículos que aún las usan.
+        m["cifPrevAnioVeintiseis"] = (pct(prev["2026"], 2) if "2026" in prev
+                                      else "\\pendiente{dato de prueba retirado}")
         m["cifPositivosDesarrollo"] = ent(sum(v for k, v in pos.items() if k != "2026"))
-        m["cifPositivosPrueba"] = ent(pos["2026"])
+        m["cifPositivosPrueba"] = (ent(pos["2026"]) if "2026" in pos
+                                   else "\\pendiente{dato de prueba retirado}")
         m["cifCensurados"] = ent(d["D3_calidad"]["censurados_excluidos"])
         m["cifAutores"] = ent(d["D4_estructura"]["grupos"]["autores"])
         m["cifSubsistemas"] = ent(d["D4_estructura"]["grupos"]["subsistemas"])
         m["cifNVariables"] = str(len(d["D7_documentacion"]))
+    bp = leer("e2/backports.json")
+    if bp:
+        m["cifParesCherry"] = ent(bp["pares_ambas_copias_en_desarrollo"])
+        m["cifFracCherry"] = pct(bp["fraccion_del_desarrollo"], 2)
+        m["cifDiscCherry"] = ent(bp["etiquetas_discordantes"])
+        m["cifDiasCherry"] = ent(bp["dias_entre_copias_mediana"])
+    pr = leer("e2/presupuesto.json")
+    if pr:
+        m["cifGenes"] = ent(pr["genes"]["total"])
+        m["cifGenesReales"] = ent(pr["genes"]["reales"])
+        m["cifEvalAptitud"] = ent(pr["evaluaciones_aptitud_por_entrenamiento"])
+        m["cifFilasAptitud"] = ent(pr["filas_por_evaluacion"])
+        m["cifSegEntrenamiento"] = ent(pr["segundos_entrenamiento_config_maxima"])
+        m["cifNEntrenamientos"] = ent(pr["entrenamientos_previstos"]["total"])
+        m["cifHorasCota"] = dec(pr["horas_cota_superior_un_nucleo"], 1)
+    p = RES / "e2" / "descriptivos.csv"
+    if p.exists() and d:
+        import pandas as pd
+        ds = pd.read_csv(p, index_col=0)
+        falt = d["D3_calidad"]["faltantes_por_variable"]
+        unidades = {"lineas_add": "líneas", "lineas_del": "líneas", "n_archivos": "archivos",
+                    "n_subsistemas": "subsist.", "n_reviewed": "trailers", "n_signed": "trailers",
+                    "es_fix": "0/1", "cc_stable": "0/1", "exp_autor": "commits",
+                    "exp_autor_subsistema": "commits"}
+        filas = []
+        for v, u in unidades.items():
+            r = ds.loc[v]
+            nd = 3 if u == "0/1" else 1
+            filas.append(f"\\texttt{{{v.replace('_', '\\_')}}} & {u} & {dec(r['mean'], nd)} & "
+                         f"{dec(r['std'], nd)} & {ent(r['min'])} & {ent(r['max'])} & "
+                         f"{dec(100 * falt[v] / r['count'], 1)} \\\\")
+        (SAL.parent / "tabla_descriptivos.tex").write_text("\n".join(filas) + "\n")
     q = leer("e2/prevalencia_por_quintil.json")
     if q:
         m["cifPrevQunoAdd"] = pct(q["lineas_add"][0])

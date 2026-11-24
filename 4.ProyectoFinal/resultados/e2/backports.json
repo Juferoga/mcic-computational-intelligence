@@ -1,0 +1,29 @@
+{
+  "commits_con_marca_cherry_pick": 2345,
+  "pares_ambas_copias_en_desarrollo": 2305,
+  "fraccion_del_desarrollo": 0.004127584440886903,
+  "pares_por_anio": {
+    "2019": 201,
+    "2020": 263,
+    "2021": 205,
+    "2022": 206,
+    "2023": 198,
+    "2024": 556,
+    "2025": 676
+  },
+  "dias_entre_copias_mediana": 3.0,
+  "dias_entre_copias_max": 75.0,
+  "etiquetas_concordantes": 2227,
+  "etiquetas_discordantes": 78,
+  "tabla_copia_vs_original": {
+    "0": {
+      "0": 2175,
+      "1": 25
+    },
+    "1": {
+      "0": 53,
+      "1": 52
+    }
+  },
+  "decision": "Se conservan ambas copias. Las dos copias distan pocos días, así que casi siempre caen en el mismo bloque temporal, y las etiquetas discordantes son una fracción mínima del desarrollo, muy por debajo del ruido propio de la etiqueta Fixes: (81 % de culpables confirmados)."
+}

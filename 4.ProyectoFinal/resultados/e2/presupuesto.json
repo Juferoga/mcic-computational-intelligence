@@ -1,0 +1,23 @@
+{
+  "genes": {
+    "vertices": 30,
+    "activacion": 15,
+    "variables_antecedente": 45,
+    "terminos_antecedente": 45,
+    "pesos": 15,
+    "total": 150,
+    "reales": 45
+  },
+  "evaluaciones_aptitud_por_entrenamiento": 11280,
+  "filas_por_evaluacion": 80000,
+  "filas_entrenamiento_ventana_2023": 300285,
+  "segundos_entrenamiento_config_maxima": 284.2741997499834,
+  "entrenamientos_previstos": {
+    "busqueda": 42,
+    "sensibilidad": 27,
+    "semillas": 15,
+    "total": 84
+  },
+  "horas_cota_superior_un_nucleo": 6.633064660832946,
+  "maquina": "arm64 arm / macOS-27.2.1-arm64-arm-64bit-Mach-O"
+}
