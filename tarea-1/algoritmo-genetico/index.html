@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Algoritmo genético binario</title>
+  <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+  <link rel="stylesheet" href="static/estilo.css">
+  <script src="static/vendor/plotly.min.js"></script>
+</head>
+<body>
+
+<header class="barra">
+  <button type="button" class="mascota-boton" id="mascota-boton" title="Tócame">
+    <span class="mascota" id="mascota" aria-hidden="true"></span>
+  </button>
+  <div class="barra-titulo">
+    <strong>Algoritmo genético binario</strong>
+    <span id="m-estado">Listo</span>
+  </div>
+
+  <div class="segmentado" aria-label="Vista de la función">
+    <button type="button" class="activo" data-vista="nivel">Curvas de nivel</button>
+    <button type="button" data-vista="3d">Superficie 3D</button>
+  </div>
+
+  <div class="barra-acciones">
+    <label class="velocidad" title="Pausa entre generaciones">
+      <span>Pausa <b id="retardo-txt">60 ms</b></span>
+      <input id="retardo" type="range" min="0" max="500" step="10" value="60">
+    </label>
+    <button type="button" id="btn-csv" class="boton" disabled>Exportar CSV</button>
+    <button type="button" id="btn-detener" class="boton destructivo" disabled>Detener</button>
+    <button type="submit" id="btn-iniciar" class="boton sugerido" form="form">Iniciar</button>
+  </div>
+</header>
+
+<aside class="lateral">
+  <nav class="pestanas">
+    <button type="button" class="activo" data-tab="problema">Problema</button>
+    <button type="button" data-tab="metodos">Métodos</button>
+    <button type="button" data-tab="parametros">Parámetros</button>
+    <button type="button" data-tab="parada">Parada</button>
+  </nav>
+
+  <form id="form" novalidate>
+    <section class="seccion activo" data-tab="problema">
+      <h2>Función objetivo</h2>
+      <div class="lista">
+        <label class="fila">
+          <span class="texto">Función</span>
+          <select id="funcion">
+            <option value="rastrigin">Rastrigin</option>
+            <option value="himmelblau">Himmelblau</option>
+            <option value="peaks" selected>Peaks</option>
+          </select>
+        </label>
+        <div class="fila" data-solo-funcion="rastrigin">
+          <span class="texto">Variables<small>E1 usa 10</small></span>
+          <span class="spin"><button type="button">−</button><input id="n_variables" type="number" min="1" max="50" step="1" value="10"><button type="button">+</button></span>
+        </div>
+      </div>
+      <div class="ficha" id="ficha"></div>
+    </section>
+
+    <section class="seccion" data-tab="metodos">
+      <h2>Selección</h2>
+      <div class="lista">
+        <label class="fila">
+          <span class="texto">Método</span>
+          <select id="seleccion">
+            <option value="ruleta">Ruleta</option>
+            <option value="torneo" selected>Torneo</option>
+            <option value="ranking">Ranking lineal</option>
+          </select>
+        </label>
+        <div class="fila" data-solo-seleccion="torneo">
+          <span class="texto">Tamaño k<small>individuos por torneo</small></span>
+          <span class="spin"><button type="button">−</button><input id="k_torneo" type="number" min="2" step="1" value="3"><button type="button">+</button></span>
+        </div>
+        <div class="fila" data-solo-seleccion="ranking">
+          <span class="texto">Presión s<small>entre 1 y 2</small></span>
+          <span class="spin"><button type="button">−</button><input id="s_ranking" type="number" min="1" max="2" step="0.05" value="1.5"><button type="button">+</button></span>
+        </div>
+      </div>
+
+      <h2>Variación</h2>
+      <div class="lista">
+        <label class="fila">
+          <span class="texto">Cruce</span>
+          <select id="cruce">
+            <option value="un_punto">Un punto</option>
+            <option value="dos_puntos">Dos puntos</option>
+            <option value="uniforme">Uniforme</option>
+          </select>
+        </label>
+        <label class="fila">
+          <span class="texto">Mutación</span>
+          <select id="mutacion">
+            <option value="bit_flip">Bit-flip por bit</option>
+            <option value="un_bit">Un bit</option>
+            <option value="inversion">Inversión de segmento</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="seccion" data-tab="parametros">
+      <h2>Población y codificación</h2>
+      <div class="lista">
+        <div class="fila">
+          <span class="texto">Población</span>
+          <span class="spin"><button type="button">−</button><input id="poblacion" type="number" min="2" step="2" value="50"><button type="button">+</button></span>
+        </div>
+        <div class="fila">
+          <span class="texto">Bits por variable<small>L</small></span>
+          <span class="spin"><button type="button">−</button><input id="bits" type="number" min="2" max="52" step="1" value="16"><button type="button">+</button></span>
+        </div>
+        <div class="fila">
+          <span class="texto">Elitismo<small>pasan intactos</small></span>
+          <span class="spin"><button type="button">−</button><input id="elitismo" type="number" min="0" step="1" value="1"><button type="button">+</button></span>
+        </div>
+        <div class="fila">
+          <span class="texto">Semilla</span>
+          <span class="spin"><button type="button">−</button><input id="semilla" type="number" min="0" step="1" value="42"><button type="button">+</button></span>
+        </div>
+      </div>
+
+      <h2>Probabilidades</h2>
+      <div class="lista">
+        <div class="fila vertical">
+          <span class="texto"><span>Cruce (pc)</span><b class="valor" data-de="pc"></b></span>
+          <input id="pc" type="range" min="0" max="1" step="0.05" value="0.9">
+        </div>
+        <div class="fila">
+          <span class="texto">Mutación (pm)<small id="etiqueta-pm">por bit</small></span>
+          <span class="spin"><button type="button">−</button><input id="pm" type="number" min="0" max="1" step="0.005" value="0.02"><button type="button">+</button></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion" data-tab="parada">
+      <h2>Criterios de parada</h2>
+      <div class="lista">
+        <div class="fila">
+          <span class="texto">Máx. generaciones</span>
+          <span class="spin"><button type="button">−</button><input id="generaciones" type="number" min="1" step="10" value="100"><button type="button">+</button></span>
+        </div>
+        <label class="fila">
+          <span class="texto">Parar por estancamiento<small>si no mejora en N generaciones</small></span>
+          <input id="usar_paciencia" type="checkbox" class="interruptor">
+        </label>
+        <div class="fila" data-si="usar_paciencia">
+          <span class="texto">N generaciones</span>
+          <span class="spin"><button type="button">−</button><input id="paciencia" type="number" min="1" step="5" value="30"><button type="button">+</button></span>
+        </div>
+        <label class="fila">
+          <span class="texto">Parar cerca del óptimo<small>distancia al óptimo ≤ tolerancia</small></span>
+          <input id="usar_tolerancia" type="checkbox" class="interruptor">
+        </label>
+        <div class="fila" data-si="usar_tolerancia">
+          <span class="texto">Tolerancia</span>
+          <span class="spin"><button type="button">−</button><input id="tolerancia" type="number" min="0" step="0.001" value="0.001"><button type="button">+</button></span>
+        </div>
+      </div>
+    </section>
+  </form>
+
+  <footer class="resumen" id="resumen"></footer>
+</aside>
+
+<main>
+  <div id="errores" class="aviso" role="alert" hidden></div>
+
+  <section class="metricas">
+    <div class="tarjeta"><small>Generación</small><b id="m-gen">–</b></div>
+    <div class="tarjeta"><small>Mejor f</small><b id="m-mejor">–</b></div>
+    <div class="tarjeta"><small>Media f</small><b id="m-media">–</b></div>
+    <div class="tarjeta"><small>Óptimo conocido</small><b id="m-opt">–</b></div>
+    <div class="tarjeta"><small>Distancia al óptimo</small><b id="m-err">–</b></div>
+    <div class="tarjeta"><small>Mejor x</small><b id="m-x">–</b></div>
+  </section>
+
+  <section class="graficas">
+    <div id="g-nivel" class="tarjeta grafica"></div>
+    <div id="g-conv" class="tarjeta grafica"></div>
+  </section>
+</main>
+
+<script src="static/js/1-estado.js"></script>
+<script src="static/js/2-panel.js"></script>
+<script src="static/js/3-validacion.js"></script>
+<script src="static/js/4-graficas.js"></script>
+<script src="static/js/5-motor.js"></script>
+<script src="static/js/6-ejecucion.js"></script>
+<script src="static/js/7-mascota.js"></script>
+<script src="static/js/8-inicio.js"></script>
+</body>
+</html>
